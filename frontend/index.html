@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Job Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h1>Job Tracker</h1>
+
+  <form id="jobForm">
+    <input type="text" name="job_number" placeholder="Job Number" required>
+    <input type="text" name="job_name" placeholder="Job Name" required>
+    <input type="text" name="pm" placeholder="Project Manager" required>
+    <input type="text" name="work_order" placeholder="Work Order #" required>
+    <button type="submit">Save Job</button>
+  </form>
+
+  <hr>
+
+  <h2>Import Frames CSV</h2>
+  <input type="file" id="framesCsv">
+  <button id="uploadFrames">Upload Frames</button>
+
+  <h2>Import Doors CSV</h2>
+  <input type="file" id="doorsCsv">
+  <button id="uploadDoors">Upload Doors</button>
+
+  <hr>
+
+  <button id="generatePdf">Generate PDF Report</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/pdf.js"></script>
+</body>
+</html>

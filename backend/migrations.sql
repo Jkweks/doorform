@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS jobs (
+    id SERIAL PRIMARY KEY,
+    job_number VARCHAR(50),
+    job_name VARCHAR(255),
+    pm VARCHAR(255),
+    work_order VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS frames (
+    id SERIAL PRIMARY KEY,
+    job_id INT REFERENCES jobs(id) ON DELETE CASCADE,
+    frame_number VARCHAR(50),
+    frame_details TEXT
+);
+
+CREATE TABLE IF NOT EXISTS doors (
+    id SERIAL PRIMARY KEY,
+    job_id INT REFERENCES jobs(id) ON DELETE CASCADE,
+    door_number VARCHAR(50),
+    door_details TEXT
+);

@@ -1,0 +1,57 @@
+version: "3.8"
+
+networks:
+  internal_net:
+    driver: bridge
+  frontend_net:
+    driver: bridge
+  postgres_vosdb_postgres_network:
+    external: true
+
+services:
+  db:
+    image: postgres:15
+    container_name: jobtracker_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jobuser
+      POSTGRES_PASSWORD: jobpass
+      POSTGRES_DB: jobtracker
+    ports:
+      - "5401:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./backend/migrations.sql:/docker-entrypoint-initdb.d/migrations.sql
+    networks:
+      - internal_net
+      - postgres_vosdb_postgres_network
+
+  backend:
+    build: ./backend
+    container_name: jobtracker_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://jobuser:jobpass@db:5432/jobtracker"
+      PORT: "3000"
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    networks:
+      - internal_net
+
+  frontend:
+    build: ./frontend
+    container_name: jobtracker_frontend
+    restart: unless-stopped
+    ports:
+      - "8085:80"
+    depends_on:
+      - backend
+    networks:
+      - frontend_net
+      - internal_net
+
+
+volumes:
+  db_data: {}
