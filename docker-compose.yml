@@ -41,17 +41,18 @@ services:
       - internal_net
 
   frontend:
-    build: ./frontend
+    image: nginx:alpine
     container_name: jobtracker_frontend
     restart: unless-stopped
     ports:
       - "8085:80"
+    volumes:
+      - /mnt/homeNAS/Container/jobtracker/frontend:/usr/share/nginx/html:ro
     depends_on:
       - backend
     networks:
       - frontend_net
       - internal_net
-
-
+      
 volumes:
   db_data: {}
