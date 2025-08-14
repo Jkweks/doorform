@@ -8,28 +8,32 @@ const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 // List jobs
-router.get('/jobs', async (_req, res) => {
+router.get('/jobs', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
+    const includeArchived = req.query.includeArchived === 'true';
+    const query = includeArchived
+      ? 'SELECT * FROM jobs ORDER BY created_at DESC'
+      : 'SELECT * FROM jobs WHERE archived = false ORDER BY created_at DESC';
+    const result = await pool.query(query);
     res.json({ jobs: result.rows });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Create or update a job by jobNumber
+// Create or update a job by jobNumber + workOrder
 router.post('/jobs', async (req, res) => {
-  const { jobNumber, jobName, pm, workOrder } = req.body;
+  const { jobNumber, jobName, pm, workOrder, archived } = req.body;
   try {
     const result = await pool.query(
-      `INSERT INTO jobs (job_number, job_name, pm, work_order)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (job_number)
+      `INSERT INTO jobs (job_number, job_name, pm, work_order, archived)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (job_number, work_order)
        DO UPDATE SET job_name = EXCLUDED.job_name,
                      pm = EXCLUDED.pm,
-                     work_order = EXCLUDED.work_order
+                     archived = EXCLUDED.archived
        RETURNING *`,
-      [jobNumber, jobName, pm, workOrder]
+      [jobNumber, jobName, pm, workOrder, archived || false]
     );
     res.json({ job: result.rows[0] });
   } catch (err) {
@@ -37,33 +41,26 @@ router.post('/jobs', async (req, res) => {
   }
 });
 
-// Helper to fetch job by number
-async function getJobId(jobNumber) {
-  const jobRes = await pool.query('SELECT id FROM jobs WHERE job_number = $1', [jobNumber]);
-  if (jobRes.rows.length === 0) return null;
-  return jobRes.rows[0].id;
-}
-
-// Get job with frames and doors
-router.get('/jobs/:jobNumber', async (req, res) => {
-  const jobNumber = req.params.jobNumber;
+// Get job with frames and doors by ID
+router.get('/jobs/:id', async (req, res) => {
+  const id = req.params.id;
   try {
-    const jobRes = await pool.query('SELECT * FROM jobs WHERE job_number = $1', [jobNumber]);
+    const jobRes = await pool.query('SELECT * FROM jobs WHERE id = $1', [id]);
     if (jobRes.rows.length === 0) return res.status(404).json({ error: 'Job not found' });
     const job = jobRes.rows[0];
-    const framesRes = await pool.query('SELECT id, data FROM frames WHERE job_id = $1 ORDER BY id', [job.id]);
-    const doorsRes = await pool.query('SELECT id, data FROM doors WHERE job_id = $1 ORDER BY id', [job.id]);
+    const framesRes = await pool.query('SELECT id, data FROM frames WHERE job_id = $1 ORDER BY id', [id]);
+    const doorsRes = await pool.query('SELECT id, data FROM doors WHERE job_id = $1 ORDER BY id', [id]);
     res.json({ job, frames: framesRes.rows, doors: doorsRes.rows });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Delete a job by job number
-router.delete('/jobs/:jobNumber', async (req, res) => {
-  const jobNumber = req.params.jobNumber;
+// Delete a job by ID
+router.delete('/jobs/:id', async (req, res) => {
+  const id = req.params.id;
   try {
-    const result = await pool.query('DELETE FROM jobs WHERE job_number = $1 RETURNING *', [jobNumber]);
+    const result = await pool.query('DELETE FROM jobs WHERE id = $1 RETURNING *', [id]);
     if (result.rowCount === 0) return res.status(404).json({ error: 'Job not found' });
     res.json({ message: 'Job deleted' });
   } catch (err) {
@@ -72,12 +69,10 @@ router.delete('/jobs/:jobNumber', async (req, res) => {
 });
 
 // Add a single frame
-router.post('/jobs/:jobNumber/frames', async (req, res) => {
-  const jobNumber = req.params.jobNumber;
+router.post('/jobs/:id/frames', async (req, res) => {
+  const jobId = req.params.id;
   const { data } = req.body;
   try {
-    const jobId = await getJobId(jobNumber);
-    if (!jobId) return res.status(404).json({ error: 'Job not found' });
     const result = await pool.query(
       'INSERT INTO frames (job_id, data) VALUES ($1, $2) RETURNING id, data',
       [jobId, data]
@@ -89,12 +84,10 @@ router.post('/jobs/:jobNumber/frames', async (req, res) => {
 });
 
 // Add a single door
-router.post('/jobs/:jobNumber/doors', async (req, res) => {
-  const jobNumber = req.params.jobNumber;
+router.post('/jobs/:id/doors', async (req, res) => {
+  const jobId = req.params.id;
   const { data } = req.body;
   try {
-    const jobId = await getJobId(jobNumber);
-    if (!jobId) return res.status(404).json({ error: 'Job not found' });
     const result = await pool.query(
       'INSERT INTO doors (job_id, data) VALUES ($1, $2) RETURNING id, data',
       [jobId, data]
@@ -106,11 +99,9 @@ router.post('/jobs/:jobNumber/doors', async (req, res) => {
 });
 
 // Import frames via CSV
-router.post('/jobs/:jobNumber/import-frames', upload.single('file'), async (req, res) => {
-  const jobNumber = req.params.jobNumber;
+router.post('/jobs/:id/import-frames', upload.single('file'), async (req, res) => {
+  const jobId = req.params.id;
   try {
-    const jobId = await getJobId(jobNumber);
-    if (!jobId) return res.status(404).json({ error: 'Job not found' });
     const rows = [];
     fs.createReadStream(req.file.path)
       .pipe(csv())
@@ -128,11 +119,9 @@ router.post('/jobs/:jobNumber/import-frames', upload.single('file'), async (req,
 });
 
 // Import doors via CSV
-router.post('/jobs/:jobNumber/import-doors', upload.single('file'), async (req, res) => {
-  const jobNumber = req.params.jobNumber;
+router.post('/jobs/:id/import-doors', upload.single('file'), async (req, res) => {
+  const jobId = req.params.id;
   try {
-    const jobId = await getJobId(jobNumber);
-    if (!jobId) return res.status(404).json({ error: 'Job not found' });
     const rows = [];
     fs.createReadStream(req.file.path)
       .pipe(csv())

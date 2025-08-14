@@ -15,6 +15,11 @@ body {
   max-width: 1200px;
 }
 
+body.dark {
+  background-color: var(--vos-dark);
+  color: var(--vos-gray);
+}
+
 h1, h2, h3 {
   color: var(--vos-red);
 }
@@ -25,12 +30,23 @@ label {
   font-weight: 600;
 }
 
+label.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 input[type="text"],
 select,
 textarea {
   width: 100%;
   padding: 6px;
   margin-top: 4px;
+}
+
+input[type="checkbox"] {
+  width: auto;
 }
 
 textarea {
@@ -43,6 +59,22 @@ textarea {
   border-radius: 6px;
   padding: 12px;
   margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.panel label,
+.panel input[type="text"],
+.panel select,
+.panel textarea {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.panel label {
+  text-align: center;
 }
 
 button {
@@ -61,6 +93,35 @@ button:focus {
   border-color: var(--vos-red-dark);
   color: var(--vos-white);
   outline: 2px solid var(--vos-gray);
+}
+
+body.dark .panel {
+  background-color: #333;
+  color: var(--vos-gray);
+}
+
+body.dark .list {
+  background-color: #333;
+}
+
+body.dark input[type="text"],
+body.dark select,
+body.dark textarea {
+  background-color: #555;
+  color: var(--vos-gray);
+  border: 1px solid var(--vos-gray);
+}
+
+body.dark button {
+  background-color: var(--vos-red-dark);
+  border-color: var(--vos-red-dark);
+}
+
+body.dark button:hover,
+body.dark button:focus {
+  background-color: var(--vos-red);
+  border-color: var(--vos-red);
+  color: var(--vos-white);
 }
 
 .row {
@@ -100,6 +161,14 @@ button:focus {
 
 .action-buttons {
   margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.action-buttons button {
+  margin-top: 0;
 }
 
 .section {
