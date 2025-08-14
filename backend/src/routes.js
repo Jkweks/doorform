@@ -32,6 +32,20 @@ router.get('/jobs/latest', async (req, res) => {
   }
 });
 
+// Get a job by ID
+router.get('/jobs/:jobId', async (req, res) => {
+  const jobId = req.params.jobId;
+  try {
+    const result = await pool.query('SELECT * FROM jobs WHERE id = $1', [jobId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Import frames via CSV
 router.post('/frames/import/:jobId', upload.single('file'), (req, res) => {
   const jobId = req.params.jobId;

@@ -44,7 +44,7 @@ document.getElementById('uploadDoors').addEventListener('click', async () => {
 document.getElementById('generatePdf').addEventListener('click', async () => {
   if (!latestJobId) return alert('Save a job first!');
 
-  const jobRes = await fetch(`${API_BASE}/api/jobs/latest`);
+  const jobRes = await fetch(`${API_BASE}/api/jobs/${latestJobId}`);
   const job = await jobRes.json();
 
   const framesRes = await fetch(`${API_BASE}/api/frames/job/${latestJobId}`);
