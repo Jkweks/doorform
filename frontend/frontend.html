@@ -209,13 +209,30 @@ function renderDoors(doors = []) {
    so easiest approach: re-load job from server after deleting on server (you can add delete endpoints later).
    For now, we will warn and instruct user to use SQL or add endpoints. */
 async function deleteFrame(frameRec) {
-  if (!confirm('Delete this frame? (server-side delete endpoint not implemented in skeleton)')) return;
-  // Optional: implement server endpoint /frames/:id DELETE
-  alert('Add a server endpoint to delete frames by id if you want this button to actually remove it.');
+  if (!confirm('Delete this frame?')) return;
+  const r = await api('/frames/' + frameRec.id, { method: 'DELETE' });
+  if (!r.ok) return alert('Delete failed');
+  const jobNumber = document.getElementById('jobNumber').value.trim();
+  if (jobNumber) {
+    const jobRes = await api('/jobs/' + encodeURIComponent(jobNumber));
+    if (jobRes.ok) {
+      loadedJob = jobRes.json;
+      renderFrames(loadedJob.frames);
+    }
+  }
 }
 async function deleteDoor(doorRec) {
-  if (!confirm('Delete this door? (server-side delete endpoint not implemented in skeleton)')) return;
-  alert('Add a server endpoint to delete doors by id if you want this button to actually remove it.');
+  if (!confirm('Delete this door?')) return;
+  const r = await api('/doors/' + doorRec.id, { method: 'DELETE' });
+  if (!r.ok) return alert('Delete failed');
+  const jobNumber = document.getElementById('jobNumber').value.trim();
+  if (jobNumber) {
+    const jobRes = await api('/jobs/' + encodeURIComponent(jobNumber));
+    if (jobRes.ok) {
+      loadedJob = jobRes.json;
+      renderDoors(loadedJob.doors);
+    }
+  }
 }
 
 /* Modal to add/edit custom KV object */
