@@ -121,6 +121,22 @@ router.post('/work-orders/:id/entries', async (req, res) => {
   }
 });
 
+// Update entry handing or data
+router.put('/entries/:id', async (req, res) => {
+  const id = req.params.id;
+  const { handing, data } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE entries SET handing = $1, data = $2 WHERE id = $3 RETURNING *',
+      [handing, data, id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Entry not found' });
+    res.json({ entry: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Delete frame
 router.delete('/frames/:id', async (req, res) => {
   const id = req.params.id;

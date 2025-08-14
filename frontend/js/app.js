@@ -8,6 +8,7 @@ function api(path, opts = {}) {
 
 let loadedJob = null;
 let selectedWorkOrderId = null;
+let editingEntry = null;
 
 async function refreshJobList(filter = '', includeArchived = false) {
   const { json } = await api('/jobs?includeArchived=' + includeArchived);
@@ -77,6 +78,7 @@ document.getElementById('deleteSelected').addEventListener('click', async () => 
 function clearLoaded() {
   loadedJob = null;
   selectedWorkOrderId = null;
+  editingEntry = null;
   document.getElementById('workOrdersList').innerHTML = '';
   document.getElementById('entriesList').innerHTML = '';
   document.getElementById('jobNumber').value = '';
@@ -92,11 +94,20 @@ function renderWorkOrders(workOrders = []) {
   (workOrders || []).forEach(wo => {
     const item = document.createElement('div');
     item.className = 'item';
+    if (selectedWorkOrderId === wo.id) {
+      item.classList.add('active');
+    } else if (selectedWorkOrderId !== null) {
+      item.classList.add('inactive');
+    }
     const left = document.createElement('div');
     left.innerHTML = `<strong>WO ${wo.work_order}</strong>`;
     const right = document.createElement('div');
     const btn = document.createElement('button'); btn.textContent = 'Open';
-    btn.onclick = () => { selectedWorkOrderId = wo.id; renderEntries(wo.entries); };
+    btn.onclick = () => {
+      selectedWorkOrderId = wo.id;
+      renderWorkOrders(loadedJob.workOrders);
+      renderEntries(wo.entries);
+    };
     right.appendChild(btn);
     item.appendChild(left); item.appendChild(right);
     el.appendChild(item);
@@ -122,6 +133,7 @@ function renderEntries(entries = []) {
     details.innerHTML = `<div>Frame: ${frameInfo || '(no data)'}</div><div>${doorInfo}</div>`;
     left.appendChild(details);
     const right = document.createElement('div');
+    const ee = document.createElement('button'); ee.textContent = 'Edit Entry'; ee.onclick = () => openEntryModal(en); right.appendChild(ee);
     if (en.frames && en.frames[0]) {
       const ef = document.createElement('button'); ef.textContent = 'Edit Frame'; ef.onclick = () => openModalForEdit('frame', en.frames[0]); right.appendChild(ef);
     }
@@ -153,13 +165,31 @@ const addEntryHanding = document.getElementById('entryHandingInput');
 const addEntryWidth = document.getElementById('entryWidthInput');
 const addEntryHeight = document.getElementById('entryHeightInput');
 
+function openEntryModal(entry = null) {
+  editingEntry = entry;
+  addEntryModal.querySelector('h3').textContent = entry ? 'Edit Entry' : 'Add Entry';
+  if (entry) {
+    addEntryTag.value = (entry.data && entry.data.tag) || '';
+    addEntryHanding.value = entry.handing || 'LHR';
+    addEntryWidth.value = (entry.data && entry.data.openingWidth) || "3'0\"";
+    addEntryHeight.value = (entry.data && entry.data.openingHeight) || "7'0\"";
+  } else {
+    addEntryTag.value = '';
+    addEntryHanding.value = 'LHR';
+    addEntryWidth.value = "3'0\"";
+    addEntryHeight.value = "7'0\"";
+  }
+  addEntryModal.style.display = 'flex';
+}
+
 document.getElementById('addEntry').addEventListener('click', () => {
   if (!selectedWorkOrderId) return alert('Select a work order first');
-  addEntryModal.style.display = 'flex';
+  openEntryModal();
 });
 
 document.getElementById('addEntryModalCancel').addEventListener('click', () => {
   addEntryModal.style.display = 'none';
+  editingEntry = null;
 });
 
 document.getElementById('addEntryModalSave').addEventListener('click', async () => {
@@ -168,13 +198,23 @@ document.getElementById('addEntryModalSave').addEventListener('click', async () 
   const handing = addEntryHanding.value;
   const width = addEntryWidth.value.trim() || "3'0\"";
   const height = addEntryHeight.value.trim() || "7'0\"";
-  const r = await api(`/work-orders/${selectedWorkOrderId}/entries`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ handing, entryData: { tag, openingWidth: width, openingHeight: height }, frameData: {}, doorData: {} })
-  });
-  if (!r.ok) return alert('Failed to add entry');
+  let r;
+  if (editingEntry) {
+    r = await api(`/entries/${editingEntry.id}`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ handing, data: { tag, openingWidth: width, openingHeight: height } })
+    });
+  } else {
+    r = await api(`/work-orders/${selectedWorkOrderId}/entries`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ handing, entryData: { tag, openingWidth: width, openingHeight: height }, frameData: {}, doorData: {} })
+    });
+  }
+  if (!r.ok) return alert('Failed to save entry');
   addEntryModal.style.display = 'none';
+  editingEntry = null;
   addEntryTag.value = '';
   addEntryHanding.value = 'LHR';
   addEntryWidth.value = "3'0\"";
