@@ -1,13 +1,185 @@
+/* VOS Glass brand palette extracted from logo */
+:root {
+  --vos-red: #d6232a;
+  --vos-red-dark: #a61b1f;
+  --vos-gray: #e6e6e6;
+  --vos-dark: #1a1a1a;
+  --vos-white: #ffffff;
+}
+
 body {
   font-family: Arial, sans-serif;
   padding: 20px;
+  background-color: var(--vos-gray);
+  color: var(--vos-dark);
 }
 
-input, button {
+h1, h2, h3 {
+  color: var(--vos-red);
+}
+
+input, button, select, textarea {
   margin: 5px;
   padding: 8px;
 }
 
-h1, h2 {
-  color: #333;
+.panel {
+  border: 1px solid var(--vos-red);
+  background-color: var(--vos-white);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
 }
+
+button {
+  background-color: var(--vos-red);
+  border: 1px solid var(--vos-red);
+  color: var(--vos-white);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+button:hover,
+button:focus {
+  background-color: var(--vos-red-dark);
+  border-color: var(--vos-red-dark);
+  color: var(--vos-white);
+  outline: 2px solid var(--vos-gray);
+}
+
+.list {
+  margin-top: 8px;
+  border: 1px solid var(--vos-red);
+  background-color: var(--vos-white);
+  box-shadow: 0 1px 3px rgba(214, 35, 42, 0.15);
+  max-height: 260px;
+  overflow: auto;
+}
+
+.item {
+  border-bottom: 1px solid var(--vos-gray);
+  padding: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+/* Frontend-specific styles */
+body.frontend {
+  padding: 18px;
+  max-width: 1200px;
+}
+
+body.frontend label {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+body.frontend input[type="text"],
+body.frontend select {
+  width: 100%;
+  padding: 6px;
+  margin: 0;
+}
+
+body.frontend textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 6px;
+}
+
+body.frontend button {
+  margin-top: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+body.frontend .row {
+  display: flex;
+  gap: 12px;
+}
+
+body.frontend .col {
+  flex: 1;
+}
+
+body.frontend .panel {
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 6px;
+  background: #fafafa;
+  margin-top: 12px;
+}
+
+body.frontend .list {
+  margin-top: 8px;
+  border: 1px solid #eee;
+  padding: 8px;
+  max-height: 260px;
+  overflow: auto;
+  background: white;
+}
+
+body.frontend .item {
+  border-bottom: 1px dashed #eee;
+  padding: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+body.frontend .muted {
+  color: #666;
+  font-size: 13px;
+}
+
+body.frontend .action-buttons {
+  margin-top: 8px;
+}
+
+body.frontend .section {
+  margin-top: 12px;
+}
+
+body.frontend .file-input {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+body.frontend .job-select {
+  width: 100%;
+  margin-top: 8px;
+}
+
+body.frontend .note {
+  margin-top: 12px;
+}
+
+body.frontend .modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  justify-content: center;
+}
+
+body.frontend .modal-body {
+  background: white;
+  padding: 16px;
+  border-radius: 6px;
+  width: 600px;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+body.frontend .modal-actions {
+  margin-top: 12px;
+  text-align: right;
+}
+
