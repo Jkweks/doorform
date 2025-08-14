@@ -145,4 +145,30 @@ router.delete('/doors/:id', async (req, res) => {
   }
 });
 
+// Update frame data
+router.put('/frames/:id', async (req, res) => {
+  const id = req.params.id;
+  const { data } = req.body;
+  try {
+    const result = await pool.query('UPDATE frames SET data = $1 WHERE id = $2 RETURNING *', [data, id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Frame not found' });
+    res.json({ frame: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update door data
+router.put('/doors/:id', async (req, res) => {
+  const id = req.params.id;
+  const { data } = req.body;
+  try {
+    const result = await pool.query('UPDATE doors SET data = $1 WHERE id = $2 RETURNING *', [data, id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Door not found' });
+    res.json({ door: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
