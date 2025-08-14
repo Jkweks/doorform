@@ -1,11 +1,115 @@
 body {
   font-family: Arial, sans-serif;
-  padding: 20px;
+  padding: 18px;
+  max-width: 1200px;
 }
 
-input, button {
-  margin: 5px;
+label {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+input[type="text"], select {
+  width: 100%;
+  padding: 6px;
+  margin: 0;
+}
+
+textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 6px;
+}
+
+button {
+  margin: 8px 0 0 0;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.col {
+  flex: 1;
+}
+
+.panel {
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 6px;
+  background: #fafafa;
+  margin-top: 12px;
+}
+
+.list {
+  margin-top: 8px;
+  border: 1px solid #eee;
   padding: 8px;
+  max-height: 260px;
+  overflow: auto;
+  background: white;
+}
+
+.item {
+  border-bottom: 1px dashed #eee;
+  padding: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.muted {
+  color: #666;
+  font-size: 13px;
+}
+
+.action-buttons {
+  margin-top: 8px;
+}
+
+.section {
+  margin-top: 12px;
+}
+
+.file-input {
+  display: inline-block;
+  margin: 0 0 0 8px;
+}
+
+.job-select {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.note {
+  margin-top: 12px;
+}
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-body {
+  background: white;
+  padding: 16px;
+  border-radius: 6px;
+  width: 600px;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.modal-actions {
+  margin-top: 12px;
+  text-align: right;
 }
 
 h1, h2 {
