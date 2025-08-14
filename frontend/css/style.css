@@ -212,3 +212,15 @@ body.dark button:focus {
   text-align: right;
 }
 
+#workOrdersList .item.active {
+  background-color: var(--vos-red);
+  color: var(--vos-white);
+}
+#workOrdersList .item.active button {
+  background-color: var(--vos-white);
+  color: var(--vos-red);
+}
+#workOrdersList .item.inactive {
+  opacity: 0.5;
+}
+
