@@ -2,7 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8" />
-   
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>Job Manager (Frontend)</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="stylesheet" href="css/style.css" />
@@ -20,24 +21,28 @@
       <input id="pm" type="text" />
       <label>Work Order #</label>
       <input id="workOrder" type="text" />
-      <div style="margin-top:8px;">
+      <div class="action-buttons">
         <button id="saveJob">Save Job</button>
         <button id="loadJobs">Refresh Job List</button>
       </div>
 
-      <div style="margin-top:12px;">
+      <div class="section">
         <h3>Frames</h3>
-        <button id="addFrame">Add Frame (manual)</button>
-        <input id="framesCsv" type="file" accept=".csv" style="display:inline-block; margin-left:8px;" />
-        <button id="importFramesBtn">Import Frames CSV</button>
+        <div class="action-buttons">
+          <button id="addFrame">Add Frame (manual)</button>
+          <input id="framesCsv" type="file" accept=".csv" class="file-input" />
+          <button id="importFramesBtn">Import Frames CSV</button>
+        </div>
         <div id="framesList" class="list"></div>
       </div>
 
-      <div style="margin-top:12px;">
+      <div class="section">
         <h3>Doors</h3>
-        <button id="addDoor">Add Door (manual)</button>
-        <input id="doorsCsv" type="file" accept=".csv" style="display:inline-block; margin-left:8px;" />
-        <button id="importDoorsBtn">Import Doors CSV</button>
+        <div class="action-buttons">
+          <button id="addDoor">Add Door (manual)</button>
+          <input id="doorsCsv" type="file" accept=".csv" class="file-input" />
+          <button id="importDoorsBtn">Import Doors CSV</button>
+        </div>
         <div id="doorsList" class="list"></div>
       </div>
     </div>
@@ -46,28 +51,28 @@
       <h2>Jobs</h2>
       <label>Filter</label>
       <input id="filterJobs" type="text" placeholder="type job number or name..." />
-      <select id="jobsSelect" size="10" style="width:100%; margin-top:8px;"></select>
-      <div style="margin-top:8px;">
+      <select id="jobsSelect" size="10" class="job-select"></select>
+      <div class="action-buttons">
         <button id="loadSelected">Load Selected</button>
         <button id="deleteSelected">Delete Selected</button>
         <button id="exportPdfSelected">Export PDF (selected)</button>
       </div>
-      <div style="margin-top:12px;">
+      <div class="section">
         <button id="exportJsonDownload">Download All Data (JSON)</button>
       </div>
-      <div class="muted" style="margin-top:12px;">
+      <div class="muted note">
         Note: CSV import is done server-side and stored in Postgres. PDF generation happens in your browser using jsPDF.
       </div>
     </div>
   </div>
 
 <!-- small modal for custom KV entry -->
-<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center;">
-  <div style="background:white; padding:16px; border-radius:6px; width:600px; max-height:80vh; overflow:auto;">
+<div id="modal" class="modal-overlay">
+  <div class="modal-body">
     <h3 id="modalTitle">Add Item</h3>
     <div id="kvContainer"></div>
     <button id="addKVbtn">Add field</button>
-    <div style="margin-top:12px; text-align:right;">
+    <div class="modal-actions">
       <button id="modalSave">Save</button>
       <button id="modalCancel">Cancel</button>
     </div>

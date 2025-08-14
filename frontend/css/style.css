@@ -12,15 +12,29 @@ body {
   padding: 20px;
   background-color: var(--vos-gray);
   color: var(--vos-dark);
+  max-width: 1200px;
 }
 
 h1, h2, h3 {
   color: var(--vos-red);
 }
 
-input, button, select, textarea {
-  margin: 5px;
-  padding: 8px;
+label {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+input[type="text"],
+select,
+textarea {
+  width: 100%;
+  padding: 6px;
+  margin-top: 4px;
+}
+
+textarea {
+  min-height: 60px;
 }
 
 .panel {
@@ -32,6 +46,8 @@ input, button, select, textarea {
 }
 
 button {
+  margin-top: 8px;
+  padding: 8px 12px;
   background-color: var(--vos-red);
   border: 1px solid var(--vos-red);
   color: var(--vos-white);
@@ -45,6 +61,15 @@ button:focus {
   border-color: var(--vos-red-dark);
   color: var(--vos-white);
   outline: 2px solid var(--vos-gray);
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.col {
+  flex: 1;
 }
 
 .list {
@@ -68,99 +93,34 @@ button:focus {
   border-bottom: none;
 }
 
-/* Frontend-specific styles */
-body.frontend {
-  padding: 18px;
-  max-width: 1200px;
-}
-
-body.frontend label {
-  display: block;
-  margin-top: 8px;
-  font-weight: 600;
-}
-
-body.frontend input[type="text"],
-body.frontend select {
-  width: 100%;
-  padding: 6px;
-  margin: 0;
-}
-
-body.frontend textarea {
-  width: 100%;
-  min-height: 60px;
-  padding: 6px;
-}
-
-body.frontend button {
-  margin-top: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-body.frontend .row {
-  display: flex;
-  gap: 12px;
-}
-
-body.frontend .col {
-  flex: 1;
-}
-
-body.frontend .panel {
-  border: 1px solid #ddd;
-  padding: 12px;
-  border-radius: 6px;
-  background: #fafafa;
-  margin-top: 12px;
-}
-
-body.frontend .list {
-  margin-top: 8px;
-  border: 1px solid #eee;
-  padding: 8px;
-  max-height: 260px;
-  overflow: auto;
-  background: white;
-}
-
-body.frontend .item {
-  border-bottom: 1px dashed #eee;
-  padding: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-body.frontend .muted {
+.muted {
   color: #666;
   font-size: 13px;
 }
 
-body.frontend .action-buttons {
+.action-buttons {
   margin-top: 8px;
 }
 
-body.frontend .section {
+.section {
   margin-top: 12px;
 }
 
-body.frontend .file-input {
+.file-input {
   display: inline-block;
   margin-left: 8px;
 }
 
-body.frontend .job-select {
+.job-select {
   width: 100%;
   margin-top: 8px;
 }
 
-body.frontend .note {
+.note {
   margin-top: 12px;
 }
 
-body.frontend .modal-overlay {
+.modal-overlay {
   display: none;
   position: fixed;
   inset: 0;
@@ -169,7 +129,7 @@ body.frontend .modal-overlay {
   justify-content: center;
 }
 
-body.frontend .modal-body {
+.modal-body {
   background: white;
   padding: 16px;
   border-radius: 6px;
@@ -178,7 +138,7 @@ body.frontend .modal-body {
   overflow: auto;
 }
 
-body.frontend .modal-actions {
+.modal-actions {
   margin-top: 12px;
   text-align: right;
 }
