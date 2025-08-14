@@ -1,13 +1,69 @@
+/* VOS Glass brand palette extracted from logo */
+:root {
+  --vos-red: #d6232a;
+  --vos-red-dark: #a61b1f;
+  --vos-gray: #e6e6e6;
+  --vos-dark: #1a1a1a;
+  --vos-white: #ffffff;
+}
+
 body {
   font-family: Arial, sans-serif;
   padding: 20px;
+  background-color: var(--vos-gray);
+  color: var(--vos-dark);
 }
 
-input, button {
+h1, h2, h3 {
+  color: var(--vos-red);
+}
+
+input, button, select, textarea {
   margin: 5px;
   padding: 8px;
 }
 
-h1, h2 {
-  color: #333;
+.panel {
+  border: 1px solid var(--vos-red);
+  background-color: var(--vos-white);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+button {
+  background-color: var(--vos-red);
+  border: 1px solid var(--vos-red);
+  color: var(--vos-white);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+button:hover,
+button:focus {
+  background-color: var(--vos-red-dark);
+  border-color: var(--vos-red-dark);
+  color: var(--vos-white);
+  outline: 2px solid var(--vos-gray);
+}
+
+.list {
+  margin-top: 8px;
+  border: 1px solid var(--vos-red);
+  background-color: var(--vos-white);
+  box-shadow: 0 1px 3px rgba(214, 35, 42, 0.15);
+  max-height: 260px;
+  overflow: auto;
+}
+
+.item {
+  border-bottom: 1px solid var(--vos-gray);
+  padding: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item:last-child {
+  border-bottom: none;
 }
