@@ -21,32 +21,27 @@
       <input id="jobName" type="text" />
       <label>PM</label>
       <input id="pm" type="text" />
-      <label>Work Order #</label>
-      <input id="workOrder" type="text" />
       <label class="checkbox"><input id="archived" type="checkbox" /> Archived</label>
       <div class="action-buttons">
         <button id="saveJob">Save Job</button>
         <button id="loadJobs">Refresh Job List</button>
       </div>
-
+      
       <div class="section">
-        <h3>Frames</h3>
+        <h3>Work Orders</h3>
         <div class="action-buttons">
-          <button id="addFrame">Add Frame (manual)</button>
-          <input id="framesCsv" type="file" accept=".csv" class="file-input" />
-          <button id="importFramesBtn">Import Frames CSV</button>
+          <input id="newWorkOrder" type="text" placeholder="Work Order #" />
+          <button id="addWorkOrder">Add Work Order</button>
         </div>
-        <div id="framesList" class="list"></div>
+        <div id="workOrdersList" class="list"></div>
       </div>
 
       <div class="section">
-        <h3>Doors</h3>
+        <h3>Entries</h3>
         <div class="action-buttons">
-          <button id="addDoor">Add Door (manual)</button>
-          <input id="doorsCsv" type="file" accept=".csv" class="file-input" />
-          <button id="importDoorsBtn">Import Doors CSV</button>
+          <button id="addEntry">Add Entry</button>
         </div>
-        <div id="doorsList" class="list"></div>
+        <div id="entriesList" class="list"></div>
       </div>
     </div>
 
