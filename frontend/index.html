@@ -10,9 +10,11 @@
 </head>
 <body>
   <h1>Job Manager (Frontend)</h1>
+  <button id="toggleDarkMode">Toggle Dark Mode</button>
   <div class="row">
     <div class="col panel">
       <h2>Job Info</h2>
+      <input id="jobId" type="hidden" />
       <label>Job Number</label>
       <input id="jobNumber" type="text" />
       <label>Job Name</label>
@@ -21,6 +23,7 @@
       <input id="pm" type="text" />
       <label>Work Order #</label>
       <input id="workOrder" type="text" />
+      <label class="checkbox"><input id="archived" type="checkbox" /> Archived</label>
       <div class="action-buttons">
         <button id="saveJob">Save Job</button>
         <button id="loadJobs">Refresh Job List</button>
@@ -51,6 +54,7 @@
       <h2>Jobs</h2>
       <label>Filter</label>
       <input id="filterJobs" type="text" placeholder="type job number or name..." />
+      <label class="checkbox"><input id="viewArchived" type="checkbox" /> View Archived</label>
       <select id="jobsSelect" size="10" class="job-select"></select>
       <div class="action-buttons">
         <button id="loadSelected">Load Selected</button>

@@ -9,23 +9,26 @@ function api(path, opts = {}) {
 /* UI helpers */
 let loadedJob = null;
 
-async function refreshJobList(filter='') {
-  const { json } = await api('/jobs');
+async function refreshJobList(filter='', includeArchived=false) {
+  const { json } = await api('/jobs?includeArchived=' + includeArchived);
   const sel = document.getElementById('jobsSelect');
   sel.innerHTML = '';
   json.jobs.filter(j => {
-    const txt = `${j.job_number} ${j.job_name || ''}`.toLowerCase();
+    const txt = `${j.job_number} ${j.job_name || ''} ${j.work_order || ''}`.toLowerCase();
     return !filter || txt.includes(filter.toLowerCase());
   }).forEach(j => {
     const opt = document.createElement('option');
-    opt.value = j.job_number;
-    opt.textContent = `${j.job_number} — ${j.job_name || ''}`;
+    opt.value = j.id;
+    const wo = j.work_order ? ` WO ${j.work_order}` : '';
+    opt.textContent = `${j.job_number}${wo} — ${j.job_name || ''}${j.archived ? ' (archived)' : ''}`;
     sel.appendChild(opt);
   });
 }
 
-document.getElementById('loadJobs').addEventListener('click', ()=> refreshJobList(document.getElementById('filterJobs').value));
-document.getElementById('filterJobs').addEventListener('input', (e)=> refreshJobList(e.target.value));
+const viewArchivedEl = document.getElementById('viewArchived');
+document.getElementById('loadJobs').addEventListener('click', ()=> refreshJobList(document.getElementById('filterJobs').value, viewArchivedEl.checked));
+document.getElementById('filterJobs').addEventListener('input', (e)=> refreshJobList(e.target.value, viewArchivedEl.checked));
+viewArchivedEl.addEventListener('change', ()=> refreshJobList(document.getElementById('filterJobs').value, viewArchivedEl.checked));
 
 document.getElementById('saveJob').addEventListener('click', async ()=>{
   const jobNumber = document.getElementById('jobNumber').value.trim();
@@ -34,13 +37,15 @@ document.getElementById('saveJob').addEventListener('click', async ()=>{
     jobNumber,
     jobName: document.getElementById('jobName').value,
     pm: document.getElementById('pm').value,
-    workOrder: document.getElementById('workOrder').value
+    workOrder: document.getElementById('workOrder').value,
+    archived: document.getElementById('archived').checked
   };
   const res = await api('/jobs', { method: 'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(payload) });
   if (!res.ok) return alert('Save failed');
   loadedJob = { job: res.json.job }; // minimal
+  document.getElementById('jobId').value = res.json.job.id;
   alert('Saved');
-  refreshJobList();
+  refreshJobList(document.getElementById('filterJobs').value, viewArchivedEl.checked);
 });
 
 /* load selected job */
@@ -52,10 +57,12 @@ document.getElementById('loadSelected').addEventListener('click', async ()=>{
   const data = r.json;
   loadedJob = data;
   // populate form
+  document.getElementById('jobId').value = data.job.id;
   document.getElementById('jobNumber').value = data.job.job_number || '';
   document.getElementById('jobName').value = data.job.job_name || '';
   document.getElementById('pm').value = data.job.pm || '';
   document.getElementById('workOrder').value = data.job.work_order || '';
+  document.getElementById('archived').checked = !!data.job.archived;
   renderFrames(data.frames);
   renderDoors(data.doors);
 });
@@ -68,7 +75,7 @@ document.getElementById('deleteSelected').addEventListener('click', async ()=>{
   const r = await api('/jobs/' + encodeURIComponent(sel.value), { method:'DELETE' });
   if (!r.ok) return alert('Delete failed');
   alert('Deleted');
-  refreshJobList();
+  refreshJobList(document.getElementById('filterJobs').value, viewArchivedEl.checked);
   clearLoaded();
 });
 
@@ -80,6 +87,8 @@ function clearLoaded() {
   document.getElementById('jobName').value = '';
   document.getElementById('pm').value = '';
   document.getElementById('workOrder').value = '';
+  document.getElementById('jobId').value = '';
+  document.getElementById('archived').checked = false;
 }
 
 /* render lists */
@@ -123,9 +132,9 @@ async function deleteFrame(frameRec) {
   if (!confirm('Delete this frame?')) return;
   const r = await api('/frames/' + frameRec.id, { method: 'DELETE' });
   if (!r.ok) return alert('Delete failed');
-  const jobNumber = document.getElementById('jobNumber').value.trim();
-  if (jobNumber) {
-    const jobRes = await api('/jobs/' + encodeURIComponent(jobNumber));
+  const jobId = document.getElementById('jobId').value;
+  if (jobId) {
+    const jobRes = await api('/jobs/' + jobId);
     if (jobRes.ok) {
       loadedJob = jobRes.json;
       renderFrames(loadedJob.frames);
@@ -136,9 +145,9 @@ async function deleteDoor(doorRec) {
   if (!confirm('Delete this door?')) return;
   const r = await api('/doors/' + doorRec.id, { method: 'DELETE' });
   if (!r.ok) return alert('Delete failed');
-  const jobNumber = document.getElementById('jobNumber').value.trim();
-  if (jobNumber) {
-    const jobRes = await api('/jobs/' + encodeURIComponent(jobNumber));
+  const jobId = document.getElementById('jobId').value;
+  if (jobId) {
+    const jobRes = await api('/jobs/' + jobId);
     if (jobRes.ok) {
       loadedJob = jobRes.json;
       renderDoors(loadedJob.doors);
@@ -184,20 +193,20 @@ document.getElementById('modalCancel').addEventListener('click', ()=> { modal.st
 document.getElementById('modalSave').addEventListener('click', async ()=>{
   if (!modalMode) return;
   const kind = modalMode.kind;
-  const jobNumber = document.getElementById('jobNumber').value.trim();
-  if (!jobNumber) return alert('Job number required before adding items.');
+  const jobId = document.getElementById('jobId').value;
+  if (!jobId) return alert('Job number required before adding items.');
   const fields = {};
   kvContainer.querySelectorAll('div').forEach(row => {
     const inputs = row.querySelectorAll('input');
     if (inputs[0].value.trim()) fields[inputs[0].value.trim()] = inputs[1].value;
   });
 
-  const endpoint = `/${kind === 'frame' ? 'jobs/'+encodeURIComponent(jobNumber)+'/frames' : 'jobs/'+encodeURIComponent(jobNumber)+'/doors'}`;
+  const endpoint = `/${kind === 'frame' ? 'jobs/'+jobId+'/frames' : 'jobs/'+jobId+'/doors'}`;
   const r = await api(endpoint, { method: 'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ data: fields }) });
   if (!r.ok) return alert('Failed to save');
   modal.style.display='none';
   // reload job to refresh lists
-  const jobRes = await api('/jobs/' + encodeURIComponent(jobNumber));
+  const jobRes = await api('/jobs/' + jobId);
   if (jobRes.ok) {
     loadedJob = jobRes.json;
     renderFrames(loadedJob.frames);
@@ -213,17 +222,17 @@ document.getElementById('addDoor').addEventListener('click', ()=> openModal('doo
 document.getElementById('importFramesBtn').addEventListener('click', async ()=>{
   const fileInput = document.getElementById('framesCsv');
   const file = fileInput.files[0];
-  const jobNumber = document.getElementById('jobNumber').value.trim();
+  const jobId = document.getElementById('jobId').value;
   if (!file) return alert('Select a CSV file');
-  if (!jobNumber) return alert('Enter or select job number to import into.');
+  if (!jobId) return alert('Enter or select job to import into.');
   const fd = new FormData();
   fd.append('file', file);
-  const resp = await fetch(API_BASE + '/api/jobs/' + encodeURIComponent(jobNumber) + '/import-frames', { method:'POST', body: fd });
+  const resp = await fetch(API_BASE + '/api/jobs/' + jobId + '/import-frames', { method:'POST', body: fd });
   const txt = await resp.text();
   if (!resp.ok) return alert('Import failed: ' + txt);
   alert('Frames imported');
   // refresh loaded job
-  const jobRes = await api('/jobs/' + encodeURIComponent(jobNumber));
+  const jobRes = await api('/jobs/' + jobId);
   if (jobRes.ok) {
     loadedJob = jobRes.json;
     renderFrames(loadedJob.frames);
@@ -233,17 +242,17 @@ document.getElementById('importFramesBtn').addEventListener('click', async ()=>{
 document.getElementById('importDoorsBtn').addEventListener('click', async ()=>{
   const fileInput = document.getElementById('doorsCsv');
   const file = fileInput.files[0];
-  const jobNumber = document.getElementById('jobNumber').value.trim();
+  const jobId = document.getElementById('jobId').value;
   if (!file) return alert('Select a CSV file');
-  if (!jobNumber) return alert('Enter or select job number to import into.');
+  if (!jobId) return alert('Enter or select job to import into.');
   const fd = new FormData();
   fd.append('file', file);
-  const resp = await fetch(API_BASE + '/api/jobs/' + encodeURIComponent(jobNumber) + '/import-doors', { method:'POST', body: fd });
+  const resp = await fetch(API_BASE + '/api/jobs/' + jobId + '/import-doors', { method:'POST', body: fd });
   const txt = await resp.text();
   if (!resp.ok) return alert('Import failed: ' + txt);
   alert('Doors imported');
   // refresh loaded job
-  const jobRes = await api('/jobs/' + encodeURIComponent(jobNumber));
+  const jobRes = await api('/jobs/' + jobId);
   if (jobRes.ok) {
     loadedJob = jobRes.json;
     renderDoors(loadedJob.doors);
@@ -255,8 +264,8 @@ document.getElementById('importDoorsBtn').addEventListener('click', async ()=>{
    Then one page per frame
    Then one page per door
 */
-async function exportJobToPDF(jobNumber) {
-  const r = await api('/jobs/' + encodeURIComponent(jobNumber));
+async function exportJobToPDF(jobId) {
+  const r = await api('/jobs/' + jobId);
   if (!r.ok) return alert('Failed to fetch job');
   const data = r.json;
   const job = data.job;
@@ -313,7 +322,7 @@ async function exportJobToPDF(jobNumber) {
     writeKeyVals(doors[i].data, `Door ${i+1}`);
   }
 
-  const filename = `Job_${job.job_number || 'no-number'}.pdf`;
+  const filename = `Job_${job.job_number || 'no-number'}_${job.work_order || ''}.pdf`;
   doc.save(filename);
 }
 
@@ -325,16 +334,16 @@ document.getElementById('exportPdfSelected').addEventListener('click', async ()=
 
 /* Download all jobs raw JSON (convenience) */
 document.getElementById('exportJsonDownload').addEventListener('click', async ()=>{
-  const r = await api('/jobs');
+  const r = await api('/jobs?includeArchived=true');
   if (!r.ok) return alert('Failed');
   const json = r.json;
   // For simplicity fetch each job details
-  const promises = json.jobs.map(j => api('/jobs/' + encodeURIComponent(j.job_number)));
+  const promises = json.jobs.map(j => api('/jobs/' + j.id));
   const results = await Promise.all(promises);
   const aggregated = {};
   results.forEach(res => {
     if (res.ok && res.json && res.json.job) {
-      aggregated[res.json.job.job_number] = res.json;
+      aggregated[res.json.job.id] = res.json;
     }
   });
   const blob = new Blob([JSON.stringify(aggregated, null, 2)], { type: 'application/json' });
@@ -344,4 +353,15 @@ document.getElementById('exportJsonDownload').addEventListener('click', async ()
 });
 
 /* init */
-refreshJobList();
+refreshJobList('', viewArchivedEl.checked);
+
+const darkBtn = document.getElementById('toggleDarkMode');
+if (darkBtn) {
+  if (localStorage.getItem('darkMode') === '1') {
+    document.body.classList.add('dark');
+  }
+  darkBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark') ? '1' : '0');
+  });
+}
