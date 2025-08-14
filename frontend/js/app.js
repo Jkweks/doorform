@@ -110,7 +110,8 @@ function renderEntries(entries = []) {
     const item = document.createElement('div');
     item.className = 'item';
     const left = document.createElement('div');
-    left.innerHTML = `<strong>Entry ${idx + 1} (${en.handing})</strong>`;
+    const label = en.data && en.data.tag ? en.data.tag : `Entry ${idx + 1}`;
+    left.innerHTML = `<strong>${label} (${en.handing})</strong>`;
     const details = document.createElement('div');
     details.className = 'muted';
     const frameInfo = en.frames && en.frames[0] ? Object.entries(en.frames[0].data || {}).slice(0,2).map(kv => kv.join(': ')).join(' — ') : '';
@@ -146,12 +147,38 @@ document.getElementById('addWorkOrder').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('addEntry').addEventListener('click', async () => {
+const addEntryModal = document.getElementById('addEntryModal');
+const addEntryTag = document.getElementById('entryTagInput');
+const addEntryHanding = document.getElementById('entryHandingInput');
+const addEntryWidth = document.getElementById('entryWidthInput');
+const addEntryHeight = document.getElementById('entryHeightInput');
+
+document.getElementById('addEntry').addEventListener('click', () => {
   if (!selectedWorkOrderId) return alert('Select a work order first');
-  const handing = prompt('Handing (e.g. LHR, RHR, LHRA, RHRA):');
-  if (!handing) return;
-  const r = await api(`/work-orders/${selectedWorkOrderId}/entries`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ handing, entryData: {}, frameData: {}, doorData: {} }) });
+  addEntryModal.style.display = 'flex';
+});
+
+document.getElementById('addEntryModalCancel').addEventListener('click', () => {
+  addEntryModal.style.display = 'none';
+});
+
+document.getElementById('addEntryModalSave').addEventListener('click', async () => {
+  if (!selectedWorkOrderId) return;
+  const tag = addEntryTag.value.trim();
+  const handing = addEntryHanding.value;
+  const width = addEntryWidth.value.trim() || "3'0\"";
+  const height = addEntryHeight.value.trim() || "7'0\"";
+  const r = await api(`/work-orders/${selectedWorkOrderId}/entries`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ handing, entryData: { tag, openingWidth: width, openingHeight: height }, frameData: {}, doorData: {} })
+  });
   if (!r.ok) return alert('Failed to add entry');
+  addEntryModal.style.display = 'none';
+  addEntryTag.value = '';
+  addEntryHanding.value = 'LHR';
+  addEntryWidth.value = "3'0\"";
+  addEntryHeight.value = "7'0\"";
   const jobId = document.getElementById('jobId').value;
   const jobRes = await api('/jobs/' + jobId);
   if (jobRes.ok) {

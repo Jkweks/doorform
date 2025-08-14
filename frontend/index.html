@@ -65,6 +65,30 @@
     </div>
   </div>
 
+<!-- modal for adding an entry -->
+<div id="addEntryModal" class="modal-overlay">
+  <div class="modal-body">
+    <h3>Add Entry</h3>
+    <label for="entryTagInput">Entry Tag/ID</label>
+    <input id="entryTagInput" type="text" />
+    <label for="entryHandingInput">Handing</label>
+    <select id="entryHandingInput">
+      <option value="LHR">LHR</option>
+      <option value="RHR">RHR</option>
+      <option value="LHRA">LHRA</option>
+      <option value="RHRA">RHRA</option>
+    </select>
+    <label for="entryWidthInput">Door Opening Width</label>
+    <input id="entryWidthInput" type="text" value="3'0&quot;" />
+    <label for="entryHeightInput">Door Opening Height</label>
+    <input id="entryHeightInput" type="text" value="7'0&quot;" />
+    <div class="modal-actions">
+      <button id="addEntryModalSave">Save</button>
+      <button id="addEntryModalCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- small modal for custom KV entry -->
 <div id="modal" class="modal-overlay">
   <div class="modal-body">
