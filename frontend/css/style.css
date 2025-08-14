@@ -1,43 +1,58 @@
 body {
   font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+input, button {
+  margin: 5px;
+  padding: 8px;
+}
+
+h1, h2 {
+  color: #333;
+}
+
+/* Frontend-specific styles */
+body.frontend {
   padding: 18px;
   max-width: 1200px;
 }
 
-label {
+body.frontend label {
   display: block;
   margin-top: 8px;
   font-weight: 600;
 }
 
-input[type="text"], select {
+body.frontend input[type="text"],
+body.frontend select {
   width: 100%;
   padding: 6px;
   margin: 0;
 }
 
-textarea {
+body.frontend textarea {
   width: 100%;
   min-height: 60px;
   padding: 6px;
 }
 
-button {
-  margin: 8px 0 0 0;
+body.frontend button {
+  margin-top: 8px;
   padding: 8px 12px;
   cursor: pointer;
 }
 
-.row {
+body.frontend .row {
   display: flex;
   gap: 12px;
 }
 
-.col {
+body.frontend .col {
   flex: 1;
 }
 
-.panel {
+body.frontend .panel {
   border: 1px solid #ddd;
   padding: 12px;
   border-radius: 6px;
@@ -45,7 +60,7 @@ button {
   margin-top: 12px;
 }
 
-.list {
+body.frontend .list {
   margin-top: 8px;
   border: 1px solid #eee;
   padding: 8px;
@@ -54,7 +69,7 @@ button {
   background: white;
 }
 
-.item {
+body.frontend .item {
   border-bottom: 1px dashed #eee;
   padding: 6px;
   display: flex;
@@ -62,34 +77,34 @@ button {
   align-items: center;
 }
 
-.muted {
+body.frontend .muted {
   color: #666;
   font-size: 13px;
 }
 
-.action-buttons {
+body.frontend .action-buttons {
   margin-top: 8px;
 }
 
-.section {
+body.frontend .section {
   margin-top: 12px;
 }
 
-.file-input {
+body.frontend .file-input {
   display: inline-block;
-  margin: 0 0 0 8px;
+  margin-left: 8px;
 }
 
-.job-select {
+body.frontend .job-select {
   width: 100%;
   margin-top: 8px;
 }
 
-.note {
+body.frontend .note {
   margin-top: 12px;
 }
 
-.modal-overlay {
+body.frontend .modal-overlay {
   display: none;
   position: fixed;
   inset: 0;
@@ -98,7 +113,7 @@ button {
   justify-content: center;
 }
 
-.modal-body {
+body.frontend .modal-body {
   background: white;
   padding: 16px;
   border-radius: 6px;
@@ -107,11 +122,8 @@ button {
   overflow: auto;
 }
 
-.modal-actions {
+body.frontend .modal-actions {
   margin-top: 12px;
   text-align: right;
 }
 
-h1, h2 {
-  color: #333;
-}
