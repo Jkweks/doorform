@@ -1,4 +1,4 @@
-const API_BASE = ''; // if frontend served from same origin, keep ''. If server on different origin, put e.g. 'http://localhost:4000'
+const API_BASE = 'http://192.168.4.251:3000'; // if frontend served from same origin, keep ''. If server on different origin, put e.g. 'http://localhost:4000'
 function api(path, opts = {}) {
   return fetch(API_BASE + '/api' + path, opts).then(async r => {
     const txt = await r.text();

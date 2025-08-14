@@ -1,36 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Job Tracker</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8" />
+  <title>Job Manager (Frontend)</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding:18px; max-width:1200px; }
+    label { display:block; margin-top:8px; font-weight:600; }
+    input[type="text"], select { width:100%; padding:6px; }
+    textarea { width:100%; min-height:60px; padding:6px; }
+    button { margin-top:8px; padding:8px 12px; cursor:pointer; }
+    .row { display:flex; gap:12px; }
+    .col { flex:1; }
+    .panel { border:1px solid #ddd; padding:12px; border-radius:6px; background:#fafafa; margin-top:12px; }
+    .list { margin-top:8px; border:1px solid #eee; padding:8px; max-height:260px; overflow:auto; background:white; }
+    .item { border-bottom:1px dashed #eee; padding:6px; display:flex; justify-content:space-between; align-items:center; }
+    .muted { color:#666; font-size:13px; }
+  </style>
 </head>
 <body>
-  <h1>Job Tracker</h1>
+  <h1>Job Manager (Frontend)</h1>
+  <div class="row">
+    <div class="col panel">
+      <h2>Job Info</h2>
+      <label>Job Number</label>
+      <input id="jobNumber" type="text" />
+      <label>Job Name</label>
+      <input id="jobName" type="text" />
+      <label>PM</label>
+      <input id="pm" type="text" />
+      <label>Work Order #</label>
+      <input id="workOrder" type="text" />
+      <div style="margin-top:8px;">
+        <button id="saveJob">Save Job</button>
+        <button id="loadJobs">Refresh Job List</button>
+      </div>
 
-  <form id="jobForm">
-    <input type="text" name="job_number" placeholder="Job Number" required>
-    <input type="text" name="job_name" placeholder="Job Name" required>
-    <input type="text" name="pm" placeholder="Project Manager" required>
-    <input type="text" name="work_order" placeholder="Work Order #" required>
-    <button type="submit">Save Job</button>
-  </form>
+      <div style="margin-top:12px;">
+        <h3>Frames</h3>
+        <button id="addFrame">Add Frame (manual)</button>
+        <input id="framesCsv" type="file" accept=".csv" style="display:inline-block; margin-left:8px;" />
+        <button id="importFramesBtn">Import Frames CSV</button>
+        <div id="framesList" class="list"></div>
+      </div>
 
-  <hr>
+      <div style="margin-top:12px;">
+        <h3>Doors</h3>
+        <button id="addDoor">Add Door (manual)</button>
+        <input id="doorsCsv" type="file" accept=".csv" style="display:inline-block; margin-left:8px;" />
+        <button id="importDoorsBtn">Import Doors CSV</button>
+        <div id="doorsList" class="list"></div>
+      </div>
+    </div>
 
-  <h2>Import Frames CSV</h2>
-  <input type="file" id="framesCsv">
-  <button id="uploadFrames">Upload Frames</button>
+    <div class="col panel">
+      <h2>Jobs</h2>
+      <label>Filter</label>
+      <input id="filterJobs" type="text" placeholder="type job number or name..." />
+      <select id="jobsSelect" size="10" style="width:100%; margin-top:8px;"></select>
+      <div style="margin-top:8px;">
+        <button id="loadSelected">Load Selected</button>
+        <button id="deleteSelected">Delete Selected</button>
+        <button id="exportPdfSelected">Export PDF (selected)</button>
+      </div>
+      <div style="margin-top:12px;">
+        <button id="exportJsonDownload">Download All Data (JSON)</button>
+      </div>
+      <div class="muted" style="margin-top:12px;">
+        Note: CSV import is done server-side and stored in Postgres. PDF generation happens in your browser using jsPDF.
+      </div>
+    </div>
+  </div>
 
-  <h2>Import Doors CSV</h2>
-  <input type="file" id="doorsCsv">
-  <button id="uploadDoors">Upload Doors</button>
-
-  <hr>
-
-  <button id="generatePdf">Generate PDF Report</button>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- small modal for custom KV entry -->
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center;">
+  <div style="background:white; padding:16px; border-radius:6px; width:600px; max-height:80vh; overflow:auto;">
+    <h3 id="modalTitle">Add Item</h3>
+    <div id="kvContainer"></div>
+    <button id="addKVbtn">Add field</button>
+    <div style="margin-top:12px; text-align:right;">
+      <button id="modalSave">Save</button>
+      <button id="modalCancel">Cancel</button>
+    </div>
+  </div>
+</div>
   <script src="js/app.js"></script>
   <script src="js/pdf.js"></script>
 </body>
