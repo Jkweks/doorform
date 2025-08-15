@@ -199,7 +199,7 @@ body.dark button:focus {
 }
 
 .modal-body {
-  background: white;
+  background: var(--vos-white);
   padding: 16px;
   border-radius: 6px;
   width: 600px;
@@ -207,13 +207,9 @@ body.dark button:focus {
   overflow: auto;
 }
 
-.modal-body.dark {
-  background: var(--vos-dark);
-  padding: 16px;
-  border-radius: 6px;
-  width: 600px;
-  max-height: 80vh;
-  overflow: auto;
+body.dark .modal-body {
+  background: #333;
+  color: var(--vos-gray);
 }
 
 .modal-actions {
