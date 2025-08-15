@@ -42,13 +42,14 @@ input[type="text"],
 select,
 textarea {
   width: 100%;
-  padding: 6px 6px 4px 6px;
-  margin-top: 4px;
-  border: none;
-  border-bottom: 2px solid var(--vos-gray);
-  background-color: transparent;
-  border-radius: 4px 4px 0 0;
-  transition: border-color 0.2s;
+  box-sizing: border-box;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid var(--vos-gray);
+  border-radius: 4px;
+  background-color: var(--vos-white);
+  color: var(--vos-dark);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 input[type="checkbox"] {
@@ -63,7 +64,8 @@ input[type="text"]:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-bottom-color: var(--vos-red);
+  border-color: var(--vos-red);
+  box-shadow: 0 0 0 1px var(--vos-red);
 }
 
 .panel {
@@ -129,16 +131,16 @@ body.dark .list {
 body.dark input[type="text"],
 body.dark select,
 body.dark textarea {
-  background-color: transparent;
+  background-color: #333;
   color: var(--vos-gray);
-  border: none;
-  border-bottom: 2px solid var(--vos-gray);
+  border: 1px solid var(--vos-gray);
 }
 
 body.dark input[type="text"]:focus,
 body.dark select:focus,
 body.dark textarea:focus {
-  border-bottom-color: var(--vos-red);
+  border-color: var(--vos-red);
+  box-shadow: 0 0 0 1px var(--vos-red);
 }
 
 body.dark button {
