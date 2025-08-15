@@ -134,6 +134,7 @@ function renderEntries(entries = []) {
     left.appendChild(details);
     const right = document.createElement('div');
     const ee = document.createElement('button'); ee.textContent = 'Edit Entry'; ee.onclick = () => openEntryModal(en); right.appendChild(ee);
+    const ev = document.createElement('button'); ev.textContent = 'Edit Entry Data'; ev.onclick = () => openModalForEdit('entry', en); right.appendChild(ev);
     if (en.frames && en.frames[0]) {
       const ef = document.createElement('button'); ef.textContent = 'Edit Frame'; ef.onclick = () => openModalForEdit('frame', en.frames[0]); right.appendChild(ef);
     }
@@ -229,7 +230,7 @@ document.getElementById('addEntryModalSave').addEventListener('click', async () 
   }
 });
 
-// Modal for editing frame/door data
+// Modal for editing entry/frame/door data
 const modal = document.getElementById('modal');
 const kvContainer = document.getElementById('kvContainer');
 let modalMode = null;
@@ -238,7 +239,7 @@ function openModalForEdit(kind, serverRec) {
   kvContainer.innerHTML = '';
   const data = serverRec.data || {};
   Object.entries(data).forEach(([k, v]) => addKVrow(k, v));
-  document.getElementById('modalTitle').textContent = 'Edit ' + kind;
+  document.getElementById('modalTitle').textContent = 'Edit ' + kind.charAt(0).toUpperCase() + kind.slice(1);
   modal.style.display = 'flex';
 }
 function addKVrow(k = '', v = '') {
@@ -262,8 +263,19 @@ document.getElementById('modalSave').addEventListener('click', async () => {
     const inputs = row.querySelectorAll('input');
     if (inputs[0].value.trim()) fields[inputs[0].value.trim()] = inputs[1].value;
   });
-  const endpoint = `/${modalMode.kind === 'frame' ? 'frames/' + modalMode.serverRec.id : 'doors/' + modalMode.serverRec.id}`;
-  const r = await api(endpoint, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ data: fields }) });
+  let endpoint;
+  let payload;
+  if (modalMode.kind === 'frame') {
+    endpoint = `/frames/${modalMode.serverRec.id}`;
+    payload = { data: fields };
+  } else if (modalMode.kind === 'door') {
+    endpoint = `/doors/${modalMode.serverRec.id}`;
+    payload = { data: fields };
+  } else if (modalMode.kind === 'entry') {
+    endpoint = `/entries/${modalMode.serverRec.id}`;
+    payload = { handing: modalMode.serverRec.handing, data: fields };
+  }
+  const r = await api(endpoint, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
   if (!r.ok) return alert('Failed to save');
   modal.style.display = 'none'; modalMode = null;
   const jobId = document.getElementById('jobId').value;
@@ -287,8 +299,10 @@ async function exportJobToPDF(jobId) {
   const job = data.job;
   const frames = [];
   const doors = [];
+  const entries = [];
   (data.workOrders || []).forEach(wo => {
     (wo.entries || []).forEach(en => {
+      entries.push(en);
       frames.push(...(en.frames || []));
       doors.push(...(en.doors || []));
     });
@@ -299,15 +313,15 @@ async function exportJobToPDF(jobId) {
   const startY = 48;
   const usableW = 612 - margin * 2;
   const lineH = 14;
-  function writeKeyVals(obj, title) {
+  function writeKeyVals(obj, title, startYPos = startY) {
     doc.setFontSize(16);
-    doc.text(title, margin, startY);
+    doc.text(title, margin, startYPos);
     doc.setFontSize(12);
-    let y = startY + 26;
+    let y = startYPos + 26;
     const keys = Object.keys(obj);
     if (keys.length === 0) {
       doc.text('(no data)', margin, y);
-      return;
+      return y + lineH;
     }
     for (const key of keys) {
       const label = `${key}: `;
@@ -319,20 +333,35 @@ async function exportJobToPDF(jobId) {
       y += split.length * lineH + 6;
       if (y > 720) { doc.addPage(); y = startY; }
     }
+    return y;
   }
   const jobInfo = {
     'Job Number': job.job_number || '',
     'Job Name': job.job_name || '',
     'PM': job.pm || ''
   };
-  writeKeyVals(jobInfo, 'Job Information');
+  let y = writeKeyVals(jobInfo, 'Job Information', startY);
+  const entrySummary = {};
+  entries.forEach((en, idx) => {
+    const label = en.data && en.data.tag ? en.data.tag : `Entry ${idx + 1}`;
+    entrySummary[label] = en.handing || '';
+  });
+  y += 20;
+  writeKeyVals(entrySummary, 'Entries', y);
+  const imgW = 200; const imgH = 150; const imgX = (612 - imgW) / 2;
   for (let i = 0; i < frames.length; i++) {
     doc.addPage();
-    writeKeyVals(frames[i].data, `Frame ${i + 1}`);
+    doc.rect(imgX, startY, imgW, imgH);
+    doc.setFontSize(12);
+    doc.text('Frame Image Placeholder', 306, startY + imgH / 2, { align: 'center', baseline: 'middle' });
+    writeKeyVals(frames[i].data, `Frame ${i + 1}`, startY + imgH + 40);
   }
   for (let i = 0; i < doors.length; i++) {
     doc.addPage();
-    writeKeyVals(doors[i].data, `Door ${i + 1}`);
+    doc.rect(imgX, startY, imgW, imgH);
+    doc.setFontSize(12);
+    doc.text('Door Image Placeholder', 306, startY + imgH / 2, { align: 'center', baseline: 'middle' });
+    writeKeyVals(doors[i].data, `Door ${i + 1}`, startY + imgH + 40);
   }
   const filename = `Job_${job.job_number || 'no-number'}.pdf`;
   doc.save(filename);
