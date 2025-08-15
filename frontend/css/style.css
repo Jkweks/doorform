@@ -207,6 +207,15 @@ body.dark button:focus {
   overflow: auto;
 }
 
+.modal-body.dark {
+  background: var(--vos-dark);
+  padding: 16px;
+  border-radius: 6px;
+  width: 600px;
+  max-height: 80vh;
+  overflow: auto;
+}
+
 .modal-actions {
   margin-top: 12px;
   text-align: right;

@@ -364,6 +364,7 @@ const darkBtn = document.getElementById('toggleDarkMode');
 if (darkBtn) {
   if (localStorage.getItem('darkMode') === '1') {
     document.body.classList.add('dark');
+    document.body
   }
   darkBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark');
