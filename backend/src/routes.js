@@ -121,19 +121,54 @@ router.post('/work-orders/:id/entries', async (req, res) => {
   }
 });
 
-// Update entry handing or data
+// Update entry handing or data and adjust door leaves if needed
 router.put('/entries/:id', async (req, res) => {
   const id = req.params.id;
-  const { handing, data } = req.body;
+  const { handing, data, entryData } = req.body;
+  // Some clients may still send entryData instead of data – fall back if needed
+  const updatedData = data !== undefined ? data : entryData;
+
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
-      'UPDATE entries SET handing = $1, data = $2 WHERE id = $3 RETURNING *',
-      [handing, data, id]
-    );
-    if (result.rowCount === 0) return res.status(404).json({ error: 'Entry not found' });
-    res.json({ entry: result.rows[0] });
+    await client.query('BEGIN');
+
+    // fetch current handing to determine if door leaves need adjustment
+    const current = await client.query('SELECT handing FROM entries WHERE id = $1', [id]);
+    if (current.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Entry not found' });
+    }
+    const previousHanding = current.rows[0].handing;
+
+    await client.query('UPDATE entries SET handing = $1, data = $2 WHERE id = $3', [handing, updatedData, id]);
+
+    const wasDouble = previousHanding === 'LHRA' || previousHanding === 'RHRA';
+    const isDouble = handing === 'LHRA' || handing === 'RHRA';
+
+    if (!wasDouble && isDouble) {
+      // going from single to double: add B leaf duplicating A leaf data
+      const doorDataRes = await client.query(
+        "SELECT data FROM doors WHERE entry_id = $1 AND leaf = 'A'",
+        [id]
+      );
+      const doorData = doorDataRes.rows[0] ? doorDataRes.rows[0].data : null;
+      await client.query(
+        "INSERT INTO doors (entry_id, leaf, data) VALUES ($1, 'B', $2)",
+        [id, doorData]
+      );
+    } else if (wasDouble && !isDouble) {
+      // going from double to single: remove B leaf
+      await client.query("DELETE FROM doors WHERE entry_id = $1 AND leaf = 'B'", [id]);
+    }
+
+    await client.query('COMMIT');
+    const updated = await client.query('SELECT * FROM entries WHERE id = $1', [id]);
+    res.json({ entry: updated.rows[0] });
   } catch (err) {
+    await client.query('ROLLBACK');
     res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
   }
 });
 
