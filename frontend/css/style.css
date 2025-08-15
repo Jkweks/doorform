@@ -1,4 +1,4 @@
-/* VOS Glass brand palette extracted from logo */
+/* Material themed styles using the VOS Glass brand palette */
 :root {
   --vos-red: #d6232a;
   --vos-red-dark: #a61b1f;
@@ -8,11 +8,12 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', Arial, sans-serif;
   padding: 20px;
   background-color: var(--vos-gray);
   color: var(--vos-dark);
   max-width: 1200px;
+  line-height: 1.5;
 }
 
 body.dark {
@@ -41,8 +42,13 @@ input[type="text"],
 select,
 textarea {
   width: 100%;
-  padding: 6px;
+  padding: 6px 6px 4px 6px;
   margin-top: 4px;
+  border: none;
+  border-bottom: 2px solid var(--vos-gray);
+  background-color: transparent;
+  border-radius: 4px 4px 0 0;
+  transition: border-color 0.2s;
 }
 
 input[type="checkbox"] {
@@ -53,15 +59,23 @@ textarea {
   min-height: 60px;
 }
 
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-bottom-color: var(--vos-red);
+}
+
 .panel {
   border: 1px solid var(--vos-red);
   background-color: var(--vos-white);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 12px;
   margin-top: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.14);
 }
 
 .panel label,
@@ -81,17 +95,25 @@ button {
   margin-top: 8px;
   padding: 8px 12px;
   background-color: var(--vos-red);
-  border: 1px solid var(--vos-red);
+  border: none;
   color: var(--vos-white);
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px rgba(0, 0, 0, 0.12);
+  transition: background-color 0.2s, box-shadow 0.2s, color 0.2s;
 }
 
 button:hover,
 button:focus {
   background-color: var(--vos-red-dark);
-  border-color: var(--vos-red-dark);
   color: var(--vos-white);
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2), 0 3px 3px -2px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(0, 0, 0, 0.12);
+  outline: none;
+}
+
+button:focus-visible {
   outline: 2px solid var(--vos-gray);
 }
 
@@ -107,20 +129,25 @@ body.dark .list {
 body.dark input[type="text"],
 body.dark select,
 body.dark textarea {
-  background-color: #555;
+  background-color: transparent;
   color: var(--vos-gray);
-  border: 1px solid var(--vos-gray);
+  border: none;
+  border-bottom: 2px solid var(--vos-gray);
+}
+
+body.dark input[type="text"]:focus,
+body.dark select:focus,
+body.dark textarea:focus {
+  border-bottom-color: var(--vos-red);
 }
 
 body.dark button {
   background-color: var(--vos-red-dark);
-  border-color: var(--vos-red-dark);
 }
 
 body.dark button:hover,
 body.dark button:focus {
   background-color: var(--vos-red);
-  border-color: var(--vos-red);
   color: var(--vos-white);
 }
 
