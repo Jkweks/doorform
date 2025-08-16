@@ -285,3 +285,24 @@ body.dark .modal-body {
   opacity: 0.5;
 }
 
+#doorPartsList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.part-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.part-row select,
+.part-row input {
+  flex: 1;
+}
+
+.part-row button {
+  margin-top: 0;
+}
