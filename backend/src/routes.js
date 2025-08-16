@@ -56,6 +56,34 @@ router.post('/jobs/:id/work-orders', async (req, res) => {
   }
 });
 
+// Update a work order
+router.put('/work-orders/:id', async (req, res) => {
+  const id = req.params.id;
+  const { workOrder, archived } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE work_orders SET work_order = COALESCE($1, work_order), archived = COALESCE($2, archived) WHERE id = $3 RETURNING *',
+      [workOrder, archived, id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Work order not found' });
+    res.json({ workOrder: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a work order
+router.delete('/work-orders/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await pool.query('DELETE FROM work_orders WHERE id = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Work order not found' });
+    res.json({ message: 'Work order deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get job with work orders, entries, frames and doors by ID
 router.get('/jobs/:id', async (req, res) => {
   const id = req.params.id;
@@ -169,6 +197,18 @@ router.put('/entries/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   } finally {
     client.release();
+  }
+});
+
+// Delete an entry
+router.delete('/entries/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await pool.query('DELETE FROM entries WHERE id = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Entry not found' });
+    res.json({ message: 'Entry deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

@@ -138,13 +138,44 @@ function renderWorkOrders(workOrders = []) {
     const left = document.createElement('div');
     left.innerHTML = `<strong>WO ${wo.work_order}</strong>`;
     const right = document.createElement('div');
-    const btn = document.createElement('button'); btn.textContent = 'Open';
-    btn.onclick = () => {
+    const openBtn = document.createElement('button'); openBtn.textContent = 'Open';
+    openBtn.onclick = () => {
       selectedWorkOrderId = wo.id;
       renderWorkOrders(loadedJob.workOrders);
       renderEntries(wo.entries);
     };
-    right.appendChild(btn);
+    right.appendChild(openBtn);
+    const editBtn = document.createElement('button'); editBtn.textContent = 'Edit';
+    editBtn.onclick = async () => {
+      const newWO = prompt('Edit work order', wo.work_order);
+      if (!newWO) return;
+      const r = await api(`/work-orders/${wo.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ workOrder: newWO }) });
+      if (!r.ok) return alert('Failed to update work order');
+      const jobRes = await api('/jobs/' + document.getElementById('jobId').value);
+      if (jobRes.ok) {
+        loadedJob = jobRes.json;
+        renderWorkOrders(loadedJob.workOrders);
+        const w = loadedJob.workOrders.find(w => w.id === selectedWorkOrderId);
+        if (w) renderEntries(w.entries); else renderEntries([]);
+      }
+    };
+    right.appendChild(editBtn);
+    const delBtn = document.createElement('button'); delBtn.textContent = 'Delete';
+    delBtn.onclick = async () => {
+      if (!confirm('Delete work order?')) return;
+      const r = await api(`/work-orders/${wo.id}`, { method: 'DELETE' });
+      if (!r.ok) return alert('Failed to delete work order');
+      if (selectedWorkOrderId === wo.id) {
+        selectedWorkOrderId = null;
+        renderEntries([]);
+      }
+      const jobRes = await api('/jobs/' + document.getElementById('jobId').value);
+      if (jobRes.ok) {
+        loadedJob = jobRes.json;
+        renderWorkOrders(loadedJob.workOrders);
+      }
+    };
+    right.appendChild(delBtn);
     item.appendChild(left); item.appendChild(right);
     el.appendChild(item);
   });
@@ -172,6 +203,21 @@ function renderEntries(entries = []) {
     const ee = document.createElement('button'); ee.textContent = 'Edit Entry'; ee.onclick = () => openEntryModal(en); right.appendChild(ee);
     const ev = document.createElement('button'); ev.textContent = 'Edit Entry Data'; ev.onclick = () => openModalForEdit('entry', en); right.appendChild(ev);
     const ep = document.createElement('button'); ep.textContent = 'Edit Parts'; ep.onclick = () => openPartsModal(en); right.appendChild(ep);
+    const del = document.createElement('button'); del.textContent = 'Delete';
+    del.onclick = async () => {
+      if (!confirm('Delete entry?')) return;
+      const r = await api(`/entries/${en.id}`, { method: 'DELETE' });
+      if (!r.ok) return alert('Failed to delete entry');
+      const jobId = document.getElementById('jobId').value;
+      const jobRes = await api('/jobs/' + jobId);
+      if (jobRes.ok) {
+        loadedJob = jobRes.json;
+        renderWorkOrders(loadedJob.workOrders);
+        const wo = loadedJob.workOrders.find(w => w.id === selectedWorkOrderId);
+        if (wo) renderEntries(wo.entries); else renderEntries([]);
+      }
+    };
+    right.appendChild(del);
     item.appendChild(left); item.appendChild(right);
     el.appendChild(item);
   });
