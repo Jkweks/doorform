@@ -5,12 +5,10 @@ function api(path, opts = {}) {
     try { return { ok: r.ok, json: JSON.parse(txt), status: r.status }; } catch(e) { return { ok: r.ok, text: txt, status: r.status }; }
   });
 }
-
 async function loadProjectManagers() {
   const res = await api('/project-managers');
   if (res.ok) renderProjectManagers(res.json.managers || []);
 }
-
 function renderProjectManagers(managers) {
   const list = document.getElementById('pmList');
   list.innerHTML = '';
@@ -38,7 +36,6 @@ function renderProjectManagers(managers) {
     list.appendChild(item);
   });
 }
-
 document.getElementById('addPm').onclick = async () => {
   const name = document.getElementById('newPmName').value.trim();
   if (!name) return;
@@ -46,12 +43,10 @@ document.getElementById('addPm').onclick = async () => {
   document.getElementById('newPmName').value = '';
   loadProjectManagers();
 };
-
 async function loadTemplates() {
   const res = await api('/door-part-templates');
   if (res.ok) renderTemplates(res.json.templates || []);
 }
-
 function renderTemplates(templates) {
   const list = document.getElementById('templateList');
   list.innerHTML = '';
@@ -83,7 +78,6 @@ function renderTemplates(templates) {
     list.appendChild(item);
   });
 }
-
 document.getElementById('addTemplate').onclick = async () => {
   const name = document.getElementById('newTemplateName').value.trim();
   const partsStr = document.getElementById('newTemplateParts').value.trim();
