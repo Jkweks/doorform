@@ -306,3 +306,92 @@ body.dark .modal-body {
 .part-row button {
   margin-top: 0;
 }
+
+/* Tabs for data management */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.tabs button {
+  flex: 1;
+  background: var(--vos-gray);
+  color: var(--vos-dark);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.tabs button.active {
+  background: var(--vos-red);
+  color: var(--vos-white);
+}
+body.dark .tabs button {
+  background: #333;
+  color: var(--vos-gray);
+}
+body.dark .tabs button.active {
+  background: var(--vos-red-dark);
+  color: var(--vos-white);
+}
+.tab-content { margin-top: 12px; }
+
+/* Dark mode toggle slider */
+.dark-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--vos-white);
+  border: 1px solid var(--vos-red);
+  padding: 4px 8px;
+  border-radius: 20px;
+  z-index: 1000;
+}
+body.dark .dark-toggle {
+  background: #333;
+  border-color: var(--vos-gray);
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--vos-gray);
+  transition: 0.4s;
+  border-radius: 20px;
+}
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--vos-white);
+  transition: 0.4s;
+  border-radius: 50%;
+}
+.switch input:checked + .slider {
+  background-color: var(--vos-red);
+}
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
+}

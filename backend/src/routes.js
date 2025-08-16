@@ -329,11 +329,11 @@ router.get('/parts', async (req, res) => {
 
 // Create a part
 router.post('/parts', async (req, res) => {
-  const { number, description, usages, requires } = req.body;
+  const { number, description, lx = null, ly = null, usages = [], requires = [] } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO parts (number, description, usages, requires) VALUES ($1, $2, $3, $4) RETURNING *',
-      [number, description, usages, requires]
+      'INSERT INTO parts (number, description, lx, ly, usages, requires) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [number, description, lx, ly, usages, requires]
     );
     res.json({ part: result.rows[0] });
   } catch (err) {
@@ -344,11 +344,11 @@ router.post('/parts', async (req, res) => {
 // Update a part
 router.put('/parts/:id', async (req, res) => {
   const id = req.params.id;
-  const { number, description, usages, requires } = req.body;
+  const { number, description, lx = null, ly = null, usages = [], requires = [] } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE parts SET number = $1, description = $2, usages = $3, requires = $4 WHERE id = $5 RETURNING *',
-      [number, description, usages, requires, id]
+      'UPDATE parts SET number = $1, description = $2, lx = $3, ly = $4, usages = $5, requires = $6 WHERE id = $7 RETURNING *',
+      [number, description, lx, ly, usages, requires, id]
     );
     if (result.rowCount === 0) return res.status(404).json({ error: 'Part not found' });
     res.json({ part: result.rows[0] });

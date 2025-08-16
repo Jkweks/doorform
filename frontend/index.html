@@ -15,8 +15,7 @@
 </head>
 <body>
   <h1>Job Manager (Frontend)</h1>
-  <button id="toggleDarkMode">Toggle Dark Mode</button>
-  <a href="data.html">Data Management</a>
+    <a href="data.html">Data Management</a>
   <div class="row">
     <div class="col panel">
       <h2>Job Info</h2>
@@ -147,8 +146,17 @@
     </div>
   </div>
 </div>
+  <div class="dark-toggle">
+    <span>☀️</span>
+    <label class="switch">
+      <input type="checkbox" id="toggleDarkMode">
+      <span class="slider"></span>
+    </label>
+    <span>🌙</span>
+  </div>
   <script src="js/doorPartPresets.js"></script>
   <script src="js/app.js"></script>
   <script src="js/pdf.js"></script>
+  <script src="js/theme.js"></script>
 </body>
 </html>
