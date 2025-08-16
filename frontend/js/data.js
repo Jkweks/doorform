@@ -12,6 +12,17 @@ const bottomRailSelect = document.getElementById('newBottomRail');
 const hingeRailSelect = document.getElementById('newHingeRail');
 const lockRailSelect = document.getElementById('newLockRail');
 
+// Tabs for maintenance sections
+for (const btn of document.querySelectorAll('#dataTabs button')) {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#dataTabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+}
+
+
 function populateRailSelect(selectEl, usage, current) {
   const parts = (partsCache || []).filter(p => (p.usages || []).includes(usage));
   selectEl.innerHTML = '<option value=""></option>';
@@ -138,20 +149,28 @@ function renderParts(parts) {
     item.className = 'item';
     const left = document.createElement('div');
     const usages = (p.usages || []).join(', ');
+    const dims = (p.lx || p.ly) ? ` (${p.lx || ''}x${p.ly || ''})` : '';
+    const desc = p.description ? ` — ${p.description}` : '';
     const req = (p.requires && p.requires.length) ? ` (requires ${p.requires.join(', ')})` : '';
-    left.innerHTML = `<strong>${p.number}</strong> — ${usages}${req}`;
+    left.innerHTML = `<strong>${p.number}</strong>${desc} — ${usages}${dims}${req}`;
     const right = document.createElement('div');
     const edit = document.createElement('button');
     edit.textContent = 'Edit';
     edit.onclick = () => {
       const number = prompt('Part number', p.number);
       if (number === null) return;
-      const usagesStr = prompt('Usages (comma-separated topRail,bottomRail,hingeRail,lockRail,midRail,glassStop,doorBacker,hingeJamb,lockJamb,doorHeader,transomHeader,doorStop,frameBacker)', (p.usages || []).join(','));
+      const description = prompt('Description', p.description || '');
+      if (description === null) return;
+      const lx = prompt('LX', p.lx || '');
+      if (lx === null) return;
+      const ly = prompt('LY', p.ly || '');
+      if (ly === null) return;
+      const usagesStr = prompt('Usages (comma-separated topRail,bottomRail,hingeRail,lockRail,midRail,glassStop,doorBacker,lug,fastener,hingeJamb,lockJamb,doorHeader,transomHeader,doorStop,frameBacker)', (p.usages || []).join(','));
       if (usagesStr === null) return;
       const requiresStr = prompt('Requires (comma-separated part numbers)', (p.requires || []).join(','));
       const usages = usagesStr.split(',').map(s => s.trim()).filter(Boolean);
       const requires = requiresStr.split(',').map(s => s.trim()).filter(Boolean);
-      api(`/parts/${p.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, usages, requires }) }).then(loadParts);
+      api(`/parts/${p.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, description, lx: lx ? parseFloat(lx) : null, ly: ly ? parseFloat(ly) : null, usages, requires }) }).then(loadParts);
     };
     const del = document.createElement('button');
     del.textContent = 'Delete';
@@ -165,9 +184,15 @@ function renderParts(parts) {
   });
 }
 
+
 document.getElementById('addPart').onclick = async () => {
   const number = document.getElementById('newPartNumber').value.trim();
   if (!number) return;
+  const description = document.getElementById('newPartDescription').value.trim() || null;
+  const lxVal = document.getElementById('newPartLX').value;
+  const lyVal = document.getElementById('newPartLY').value;
+  const lx = lxVal ? parseFloat(lxVal) : null;
+  const ly = lyVal ? parseFloat(lyVal) : null;
   const usages = [];
   if (document.getElementById('newUsageTop').checked) usages.push('topRail');
   if (document.getElementById('newUsageBottom').checked) usages.push('bottomRail');
@@ -176,6 +201,8 @@ document.getElementById('addPart').onclick = async () => {
   if (document.getElementById('newUsageMid').checked) usages.push('midRail');
   if (document.getElementById('newUsageGlass').checked) usages.push('glassStop');
   if (document.getElementById('newUsageDoorBacker').checked) usages.push('doorBacker');
+  if (document.getElementById('newUsageLug').checked) usages.push('lug');
+  if (document.getElementById('newUsageFastener').checked) usages.push('fastener');
   if (document.getElementById('newUsageHingeJamb').checked) usages.push('hingeJamb');
   if (document.getElementById('newUsageLockJamb').checked) usages.push('lockJamb');
   if (document.getElementById('newUsageDoorHeader').checked) usages.push('doorHeader');
@@ -184,8 +211,11 @@ document.getElementById('addPart').onclick = async () => {
   if (document.getElementById('newUsageFrameBacker').checked) usages.push('frameBacker');
   const reqStr = document.getElementById('newPartRequires').value.trim();
   const requires = reqStr ? reqStr.split(',').map(s => s.trim()).filter(Boolean) : [];
-  await api('/parts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, usages, requires }) });
+  await api('/parts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, description, lx, ly, usages, requires }) });
   document.getElementById('newPartNumber').value = '';
+  document.getElementById('newPartDescription').value = '';
+  document.getElementById('newPartLX').value = '';
+  document.getElementById('newPartLY').value = '';
   document.getElementById('newUsageTop').checked = false;
   document.getElementById('newUsageBottom').checked = false;
   document.getElementById('newUsageHinge').checked = false;
@@ -193,6 +223,8 @@ document.getElementById('addPart').onclick = async () => {
   document.getElementById('newUsageMid').checked = false;
   document.getElementById('newUsageGlass').checked = false;
   document.getElementById('newUsageDoorBacker').checked = false;
+  document.getElementById('newUsageLug').checked = false;
+  document.getElementById('newUsageFastener').checked = false;
   document.getElementById('newUsageHingeJamb').checked = false;
   document.getElementById('newUsageLockJamb').checked = false;
   document.getElementById('newUsageDoorHeader').checked = false;

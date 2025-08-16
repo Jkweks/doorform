@@ -627,15 +627,3 @@ document.getElementById('exportJsonDownload').addEventListener('click', async ()
 });
 
 refreshJobList('', viewArchivedEl.checked);
-
-const darkBtn = document.getElementById('toggleDarkMode');
-if (darkBtn) {
-  if (localStorage.getItem('darkMode') === '1') {
-    document.body.classList.add('dark');
-    document.body
-  }
-  darkBtn.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('darkMode', document.body.classList.contains('dark') ? '1' : '0');
-  });
-}
