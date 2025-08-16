@@ -222,6 +222,58 @@ router.put('/doors/:id', async (req, res) => {
   }
 });
 
+// List project managers
+router.get('/project-managers', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM project_managers ORDER BY id');
+    res.json({ managers: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create a project manager
+router.post('/project-managers', async (req, res) => {
+  const { name } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO project_managers (name) VALUES ($1) RETURNING *',
+      [name]
+    );
+    res.json({ manager: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update a project manager
+router.put('/project-managers/:id', async (req, res) => {
+  const id = req.params.id;
+  const { name } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE project_managers SET name = $1 WHERE id = $2 RETURNING *',
+      [name, id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Project manager not found' });
+    res.json({ manager: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a project manager
+router.delete('/project-managers/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await pool.query('DELETE FROM project_managers WHERE id = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Project manager not found' });
+    res.json({ message: 'Project manager deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // List door part templates
 router.get('/door-part-templates', async (req, res) => {
   try {
@@ -241,6 +293,34 @@ router.post('/door-part-templates', async (req, res) => {
       [name, parts]
     );
     res.json({ template: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update a door part template
+router.put('/door-part-templates/:id', async (req, res) => {
+  const id = req.params.id;
+  const { name, parts } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE door_part_templates SET name = $1, parts = $2 WHERE id = $3 RETURNING *',
+      [name, parts, id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Template not found' });
+    res.json({ template: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a door part template
+router.delete('/door-part-templates/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await pool.query('DELETE FROM door_part_templates WHERE id = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Template not found' });
+    res.json({ message: 'Template deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
