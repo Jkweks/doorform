@@ -135,12 +135,7 @@ function renderEntries(entries = []) {
     const right = document.createElement('div');
     const ee = document.createElement('button'); ee.textContent = 'Edit Entry'; ee.onclick = () => openEntryModal(en); right.appendChild(ee);
     const ev = document.createElement('button'); ev.textContent = 'Edit Entry Data'; ev.onclick = () => openModalForEdit('entry', en); right.appendChild(ev);
-    if (en.frames && en.frames[0]) {
-      const ef = document.createElement('button'); ef.textContent = 'Edit Frame'; ef.onclick = () => openModalForEdit('frame', en.frames[0]); right.appendChild(ef);
-    }
-    (en.doors || []).forEach(d => {
-      const ed = document.createElement('button'); ed.textContent = `Edit Door ${d.leaf}`; ed.onclick = () => openModalForEdit('door', d); right.appendChild(ed);
-    });
+    const ep = document.createElement('button'); ep.textContent = 'Edit Parts'; ep.onclick = () => openPartsModal(en); right.appendChild(ep);
     item.appendChild(left); item.appendChild(right);
     el.appendChild(item);
   });
@@ -229,6 +224,30 @@ document.getElementById('addEntryModalSave').addEventListener('click', async () 
     if (wo) renderEntries(wo.entries);
   }
 });
+
+// Modal for selecting door/frame edits
+const partsModal = document.getElementById('partsModal');
+const partsContainer = document.getElementById('partsContainer');
+document.getElementById('partsModalClose').addEventListener('click', () => {
+  partsModal.style.display = 'none';
+});
+
+function openPartsModal(entry) {
+  partsContainer.innerHTML = '';
+  if (entry.frames && entry.frames[0]) {
+    const ef = document.createElement('button');
+    ef.textContent = 'Edit Frame';
+    ef.onclick = () => { partsModal.style.display = 'none'; openModalForEdit('frame', entry.frames[0]); };
+    partsContainer.appendChild(ef);
+  }
+  (entry.doors || []).forEach(d => {
+    const ed = document.createElement('button');
+    ed.textContent = `Edit Door ${d.leaf}`;
+    ed.onclick = () => { partsModal.style.display = 'none'; openModalForEdit('door', d); };
+    partsContainer.appendChild(ed);
+  });
+  partsModal.style.display = 'flex';
+}
 
 // Modal for editing entry/frame/door data
 const modal = document.getElementById('modal');
