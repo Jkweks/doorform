@@ -348,13 +348,12 @@ const bottomGapInput = document.getElementById('bottomGapInput');
 const hingeGapInput = document.getElementById('hingeGapInput');
 const strikeGapInput = document.getElementById('strikeGapInput');
 const doorPartPreset = document.getElementById("doorPartPreset");
-const doorPartsList = document.getElementById("doorPartsList");
-const addDoorPartBtn = document.getElementById("addDoorPart");
-const toggleHorizontalMidrail = document.getElementById("toggleHorizontalMidrail");
-const toggleVerticalMidrail = document.getElementById("toggleVerticalMidrail");
+const topRailInput = document.getElementById('topRailInput');
+const bottomRailInput = document.getElementById('bottomRailInput');
+const hingeRailInput = document.getElementById('hingeRailInput');
+const latchRailInput = document.getElementById('latchRailInput');
 let modalMode = null;
-let doorPartTemplates = [];
-const PART_TYPES = ["Top Rail","Bottom Rail","Hinge Stile","Lock Stile","Int Glass Stop","Ext Glass Stop","Horizontal Midrail","Vertical Midrail"];
+let doorPartPresetsLoaded = false;
 
 function showModalTab(tab) {
   formulaTab.classList.toggle('active', tab === 'formula');
@@ -368,6 +367,29 @@ function showModalTab(tab) {
 formulaTabBtn.addEventListener('click', () => showModalTab('formula'));
 partsTabBtn.addEventListener('click', () => showModalTab('parts'));
 globalTabBtn.addEventListener('click', () => showModalTab('global'));
+
+function loadDoorPartPresets() {
+  if (doorPartPresetsLoaded) return;
+  doorPartPreset.innerHTML = '<option value=""></option>';
+  (DOOR_PART_PRESETS || []).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.name;
+    doorPartPreset.appendChild(opt);
+  });
+  doorPartPresetsLoaded = true;
+}
+
+doorPartPreset.addEventListener('change', () => {
+  const preset = (DOOR_PART_PRESETS || []).find(p => p.id === doorPartPreset.value);
+  if (preset) {
+    topRailInput.value = preset.topRail || '';
+    bottomRailInput.value = preset.bottomRail || '';
+    hingeRailInput.value = preset.hingeRail || '';
+    latchRailInput.value = preset.latchRail || '';
+  }
+});
+
 async function openModalForEdit(kind, serverRec) {
   modalMode = { kind, serverRec };
   kvContainer.innerHTML = '';
@@ -386,17 +408,18 @@ async function openModalForEdit(kind, serverRec) {
     partsTabBtn.style.display = 'none';
     showModalTab('formula');
   } else if (kind === 'door') {
-    const excluded = ['parts', 'partPreset'];
+    const excluded = ['parts', 'partPreset', 'topRail', 'bottomRail', 'hingeRail', 'latchRail'];
     entries = entries.filter(([k]) => !excluded.includes(k));
     modalTabs.style.display = 'flex';
     formulaTabBtn.style.display = '';
     globalTabBtn.style.display = 'none';
     partsTabBtn.style.display = '';
-    await loadDoorPartTemplates();
+    loadDoorPartPresets();
     doorPartPreset.value = data.partPreset || '';
-    doorPartsList.innerHTML = '';
-    (data.parts || []).forEach(p => addPartRow(p));
-    updateMidrailCheckboxes();
+    topRailInput.value = data.topRail || '';
+    bottomRailInput.value = data.bottomRail || '';
+    hingeRailInput.value = data.hingeRail || '';
+    latchRailInput.value = data.latchRail || '';
     showModalTab('formula');
   } else {
     modalTabs.style.display = 'none';
@@ -406,91 +429,6 @@ async function openModalForEdit(kind, serverRec) {
   document.getElementById('modalTitle').textContent = 'Edit ' + kind.charAt(0).toUpperCase() + kind.slice(1);
   modal.style.display = 'flex';
 }
-
-async function loadDoorPartTemplates() {
-  if (doorPartTemplates.length) return;
-  const r = await api('/door-part-templates');
-  if (r.ok) {
-    doorPartTemplates = r.json.templates || r.json || [];
-    doorPartPreset.innerHTML = '<option value=""></option>';
-    doorPartTemplates.forEach(t => {
-      const opt = document.createElement('option');
-      const val = t.id || t.name || t.label || '';
-      opt.value = val;
-      opt.textContent = t.name || t.label || t.id || val;
-      opt.dataset.parts = JSON.stringify(t.parts || []);
-      doorPartPreset.appendChild(opt);
-    });
-  }
-}
-
-function addPartRow(part = { type: 'Top Rail', Part_LZ: '', Part_LY: '' }) {
-  const row = document.createElement('div');
-  row.className = 'part-row';
-  const sel = document.createElement('select');
-  PART_TYPES.forEach(pt => {
-    const opt = document.createElement('option');
-    opt.value = pt;
-    opt.textContent = pt;
-    sel.appendChild(opt);
-  });
-  sel.value = part.type || 'Top Rail';
-  const lz = document.createElement('input');
-  lz.type = 'number';
-  lz.step = 'any';
-  lz.value = part.Part_LZ || '';
-  const ly = document.createElement('input');
-  ly.type = 'number';
-  ly.step = 'any';
-  ly.value = part.Part_LY || '';
-  const rm = document.createElement('button');
-  rm.textContent = '✖';
-  rm.onclick = () => { row.remove(); updateMidrailCheckboxes(); };
-  row.appendChild(sel);
-  row.appendChild(lz);
-  row.appendChild(ly);
-  row.appendChild(rm);
-  doorPartsList.appendChild(row);
-  updateMidrailCheckboxes();
-}
-
-function updateMidrailCheckboxes() {
-  const types = Array.from(doorPartsList.querySelectorAll('select')).map(s => s.value);
-  toggleHorizontalMidrail.checked = types.includes('Horizontal Midrail');
-  toggleVerticalMidrail.checked = types.includes('Vertical Midrail');
-}
-
-doorPartPreset.addEventListener('change', () => {
-  const opt = doorPartPreset.options[doorPartPreset.selectedIndex];
-  const parts = opt && opt.dataset.parts ? JSON.parse(opt.dataset.parts) : [];
-  doorPartsList.innerHTML = '';
-  parts.forEach(p => addPartRow(p));
-  updateMidrailCheckboxes();
-});
-
-addDoorPartBtn.addEventListener('click', () => { addPartRow(); });
-
-toggleHorizontalMidrail.addEventListener('change', () => {
-  if (toggleHorizontalMidrail.checked) {
-    addPartRow({ type: 'Horizontal Midrail' });
-  } else {
-    Array.from(doorPartsList.querySelectorAll('.part-row')).forEach(r => {
-      if (r.querySelector('select').value === 'Horizontal Midrail') r.remove();
-    });
-  }
-  updateMidrailCheckboxes();
-});
-
-toggleVerticalMidrail.addEventListener('change', () => {
-  if (toggleVerticalMidrail.checked) {
-    addPartRow({ type: 'Vertical Midrail' });
-  } else {
-    Array.from(doorPartsList.querySelectorAll('.part-row')).forEach(r => {
-      if (r.querySelector('select').value === 'Vertical Midrail') r.remove();
-    });
-  }
-  updateMidrailCheckboxes();
-});
 
 function addKVrow(k = '', v = '') {
   const row = document.createElement('div');
@@ -521,13 +459,10 @@ document.getElementById('modalSave').addEventListener('click', async () => {
     } else if (modalMode.kind === 'door') {
       endpoint = `/doors/${modalMode.serverRec.id}`;
       fields.partPreset = doorPartPreset.value;
-      const parts = [];
-      doorPartsList.querySelectorAll('.part-row').forEach(row => {
-        const sel = row.querySelector('select').value;
-        const inputs = row.querySelectorAll('input');
-        parts.push({ type: sel, Part_LZ: inputs[0].value, Part_LY: inputs[1].value });
-      });
-      fields.parts = parts;
+      fields.topRail = topRailInput.value;
+      fields.bottomRail = bottomRailInput.value;
+      fields.hingeRail = hingeRailInput.value;
+      fields.latchRail = latchRailInput.value;
       payload = { data: fields };
     } else if (modalMode.kind === 'entry') {
     endpoint = `/entries/${modalMode.serverRec.id}`;

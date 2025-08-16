@@ -95,19 +95,11 @@
   </div>
 </div>
 
-<!-- modal for editing frame and door leafs -->
+<!-- modal for selecting door or frame to edit -->
 <div id="partsModal" class="modal-overlay">
   <div class="modal-body">
     <h3>Edit Parts</h3>
-    <div id="partsContainer" class="action-buttons">      <div id="partsTab" class="tab-content">
-        <label for="doorPartPreset">Preset</label>
-        <select id="doorPartPreset"></select>
-        <div id="doorPartsList"></div>
-        <button id="addDoorPart">Add Part</button>
-        <label class="checkbox"><input id="toggleHorizontalMidrail" type="checkbox" /> Horizontal Midrail</label>
-        <label class="checkbox"><input id="toggleVerticalMidrail" type="checkbox" /> Vertical Midrail</label>
-      </div>
-</div>
+    <div id="partsContainer" class="action-buttons"></div>
     <div class="modal-actions">
       <button id="partsModalClose">Close</button>
     </div>
@@ -138,12 +130,16 @@
       <input id="strikeGapInput" type="number" step="any" />
     </div>
       <div id="partsTab" class="tab-content">
-        <label for="doorPartPreset">Preset</label>
+        <label for="doorPartPreset">Door Preset</label>
         <select id="doorPartPreset"></select>
-        <div id="doorPartsList"></div>
-        <button id="addDoorPart">Add Part</button>
-        <label class="checkbox"><input id="toggleHorizontalMidrail" type="checkbox" /> Horizontal Midrail</label>
-        <label class="checkbox"><input id="toggleVerticalMidrail" type="checkbox" /> Vertical Midrail</label>
+        <label for="topRailInput">Top Rail</label>
+        <input id="topRailInput" type="text" />
+        <label for="bottomRailInput">Bottom Rail</label>
+        <input id="bottomRailInput" type="text" />
+        <label for="hingeRailInput">Hinge Rail</label>
+        <input id="hingeRailInput" type="text" />
+        <label for="latchRailInput">Latch Rail</label>
+        <input id="latchRailInput" type="text" />
       </div>
     <div class="modal-actions">
       <button id="modalSave">Save</button>
@@ -151,6 +147,7 @@
     </div>
   </div>
 </div>
+  <script src="js/doorPartPresets.js"></script>
   <script src="js/app.js"></script>
   <script src="js/pdf.js"></script>
 </body>
