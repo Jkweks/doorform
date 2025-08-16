@@ -9,7 +9,6 @@
 <body>
   <h1>Data Management</h1>
   <a href="index.html">Back to Job Manager</a>
-
   <div class="panel">
     <h2>Project Managers</h2>
     <div id="pmList" class="list"></div>
@@ -17,7 +16,6 @@
     <input id="newPmName" type="text" />
     <button id="addPm">Add</button>
   </div>
-
   <div class="panel">
     <h2>Door Part Templates</h2>
     <div id="templateList" class="list"></div>
@@ -34,10 +32,21 @@
     <label for="newPartNumber">Part Number</label>
     <input id="newPartNumber" type="text" />
     <div>
+      <p><strong>Door Parts</strong></p>
       <label class="checkbox"><input id="newUsageTop" type="checkbox" /> Top Rail</label>
       <label class="checkbox"><input id="newUsageBottom" type="checkbox" /> Bottom Rail</label>
       <label class="checkbox"><input id="newUsageHinge" type="checkbox" /> Hinge Rail</label>
       <label class="checkbox"><input id="newUsageLock" type="checkbox" /> Lock Rail</label>
+      <label class="checkbox"><input id="newUsageMid" type="checkbox" /> Mid Rail</label>
+      <label class="checkbox"><input id="newUsageGlass" type="checkbox" /> Glass Stop</label>
+      <label class="checkbox"><input id="newUsageDoorBacker" type="checkbox" /> Backer</label>
+      <p><strong>Frame Parts</strong></p>
+      <label class="checkbox"><input id="newUsageHingeJamb" type="checkbox" /> Hinge Jamb</label>
+      <label class="checkbox"><input id="newUsageLockJamb" type="checkbox" /> Lock Jamb</label>
+      <label class="checkbox"><input id="newUsageDoorHeader" type="checkbox" /> Door Header</label>
+      <label class="checkbox"><input id="newUsageTransomHeader" type="checkbox" /> Transom Header</label>
+      <label class="checkbox"><input id="newUsageDoorStop" type="checkbox" /> Door Stop</label>
+      <label class="checkbox"><input id="newUsageFrameBacker" type="checkbox" /> Backer</label>
     </div>
     <label for="newPartRequires">Requires (comma-separated)</label>
     <input id="newPartRequires" type="text" />
@@ -48,12 +57,10 @@
     <h2>Frame Parts</h2>
     <p class="muted">Coming soon...</p>
   </div>
-
   <div class="panel">
     <h2>Hardware</h2>
     <p class="muted">Coming soon...</p>
   </div>
-
   <script src="js/data.js"></script>
 </body>
 </html>

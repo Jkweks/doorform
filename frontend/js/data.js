@@ -5,12 +5,10 @@ function api(path, opts = {}) {
     try { return { ok: r.ok, json: JSON.parse(txt), status: r.status }; } catch(e) { return { ok: r.ok, text: txt, status: r.status }; }
   });
 }
-
 async function loadProjectManagers() {
   const res = await api('/project-managers');
   if (res.ok) renderProjectManagers(res.json.managers || []);
 }
-
 function renderProjectManagers(managers) {
   const list = document.getElementById('pmList');
   list.innerHTML = '';
@@ -38,7 +36,6 @@ function renderProjectManagers(managers) {
     list.appendChild(item);
   });
 }
-
 document.getElementById('addPm').onclick = async () => {
   const name = document.getElementById('newPmName').value.trim();
   if (!name) return;
@@ -46,12 +43,10 @@ document.getElementById('addPm').onclick = async () => {
   document.getElementById('newPmName').value = '';
   loadProjectManagers();
 };
-
 async function loadTemplates() {
   const res = await api('/door-part-templates');
   if (res.ok) renderTemplates(res.json.templates || []);
 }
-
 function renderTemplates(templates) {
   const list = document.getElementById('templateList');
   list.innerHTML = '';
@@ -83,7 +78,6 @@ function renderTemplates(templates) {
     list.appendChild(item);
   });
 }
-
 document.getElementById('addTemplate').onclick = async () => {
   const name = document.getElementById('newTemplateName').value.trim();
   const partsStr = document.getElementById('newTemplateParts').value.trim();
@@ -123,7 +117,7 @@ function renderParts(parts) {
     edit.onclick = () => {
       const number = prompt('Part number', p.number);
       if (number === null) return;
-      const usagesStr = prompt('Usages (comma-separated topRail,bottomRail,hingeRail,lockRail)', (p.usages || []).join(','));
+      const usagesStr = prompt('Usages (comma-separated topRail,bottomRail,hingeRail,lockRail,midRail,glassStop,doorBacker,hingeJamb,lockJamb,doorHeader,transomHeader,doorStop,frameBacker)', (p.usages || []).join(','));
       if (usagesStr === null) return;
       const requiresStr = prompt('Requires (comma-separated part numbers)', (p.requires || []).join(','));
       const usages = usagesStr.split(',').map(s => s.trim()).filter(Boolean);
@@ -150,6 +144,15 @@ document.getElementById('addPart').onclick = async () => {
   if (document.getElementById('newUsageBottom').checked) usages.push('bottomRail');
   if (document.getElementById('newUsageHinge').checked) usages.push('hingeRail');
   if (document.getElementById('newUsageLock').checked) usages.push('lockRail');
+  if (document.getElementById('newUsageMid').checked) usages.push('midRail');
+  if (document.getElementById('newUsageGlass').checked) usages.push('glassStop');
+  if (document.getElementById('newUsageDoorBacker').checked) usages.push('doorBacker');
+  if (document.getElementById('newUsageHingeJamb').checked) usages.push('hingeJamb');
+  if (document.getElementById('newUsageLockJamb').checked) usages.push('lockJamb');
+  if (document.getElementById('newUsageDoorHeader').checked) usages.push('doorHeader');
+  if (document.getElementById('newUsageTransomHeader').checked) usages.push('transomHeader');
+  if (document.getElementById('newUsageDoorStop').checked) usages.push('doorStop');
+  if (document.getElementById('newUsageFrameBacker').checked) usages.push('frameBacker');
   const reqStr = document.getElementById('newPartRequires').value.trim();
   const requires = reqStr ? reqStr.split(',').map(s => s.trim()).filter(Boolean) : [];
   await api('/parts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, usages, requires }) });
@@ -158,6 +161,15 @@ document.getElementById('addPart').onclick = async () => {
   document.getElementById('newUsageBottom').checked = false;
   document.getElementById('newUsageHinge').checked = false;
   document.getElementById('newUsageLock').checked = false;
+  document.getElementById('newUsageMid').checked = false;
+  document.getElementById('newUsageGlass').checked = false;
+  document.getElementById('newUsageDoorBacker').checked = false;
+  document.getElementById('newUsageHingeJamb').checked = false;
+  document.getElementById('newUsageLockJamb').checked = false;
+  document.getElementById('newUsageDoorHeader').checked = false;
+  document.getElementById('newUsageTransomHeader').checked = false;
+  document.getElementById('newUsageDoorStop').checked = false;
+  document.getElementById('newUsageFrameBacker').checked = false;
   document.getElementById('newPartRequires').value = '';
   loadParts();
 };
