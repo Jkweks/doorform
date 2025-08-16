@@ -13,6 +13,12 @@ CREATE TABLE IF NOT EXISTS jobs (
 -- If jobs table exists from a previous version, ensure old work_order column is removed
 ALTER TABLE jobs DROP COLUMN IF EXISTS work_order;
 
+-- List of project managers that can be assigned to jobs
+CREATE TABLE IF NOT EXISTS project_managers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE
+);
+
 -- Work orders belong to a job and can be archived individually
 CREATE TABLE IF NOT EXISTS work_orders (
     id SERIAL PRIMARY KEY,

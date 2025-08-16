@@ -21,14 +21,16 @@ const DEFAULT_GLOBALS = {
 
 async function loadProjectManagers() {
   try {
-    const res = await fetch('data/project-managers.json');
-    projectManagers = await res.json();
+    const res = await api('/project-managers');
+    if (!res.ok) throw new Error(res.status);
+    projectManagers = res.json.managers || [];
     const pmSelect = document.getElementById('pm');
     pmSelect.innerHTML = '<option value=""></option>';
     projectManagers.forEach(pm => {
+      const name = pm.name || pm;
       const opt = document.createElement('option');
-      opt.value = pm;
-      opt.textContent = pm;
+      opt.value = name;
+      opt.textContent = name;
       pmSelect.appendChild(opt);
     });
   } catch (err) {

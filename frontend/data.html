@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Management</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <h1>Data Management</h1>
+  <a href="index.html">Back to Job Manager</a>
+
+  <div class="panel">
+    <h2>Project Managers</h2>
+    <div id="pmList" class="list"></div>
+    <label for="newPmName">Add Project Manager</label>
+    <input id="newPmName" type="text" />
+    <button id="addPm">Add</button>
+  </div>
+
+  <div class="panel">
+    <h2>Door Part Templates</h2>
+    <div id="templateList" class="list"></div>
+    <label for="newTemplateName">Template Name</label>
+    <input id="newTemplateName" type="text" />
+    <label for="newTemplateParts">Parts (JSON)</label>
+    <textarea id="newTemplateParts"></textarea>
+    <button id="addTemplate">Add Template</button>
+  </div>
+
+  <div class="panel">
+    <h2>Frame Parts</h2>
+    <p class="muted">Coming soon...</p>
+  </div>
+
+  <div class="panel">
+    <h2>Hardware</h2>
+    <p class="muted">Coming soon...</p>
+  </div>
+
+  <script src="js/data.js"></script>
+</body>
+</html>
