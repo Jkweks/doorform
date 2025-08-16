@@ -10,6 +10,27 @@ let loadedJob = null;
 let selectedWorkOrderId = null;
 let editingEntry = null;
 
+let projectManagers = [];
+
+async function loadProjectManagers() {
+  try {
+    const res = await fetch('data/project-managers.json');
+    projectManagers = await res.json();
+    const pmSelect = document.getElementById('pm');
+    pmSelect.innerHTML = '<option value=""></option>';
+    projectManagers.forEach(pm => {
+      const opt = document.createElement('option');
+      opt.value = pm;
+      opt.textContent = pm;
+      pmSelect.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('Failed to load project managers', err);
+  }
+}
+
+loadProjectManagers();
+
 async function refreshJobList(filter = '', includeArchived = false) {
   const { json } = await api('/jobs?includeArchived=' + includeArchived);
   const sel = document.getElementById('jobsSelect');
@@ -58,7 +79,15 @@ document.getElementById('loadSelected').addEventListener('click', async () => {
   document.getElementById('jobId').value = data.job.id;
   document.getElementById('jobNumber').value = data.job.job_number || '';
   document.getElementById('jobName').value = data.job.job_name || '';
-  document.getElementById('pm').value = data.job.pm || '';
+  const pmSelect = document.getElementById('pm');
+  const pmValue = data.job.pm || '';
+  if (!Array.from(pmSelect.options).some(o => o.value === pmValue)) {
+    const opt = document.createElement('option');
+    opt.value = pmValue;
+    opt.textContent = pmValue;
+    pmSelect.appendChild(opt);
+  }
+  pmSelect.value = pmValue;
   document.getElementById('archived').checked = !!data.job.archived;
   renderWorkOrders(data.workOrders);
   renderEntries([]);
