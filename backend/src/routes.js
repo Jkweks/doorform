@@ -1,3 +1,6 @@
+// Central API router exposing CRUD endpoints for jobs, work orders,
+// entries, frames, doors, project managers and parts. All database
+// access goes through the shared connection pool.
 const express = require('express');
 const pool = require('./db');
 

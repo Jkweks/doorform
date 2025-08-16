@@ -1,3 +1,5 @@
+// Admin utilities for managing project managers, parts and door templates
+// separate from the primary job interface.
 const API_BASE = 'http://192.168.4.251:3000'; // same base as main app
 function api(path, opts = {}) {
   return fetch(API_BASE + '/api' + path, opts).then(async r => {

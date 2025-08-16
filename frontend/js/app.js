@@ -1,3 +1,6 @@
+// Client-side script for the main job management interface. Handles
+// loading jobs, work orders and entries and persisting changes via the
+// backend API.
 const API_BASE = 'http://192.168.4.251:3000'; // if frontend served from same origin, keep ''.
 function api(path, opts = {}) {
   return fetch(API_BASE + '/api' + path, opts).then(async r => {

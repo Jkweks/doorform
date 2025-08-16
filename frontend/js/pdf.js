@@ -1,3 +1,5 @@
+// Utility to render a simple job report PDF using jsPDF. Accepts job
+// metadata along with arrays of frame and door details.
 function generatePdf(job, frames, doors) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();

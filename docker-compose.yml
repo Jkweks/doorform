@@ -1,3 +1,6 @@
+# Docker Compose configuration for local development. It spins up
+# a PostgreSQL database, the Node.js backend API, and a static
+# frontend served by nginx.
 version: "3.8"
 
 networks:
