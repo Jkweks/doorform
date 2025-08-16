@@ -98,7 +98,15 @@
 <div id="partsModal" class="modal-overlay">
   <div class="modal-body">
     <h3>Edit Parts</h3>
-    <div id="partsContainer" class="action-buttons"></div>
+    <div id="partsContainer" class="action-buttons">      <div id="partsTab" class="tab-content">
+        <label for="doorPartPreset">Preset</label>
+        <select id="doorPartPreset"></select>
+        <div id="doorPartsList"></div>
+        <button id="addDoorPart">Add Part</button>
+        <label class="checkbox"><input id="toggleHorizontalMidrail" type="checkbox" /> Horizontal Midrail</label>
+        <label class="checkbox"><input id="toggleVerticalMidrail" type="checkbox" /> Vertical Midrail</label>
+      </div>
+</div>
     <div class="modal-actions">
       <button id="partsModalClose">Close</button>
     </div>
@@ -112,6 +120,7 @@
     <div id="modalTabs" class="tabs">
       <button id="formulaTabBtn" class="active" data-tab="formula">Formula</button>
       <button id="globalTabBtn" data-tab="global">Global Settings</button>
+      <button id="partsTabBtn" data-tab="parts">Parts</button>
     </div>
     <div id="formulaTab" class="tab-content">
       <div id="kvContainer"></div>
@@ -127,6 +136,14 @@
       <label for="strikeGapInput">Strike Gap</label>
       <input id="strikeGapInput" type="number" step="any" />
     </div>
+      <div id="partsTab" class="tab-content">
+        <label for="doorPartPreset">Preset</label>
+        <select id="doorPartPreset"></select>
+        <div id="doorPartsList"></div>
+        <button id="addDoorPart">Add Part</button>
+        <label class="checkbox"><input id="toggleHorizontalMidrail" type="checkbox" /> Horizontal Midrail</label>
+        <label class="checkbox"><input id="toggleVerticalMidrail" type="checkbox" /> Vertical Midrail</label>
+      </div>
     <div class="modal-actions">
       <button id="modalSave">Save</button>
       <button id="modalCancel">Cancel</button>

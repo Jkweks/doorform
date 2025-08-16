@@ -222,4 +222,82 @@ router.put('/doors/:id', async (req, res) => {
   }
 });
 
+// List door part templates
+router.get('/door-part-templates', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM door_part_templates ORDER BY id');
+    res.json({ templates: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create a door part template
+router.post('/door-part-templates', async (req, res) => {
+  const { name, parts } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO door_part_templates (name, parts) VALUES ($1, $2) RETURNING *',
+      [name, parts]
+    );
+    res.json({ template: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// List parts for a specific door
+router.get('/doors/:id/parts', async (req, res) => {
+  const doorId = req.params.id;
+  try {
+    const result = await pool.query('SELECT * FROM door_parts WHERE door_id = $1 ORDER BY id', [doorId]);
+    res.json({ parts: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Add a part to a door
+router.post('/doors/:id/parts', async (req, res) => {
+  const doorId = req.params.id;
+  const { partType, partLz, partLy, data } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [doorId, partType, partLz, partLy, data]
+    );
+    res.json({ part: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update a door part
+router.put('/door-parts/:id', async (req, res) => {
+  const id = req.params.id;
+  const { partType, partLz, partLy, data } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4 WHERE id = $5 RETURNING *',
+      [partType, partLz, partLy, data, id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Door part not found' });
+    res.json({ part: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a door part
+router.delete('/door-parts/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await pool.query('DELETE FROM door_parts WHERE id = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Door part not found' });
+    res.json({ message: 'Door part deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

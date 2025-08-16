@@ -291,24 +291,36 @@ const kvContainer = document.getElementById('kvContainer');
 const modalTabs = document.getElementById('modalTabs');
 const formulaTabBtn = document.getElementById('formulaTabBtn');
 const globalTabBtn = document.getElementById('globalTabBtn');
+const partsTabBtn = document.getElementById("partsTabBtn");
 const formulaTab = document.getElementById('formulaTab');
 const globalTab = document.getElementById('globalTab');
+const partsTab = document.getElementById("partsTab");
 const topGapInput = document.getElementById('topGapInput');
 const bottomGapInput = document.getElementById('bottomGapInput');
 const hingeGapInput = document.getElementById('hingeGapInput');
 const strikeGapInput = document.getElementById('strikeGapInput');
+const doorPartPreset = document.getElementById("doorPartPreset");
+const doorPartsList = document.getElementById("doorPartsList");
+const addDoorPartBtn = document.getElementById("addDoorPart");
+const toggleHorizontalMidrail = document.getElementById("toggleHorizontalMidrail");
+const toggleVerticalMidrail = document.getElementById("toggleVerticalMidrail");
 let modalMode = null;
+let doorPartTemplates = [];
+const PART_TYPES = ["Top Rail","Bottom Rail","Hinge Stile","Lock Stile","Int Glass Stop","Ext Glass Stop","Horizontal Midrail","Vertical Midrail"];
 
 function showModalTab(tab) {
   formulaTab.classList.toggle('active', tab === 'formula');
   globalTab.classList.toggle('active', tab === 'global');
+  partsTab.classList.toggle('active', tab === 'parts');
   formulaTabBtn.classList.toggle('active', tab === 'formula');
   globalTabBtn.classList.toggle('active', tab === 'global');
+  partsTabBtn.classList.toggle('active', tab === 'parts');
 }
 
 formulaTabBtn.addEventListener('click', () => showModalTab('formula'));
+partsTabBtn.addEventListener('click', () => showModalTab('parts'));
 globalTabBtn.addEventListener('click', () => showModalTab('global'));
-function openModalForEdit(kind, serverRec) {
+async function openModalForEdit(kind, serverRec) {
   modalMode = { kind, serverRec };
   kvContainer.innerHTML = '';
   const data = serverRec.data || {};
@@ -321,6 +333,22 @@ function openModalForEdit(kind, serverRec) {
     hingeGapInput.value = data.hingeGap !== undefined ? data.hingeGap : DEFAULT_GLOBALS.hingeGap;
     strikeGapInput.value = data.strikeGap !== undefined ? data.strikeGap : DEFAULT_GLOBALS.strikeGap;
     modalTabs.style.display = 'flex';
+    formulaTabBtn.style.display = '';
+    globalTabBtn.style.display = '';
+    partsTabBtn.style.display = 'none';
+    showModalTab('formula');
+  } else if (kind === 'door') {
+    const excluded = ['parts', 'partPreset'];
+    entries = entries.filter(([k]) => !excluded.includes(k));
+    modalTabs.style.display = 'flex';
+    formulaTabBtn.style.display = '';
+    globalTabBtn.style.display = 'none';
+    partsTabBtn.style.display = '';
+    await loadDoorPartTemplates();
+    doorPartPreset.value = data.partPreset || '';
+    doorPartsList.innerHTML = '';
+    (data.parts || []).forEach(p => addPartRow(p));
+    updateMidrailCheckboxes();
     showModalTab('formula');
   } else {
     modalTabs.style.display = 'none';
@@ -330,6 +358,92 @@ function openModalForEdit(kind, serverRec) {
   document.getElementById('modalTitle').textContent = 'Edit ' + kind.charAt(0).toUpperCase() + kind.slice(1);
   modal.style.display = 'flex';
 }
+
+async function loadDoorPartTemplates() {
+  if (doorPartTemplates.length) return;
+  const r = await api('/door-part-templates');
+  if (r.ok) {
+    doorPartTemplates = r.json.templates || r.json || [];
+    doorPartPreset.innerHTML = '<option value=""></option>';
+    doorPartTemplates.forEach(t => {
+      const opt = document.createElement('option');
+      const val = t.id || t.name || t.label || '';
+      opt.value = val;
+      opt.textContent = t.name || t.label || t.id || val;
+      opt.dataset.parts = JSON.stringify(t.parts || []);
+      doorPartPreset.appendChild(opt);
+    });
+  }
+}
+
+function addPartRow(part = { type: 'Top Rail', Part_LZ: '', Part_LY: '' }) {
+  const row = document.createElement('div');
+  row.className = 'part-row';
+  const sel = document.createElement('select');
+  PART_TYPES.forEach(pt => {
+    const opt = document.createElement('option');
+    opt.value = pt;
+    opt.textContent = pt;
+    sel.appendChild(opt);
+  });
+  sel.value = part.type || 'Top Rail';
+  const lz = document.createElement('input');
+  lz.type = 'number';
+  lz.step = 'any';
+  lz.value = part.Part_LZ || '';
+  const ly = document.createElement('input');
+  ly.type = 'number';
+  ly.step = 'any';
+  ly.value = part.Part_LY || '';
+  const rm = document.createElement('button');
+  rm.textContent = '✖';
+  rm.onclick = () => { row.remove(); updateMidrailCheckboxes(); };
+  row.appendChild(sel);
+  row.appendChild(lz);
+  row.appendChild(ly);
+  row.appendChild(rm);
+  doorPartsList.appendChild(row);
+  updateMidrailCheckboxes();
+}
+
+function updateMidrailCheckboxes() {
+  const types = Array.from(doorPartsList.querySelectorAll('select')).map(s => s.value);
+  toggleHorizontalMidrail.checked = types.includes('Horizontal Midrail');
+  toggleVerticalMidrail.checked = types.includes('Vertical Midrail');
+}
+
+doorPartPreset.addEventListener('change', () => {
+  const opt = doorPartPreset.options[doorPartPreset.selectedIndex];
+  const parts = opt && opt.dataset.parts ? JSON.parse(opt.dataset.parts) : [];
+  doorPartsList.innerHTML = '';
+  parts.forEach(p => addPartRow(p));
+  updateMidrailCheckboxes();
+});
+
+addDoorPartBtn.addEventListener('click', () => { addPartRow(); });
+
+toggleHorizontalMidrail.addEventListener('change', () => {
+  if (toggleHorizontalMidrail.checked) {
+    addPartRow({ type: 'Horizontal Midrail' });
+  } else {
+    Array.from(doorPartsList.querySelectorAll('.part-row')).forEach(r => {
+      if (r.querySelector('select').value === 'Horizontal Midrail') r.remove();
+    });
+  }
+  updateMidrailCheckboxes();
+});
+
+toggleVerticalMidrail.addEventListener('change', () => {
+  if (toggleVerticalMidrail.checked) {
+    addPartRow({ type: 'Vertical Midrail' });
+  } else {
+    Array.from(doorPartsList.querySelectorAll('.part-row')).forEach(r => {
+      if (r.querySelector('select').value === 'Vertical Midrail') r.remove();
+    });
+  }
+  updateMidrailCheckboxes();
+});
+
 function addKVrow(k = '', v = '') {
   const row = document.createElement('div');
   row.style.display = 'flex';
@@ -353,13 +467,21 @@ document.getElementById('modalSave').addEventListener('click', async () => {
   });
   let endpoint;
   let payload;
-  if (modalMode.kind === 'frame') {
-    endpoint = `/frames/${modalMode.serverRec.id}`;
-    payload = { data: fields };
-  } else if (modalMode.kind === 'door') {
-    endpoint = `/doors/${modalMode.serverRec.id}`;
-    payload = { data: fields };
-  } else if (modalMode.kind === 'entry') {
+    if (modalMode.kind === 'frame') {
+      endpoint = `/frames/${modalMode.serverRec.id}`;
+      payload = { data: fields };
+    } else if (modalMode.kind === 'door') {
+      endpoint = `/doors/${modalMode.serverRec.id}`;
+      fields.partPreset = doorPartPreset.value;
+      const parts = [];
+      doorPartsList.querySelectorAll('.part-row').forEach(row => {
+        const sel = row.querySelector('select').value;
+        const inputs = row.querySelectorAll('input');
+        parts.push({ type: sel, Part_LZ: inputs[0].value, Part_LY: inputs[1].value });
+      });
+      fields.parts = parts;
+      payload = { data: fields };
+    } else if (modalMode.kind === 'entry') {
     endpoint = `/entries/${modalMode.serverRec.id}`;
     const original = modalMode.serverRec.data || {};
     const preservedKeys = ['tag', 'openingWidth', 'openingHeight', 'topGap', 'bottomGap', 'hingeGap', 'strikeGap'];
