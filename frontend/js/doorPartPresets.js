@@ -5,6 +5,6 @@ const DOOR_PART_PRESETS = [
     topRail: 'TR-001',
     bottomRail: 'BR-001',
     hingeRail: 'HR-001',
-    latchRail: 'LR-001'
+    lockRail: 'LR-001'
   }
 ];
