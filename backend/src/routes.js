@@ -314,6 +314,61 @@ router.delete('/project-managers/:id', async (req, res) => {
   }
 });
 
+// List parts, optionally filtered by usage
+router.get('/parts', async (req, res) => {
+  const usage = req.query.usage;
+  try {
+    const result = usage
+      ? await pool.query('SELECT * FROM parts WHERE $1 = ANY(usages) ORDER BY number', [usage])
+      : await pool.query('SELECT * FROM parts ORDER BY number');
+    res.json({ parts: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create a part
+router.post('/parts', async (req, res) => {
+  const { number, description, usages, requires } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO parts (number, description, usages, requires) VALUES ($1, $2, $3, $4) RETURNING *',
+      [number, description, usages, requires]
+    );
+    res.json({ part: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update a part
+router.put('/parts/:id', async (req, res) => {
+  const id = req.params.id;
+  const { number, description, usages, requires } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE parts SET number = $1, description = $2, usages = $3, requires = $4 WHERE id = $5 RETURNING *',
+      [number, description, usages, requires, id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Part not found' });
+    res.json({ part: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a part
+router.delete('/parts/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await pool.query('DELETE FROM parts WHERE id = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Part not found' });
+    res.json({ message: 'Part deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // List door part templates
 router.get('/door-part-templates', async (req, res) => {
   try {

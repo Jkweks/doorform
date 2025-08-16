@@ -29,6 +29,22 @@
   </div>
 
   <div class="panel">
+    <h2>Parts</h2>
+    <div id="partList" class="list"></div>
+    <label for="newPartNumber">Part Number</label>
+    <input id="newPartNumber" type="text" />
+    <div>
+      <label class="checkbox"><input id="newUsageTop" type="checkbox" /> Top Rail</label>
+      <label class="checkbox"><input id="newUsageBottom" type="checkbox" /> Bottom Rail</label>
+      <label class="checkbox"><input id="newUsageHinge" type="checkbox" /> Hinge Rail</label>
+      <label class="checkbox"><input id="newUsageLock" type="checkbox" /> Lock Rail</label>
+    </div>
+    <label for="newPartRequires">Requires (comma-separated)</label>
+    <input id="newPartRequires" type="text" />
+    <button id="addPart">Add Part</button>
+  </div>
+
+  <div class="panel">
     <h2>Frame Parts</h2>
     <p class="muted">Coming soon...</p>
   </div>

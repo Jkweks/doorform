@@ -4,7 +4,7 @@ const pool = require('../src/db');
 
 jest.mock('../src/db');
 
-describe('GET /api/templates', () => {
+describe('GET /api/door-part-templates', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -12,10 +12,10 @@ describe('GET /api/templates', () => {
   test('retrieves templates from the database', async () => {
     pool.query.mockResolvedValueOnce({ rows: [{ id: 1, name: 'Template A', parts: { foo: 'bar' } }] });
 
-    const res = await request(app).get('/api/templates');
+    const res = await request(app).get('/api/door-part-templates');
 
     expect(res.status).toBe(200);
     expect(res.body.templates).toEqual([{ id: 1, name: 'Template A', parts: { foo: 'bar' } }]);
-    expect(pool.query).toHaveBeenCalledWith('SELECT * FROM door_part_templates');
+    expect(pool.query).toHaveBeenCalledWith('SELECT * FROM door_part_templates ORDER BY id');
   });
 });

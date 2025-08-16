@@ -22,14 +22,14 @@ describe('Door Parts API', () => {
     pool.query.mockResolvedValueOnce({ rows: [part] });
 
     const res = await request(app)
-      .post('/api/door-parts')
-      .send({ doorId: 1, partType: 'hinge', partLz: 1.25, partLy: 2.5, data: { foo: 'bar' } });
+      .post('/api/doors/1/parts')
+      .send({ partType: 'hinge', partLz: 1.25, partLy: 2.5, data: { foo: 'bar' } });
 
     expect(res.status).toBe(200);
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
       'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, 'hinge', 1.25, 2.5, { foo: 'bar' }]
+      ['1', 'hinge', 1.25, 2.5, { foo: 'bar' }]
     );
   });
 
