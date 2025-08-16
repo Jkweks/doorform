@@ -286,7 +286,12 @@ function openModalForEdit(kind, serverRec) {
   modalMode = { kind, serverRec };
   kvContainer.innerHTML = '';
   const data = serverRec.data || {};
-  Object.entries(data).forEach(([k, v]) => addKVrow(k, v));
+  let entries = Object.entries(data);
+  if (kind === 'entry') {
+    const excluded = ['tag', 'openingWidth', 'openingHeight'];
+    entries = entries.filter(([k]) => !excluded.includes(k));
+  }
+  entries.forEach(([k, v]) => addKVrow(k, v));
   document.getElementById('modalTitle').textContent = 'Edit ' + kind.charAt(0).toUpperCase() + kind.slice(1);
   modal.style.display = 'flex';
 }
@@ -321,7 +326,15 @@ document.getElementById('modalSave').addEventListener('click', async () => {
     payload = { data: fields };
   } else if (modalMode.kind === 'entry') {
     endpoint = `/entries/${modalMode.serverRec.id}`;
-    payload = { handing: modalMode.serverRec.handing, data: fields };
+    const original = modalMode.serverRec.data || {};
+    const preservedKeys = ['tag', 'openingWidth', 'openingHeight'];
+    const preserved = {};
+    preservedKeys.forEach(k => {
+      if (original[k] !== undefined) preserved[k] = original[k];
+    });
+    const data = { ...preserved };
+    Object.keys(fields).forEach(k => { data[k] = fields[k]; });
+    payload = { handing: modalMode.serverRec.handing, data };
   }
   const r = await api(endpoint, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
   if (!r.ok) return alert('Failed to save');
@@ -351,8 +364,8 @@ async function exportJobToPDF(jobId) {
   (data.workOrders || []).forEach(wo => {
     (wo.entries || []).forEach(en => {
       entries.push(en);
-      frames.push(...(en.frames || []));
-      doors.push(...(en.doors || []));
+      (en.frames || []).forEach(fr => frames.push({ frame: fr, entry: en.data || {} }));
+      (en.doors || []).forEach(dr => doors.push({ door: dr, entry: en.data || {} }));
     });
   });
   const { jsPDF } = window.jspdf;
@@ -402,14 +415,21 @@ async function exportJobToPDF(jobId) {
     doc.rect(imgX, startY, imgW, imgH);
     doc.setFontSize(12);
     doc.text('Frame Image Placeholder', 306, startY + imgH / 2, { align: 'center', baseline: 'middle' });
-    writeKeyVals(frames[i].data, `Frame ${i + 1}`, startY + imgH + 40);
+    let y2 = startY + imgH + 40;
+    y2 = writeKeyVals(frames[i].entry, 'Entry', y2);
+    y2 += 20;
+    writeKeyVals(frames[i].frame.data, `Frame ${i + 1}`, y2);
   }
   for (let i = 0; i < doors.length; i++) {
     doc.addPage();
     doc.rect(imgX, startY, imgW, imgH);
     doc.setFontSize(12);
     doc.text('Door Image Placeholder', 306, startY + imgH / 2, { align: 'center', baseline: 'middle' });
-    writeKeyVals(doors[i].data, `Door ${i + 1}`, startY + imgH + 40);
+    let y2 = startY + imgH + 40;
+    y2 = writeKeyVals(doors[i].entry, 'Entry', y2);
+    y2 += 20;
+    const doorLabel = doors[i].door.leaf ? `Door ${doors[i].door.leaf}` : `Door ${i + 1}`;
+    writeKeyVals(doors[i].door.data, doorLabel, y2);
   }
   const filename = `Job_${job.job_number || 'no-number'}.pdf`;
   doc.save(filename);
