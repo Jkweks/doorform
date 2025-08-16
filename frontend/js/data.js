@@ -100,3 +100,64 @@ document.getElementById('addTemplate').onclick = async () => {
 
 loadProjectManagers();
 loadTemplates();
+loadParts();
+
+async function loadParts() {
+  const res = await api('/parts');
+  if (res.ok) renderParts(res.json.parts || []);
+}
+
+function renderParts(parts) {
+  const list = document.getElementById('partList');
+  list.innerHTML = '';
+  (parts || []).forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'item';
+    const left = document.createElement('div');
+    const usages = (p.usages || []).join(', ');
+    const req = (p.requires && p.requires.length) ? ` (requires ${p.requires.join(', ')})` : '';
+    left.innerHTML = `<strong>${p.number}</strong> — ${usages}${req}`;
+    const right = document.createElement('div');
+    const edit = document.createElement('button');
+    edit.textContent = 'Edit';
+    edit.onclick = () => {
+      const number = prompt('Part number', p.number);
+      if (number === null) return;
+      const usagesStr = prompt('Usages (comma-separated topRail,bottomRail,hingeRail,lockRail)', (p.usages || []).join(','));
+      if (usagesStr === null) return;
+      const requiresStr = prompt('Requires (comma-separated part numbers)', (p.requires || []).join(','));
+      const usages = usagesStr.split(',').map(s => s.trim()).filter(Boolean);
+      const requires = requiresStr.split(',').map(s => s.trim()).filter(Boolean);
+      api(`/parts/${p.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, usages, requires }) }).then(loadParts);
+    };
+    const del = document.createElement('button');
+    del.textContent = 'Delete';
+    del.onclick = () => {
+      if (!confirm('Delete part ' + p.number + '?')) return;
+      api(`/parts/${p.id}`, { method: 'DELETE' }).then(loadParts);
+    };
+    right.appendChild(edit); right.appendChild(del);
+    item.appendChild(left); item.appendChild(right);
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('addPart').onclick = async () => {
+  const number = document.getElementById('newPartNumber').value.trim();
+  if (!number) return;
+  const usages = [];
+  if (document.getElementById('newUsageTop').checked) usages.push('topRail');
+  if (document.getElementById('newUsageBottom').checked) usages.push('bottomRail');
+  if (document.getElementById('newUsageHinge').checked) usages.push('hingeRail');
+  if (document.getElementById('newUsageLock').checked) usages.push('lockRail');
+  const reqStr = document.getElementById('newPartRequires').value.trim();
+  const requires = reqStr ? reqStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+  await api('/parts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, usages, requires }) });
+  document.getElementById('newPartNumber').value = '';
+  document.getElementById('newUsageTop').checked = false;
+  document.getElementById('newUsageBottom').checked = false;
+  document.getElementById('newUsageHinge').checked = false;
+  document.getElementById('newUsageLock').checked = false;
+  document.getElementById('newPartRequires').value = '';
+  loadParts();
+};

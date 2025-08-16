@@ -348,12 +348,13 @@ const bottomGapInput = document.getElementById('bottomGapInput');
 const hingeGapInput = document.getElementById('hingeGapInput');
 const strikeGapInput = document.getElementById('strikeGapInput');
 const doorPartPreset = document.getElementById("doorPartPreset");
-const topRailInput = document.getElementById('topRailInput');
-const bottomRailInput = document.getElementById('bottomRailInput');
-const hingeRailInput = document.getElementById('hingeRailInput');
-const latchRailInput = document.getElementById('latchRailInput');
+const topRailSelect = document.getElementById('topRailSelect');
+const bottomRailSelect = document.getElementById('bottomRailSelect');
+const hingeRailSelect = document.getElementById('hingeRailSelect');
+const lockRailSelect = document.getElementById('lockRailSelect');
 let modalMode = null;
 let doorPartPresetsLoaded = false;
+let partsCache = null;
 
 function showModalTab(tab) {
   formulaTab.classList.toggle('active', tab === 'formula');
@@ -383,12 +384,31 @@ function loadDoorPartPresets() {
 doorPartPreset.addEventListener('change', () => {
   const preset = (DOOR_PART_PRESETS || []).find(p => p.id === doorPartPreset.value);
   if (preset) {
-    topRailInput.value = preset.topRail || '';
-    bottomRailInput.value = preset.bottomRail || '';
-    hingeRailInput.value = preset.hingeRail || '';
-    latchRailInput.value = preset.latchRail || '';
+    topRailSelect.value = preset.topRail || '';
+    bottomRailSelect.value = preset.bottomRail || '';
+    hingeRailSelect.value = preset.hingeRail || '';
+    lockRailSelect.value = preset.lockRail || '';
   }
 });
+
+async function loadPartsCache() {
+  if (partsCache) return partsCache;
+  const res = await api('/parts');
+  partsCache = res.ok ? res.json.parts || [] : [];
+  return partsCache;
+}
+
+function populateRailSelect(selectEl, usage, current) {
+  const parts = (partsCache || []).filter(p => (p.usages || []).includes(usage));
+  selectEl.innerHTML = '<option value=""></option>';
+  parts.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.number;
+    opt.textContent = p.number;
+    selectEl.appendChild(opt);
+  });
+  selectEl.value = current || '';
+}
 
 async function openModalForEdit(kind, serverRec) {
   modalMode = { kind, serverRec };
@@ -408,18 +428,19 @@ async function openModalForEdit(kind, serverRec) {
     partsTabBtn.style.display = 'none';
     showModalTab('formula');
   } else if (kind === 'door') {
-    const excluded = ['parts', 'partPreset', 'topRail', 'bottomRail', 'hingeRail', 'latchRail'];
+    const excluded = ['parts', 'partPreset', 'topRail', 'bottomRail', 'hingeRail', 'lockRail', 'requiredParts'];
     entries = entries.filter(([k]) => !excluded.includes(k));
     modalTabs.style.display = 'flex';
     formulaTabBtn.style.display = '';
     globalTabBtn.style.display = 'none';
     partsTabBtn.style.display = '';
     loadDoorPartPresets();
+    await loadPartsCache();
     doorPartPreset.value = data.partPreset || '';
-    topRailInput.value = data.topRail || '';
-    bottomRailInput.value = data.bottomRail || '';
-    hingeRailInput.value = data.hingeRail || '';
-    latchRailInput.value = data.latchRail || '';
+    populateRailSelect(topRailSelect, 'topRail', data.topRail);
+    populateRailSelect(bottomRailSelect, 'bottomRail', data.bottomRail);
+    populateRailSelect(hingeRailSelect, 'hingeRail', data.hingeRail);
+    populateRailSelect(lockRailSelect, 'lockRail', data.lockRail);
     showModalTab('formula');
   } else {
     modalTabs.style.display = 'none';
@@ -459,10 +480,16 @@ document.getElementById('modalSave').addEventListener('click', async () => {
     } else if (modalMode.kind === 'door') {
       endpoint = `/doors/${modalMode.serverRec.id}`;
       fields.partPreset = doorPartPreset.value;
-      fields.topRail = topRailInput.value;
-      fields.bottomRail = bottomRailInput.value;
-      fields.hingeRail = hingeRailInput.value;
-      fields.latchRail = latchRailInput.value;
+      fields.topRail = topRailSelect.value;
+      fields.bottomRail = bottomRailSelect.value;
+      fields.hingeRail = hingeRailSelect.value;
+      fields.lockRail = lockRailSelect.value;
+      const required = [];
+      [topRailSelect, bottomRailSelect, hingeRailSelect, lockRailSelect].forEach(sel => {
+        const part = (partsCache || []).find(p => p.number === sel.value);
+        if (part && Array.isArray(part.requires)) required.push(...part.requires);
+      });
+      if (required.length) fields.requiredParts = required;
       payload = { data: fields };
     } else if (modalMode.kind === 'entry') {
     endpoint = `/entries/${modalMode.serverRec.id}`;

@@ -77,3 +77,11 @@ CREATE TABLE IF NOT EXISTS door_parts (
     data JSONB
 );
 
+-- Parts available for rails
+CREATE TABLE IF NOT EXISTS parts (
+    id SERIAL PRIMARY KEY,
+    number VARCHAR(50) UNIQUE,
+    description TEXT,
+    usages TEXT[],
+    requires TEXT[]
+);
