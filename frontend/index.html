@@ -109,8 +109,24 @@
 <div id="modal" class="modal-overlay">
   <div class="modal-body">
     <h3 id="modalTitle">Add Item</h3>
-    <div id="kvContainer"></div>
-    <button id="addKVbtn">Add field</button>
+    <div id="modalTabs" class="tabs">
+      <button id="formulaTabBtn" class="active" data-tab="formula">Formula</button>
+      <button id="globalTabBtn" data-tab="global">Global Settings</button>
+    </div>
+    <div id="formulaTab" class="tab-content">
+      <div id="kvContainer"></div>
+      <button id="addKVbtn">Add field</button>
+    </div>
+    <div id="globalTab" class="tab-content">
+      <label for="topGapInput">Top Gap</label>
+      <input id="topGapInput" type="number" step="any" />
+      <label for="bottomGapInput">Bottom Gap</label>
+      <input id="bottomGapInput" type="number" step="any" />
+      <label for="hingeGapInput">Hinge Gap</label>
+      <input id="hingeGapInput" type="number" step="any" />
+      <label for="strikeGapInput">Strike Gap</label>
+      <input id="strikeGapInput" type="number" step="any" />
+    </div>
     <div class="modal-actions">
       <button id="modalSave">Save</button>
       <button id="modalCancel">Cancel</button>

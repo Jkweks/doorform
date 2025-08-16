@@ -236,6 +236,33 @@ body.dark button:focus {
   overflow: auto;
 }
 
+#modalTabs {
+  display: none;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#modalTabs button {
+  flex: 1;
+  margin-top: 0;
+  background: var(--vos-gray);
+  color: var(--vos-dark);
+}
+
+#modalTabs button.active {
+  background: var(--vos-red);
+  color: var(--vos-white);
+}
+
+.tab-content {
+  display: none;
+  margin-top: 8px;
+}
+
+.tab-content.active {
+  display: block;
+}
+
 body.dark .modal-body {
   background: #333;
   color: var(--vos-gray);

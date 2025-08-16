@@ -12,6 +12,13 @@ let editingEntry = null;
 
 let projectManagers = [];
 
+const DEFAULT_GLOBALS = {
+  topGap: '.125',
+  bottomGap: '.6875',
+  hingeGap: '.0625',
+  strikeGap: '.125'
+};
+
 async function loadProjectManagers() {
   try {
     const res = await fetch('data/project-managers.json');
@@ -281,15 +288,43 @@ function openPartsModal(entry) {
 // Modal for editing entry/frame/door data
 const modal = document.getElementById('modal');
 const kvContainer = document.getElementById('kvContainer');
+const modalTabs = document.getElementById('modalTabs');
+const formulaTabBtn = document.getElementById('formulaTabBtn');
+const globalTabBtn = document.getElementById('globalTabBtn');
+const formulaTab = document.getElementById('formulaTab');
+const globalTab = document.getElementById('globalTab');
+const topGapInput = document.getElementById('topGapInput');
+const bottomGapInput = document.getElementById('bottomGapInput');
+const hingeGapInput = document.getElementById('hingeGapInput');
+const strikeGapInput = document.getElementById('strikeGapInput');
 let modalMode = null;
+
+function showModalTab(tab) {
+  formulaTab.classList.toggle('active', tab === 'formula');
+  globalTab.classList.toggle('active', tab === 'global');
+  formulaTabBtn.classList.toggle('active', tab === 'formula');
+  globalTabBtn.classList.toggle('active', tab === 'global');
+}
+
+formulaTabBtn.addEventListener('click', () => showModalTab('formula'));
+globalTabBtn.addEventListener('click', () => showModalTab('global'));
 function openModalForEdit(kind, serverRec) {
   modalMode = { kind, serverRec };
   kvContainer.innerHTML = '';
   const data = serverRec.data || {};
   let entries = Object.entries(data);
   if (kind === 'entry') {
-    const excluded = ['tag', 'openingWidth', 'openingHeight'];
+    const excluded = ['tag', 'openingWidth', 'openingHeight', 'topGap', 'bottomGap', 'hingeGap', 'strikeGap'];
     entries = entries.filter(([k]) => !excluded.includes(k));
+    topGapInput.value = data.topGap !== undefined ? data.topGap : DEFAULT_GLOBALS.topGap;
+    bottomGapInput.value = data.bottomGap !== undefined ? data.bottomGap : DEFAULT_GLOBALS.bottomGap;
+    hingeGapInput.value = data.hingeGap !== undefined ? data.hingeGap : DEFAULT_GLOBALS.hingeGap;
+    strikeGapInput.value = data.strikeGap !== undefined ? data.strikeGap : DEFAULT_GLOBALS.strikeGap;
+    modalTabs.style.display = 'flex';
+    showModalTab('formula');
+  } else {
+    modalTabs.style.display = 'none';
+    showModalTab('formula');
   }
   entries.forEach(([k, v]) => addKVrow(k, v));
   document.getElementById('modalTitle').textContent = 'Edit ' + kind.charAt(0).toUpperCase() + kind.slice(1);
@@ -327,12 +362,16 @@ document.getElementById('modalSave').addEventListener('click', async () => {
   } else if (modalMode.kind === 'entry') {
     endpoint = `/entries/${modalMode.serverRec.id}`;
     const original = modalMode.serverRec.data || {};
-    const preservedKeys = ['tag', 'openingWidth', 'openingHeight'];
+    const preservedKeys = ['tag', 'openingWidth', 'openingHeight', 'topGap', 'bottomGap', 'hingeGap', 'strikeGap'];
     const preserved = {};
     preservedKeys.forEach(k => {
       if (original[k] !== undefined) preserved[k] = original[k];
     });
     const data = { ...preserved };
+    data.topGap = topGapInput.value || DEFAULT_GLOBALS.topGap;
+    data.bottomGap = bottomGapInput.value || DEFAULT_GLOBALS.bottomGap;
+    data.hingeGap = hingeGapInput.value || DEFAULT_GLOBALS.hingeGap;
+    data.strikeGap = strikeGapInput.value || DEFAULT_GLOBALS.strikeGap;
     Object.keys(fields).forEach(k => { data[k] = fields[k]; });
     payload = { handing: modalMode.serverRec.handing, data };
   }
