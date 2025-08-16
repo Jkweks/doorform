@@ -5,6 +5,24 @@ function api(path, opts = {}) {
     try { return { ok: r.ok, json: JSON.parse(txt), status: r.status }; } catch(e) { return { ok: r.ok, text: txt, status: r.status }; }
   });
 }
+
+let partsCache = [];
+const topRailSelect = document.getElementById('newTopRail');
+const bottomRailSelect = document.getElementById('newBottomRail');
+const hingeRailSelect = document.getElementById('newHingeRail');
+const lockRailSelect = document.getElementById('newLockRail');
+
+function populateRailSelect(selectEl, usage, current) {
+  const parts = (partsCache || []).filter(p => (p.usages || []).includes(usage));
+  selectEl.innerHTML = '<option value=""></option>';
+  parts.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.number;
+    opt.textContent = p.number;
+    selectEl.appendChild(opt);
+  });
+  if (current) selectEl.value = current;
+}
 async function loadProjectManagers() {
   const res = await api('/project-managers');
   if (res.ok) renderProjectManagers(res.json.managers || []);
@@ -54,7 +72,8 @@ function renderTemplates(templates) {
     const item = document.createElement('div');
     item.className = 'item';
     const left = document.createElement('div');
-    left.innerHTML = `<strong>${t.name}</strong>`;
+    const partsDesc = Object.entries(t.parts || {}).map(([k, v]) => `${k}: ${v}`).join(', ');
+    left.innerHTML = `<strong>${t.name}</strong>${partsDesc ? ' — ' + partsDesc : ''}`;
     const right = document.createElement('div');
     const edit = document.createElement('button');
     edit.textContent = 'Edit';
@@ -80,15 +99,18 @@ function renderTemplates(templates) {
 }
 document.getElementById('addTemplate').onclick = async () => {
   const name = document.getElementById('newTemplateName').value.trim();
-  const partsStr = document.getElementById('newTemplateParts').value.trim();
   if (!name) return;
-  let parts = {};
-  if (partsStr) {
-    try { parts = JSON.parse(partsStr); } catch (e) { return alert('Invalid JSON'); }
-  }
+  const parts = {};
+  if (topRailSelect.value) parts.topRail = topRailSelect.value;
+  if (bottomRailSelect.value) parts.bottomRail = bottomRailSelect.value;
+  if (hingeRailSelect.value) parts.hingeRail = hingeRailSelect.value;
+  if (lockRailSelect.value) parts.lockRail = lockRailSelect.value;
   await api('/door-part-templates', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name, parts }) });
   document.getElementById('newTemplateName').value = '';
-  document.getElementById('newTemplateParts').value = '';
+  topRailSelect.value = '';
+  bottomRailSelect.value = '';
+  hingeRailSelect.value = '';
+  lockRailSelect.value = '';
   loadTemplates();
 };
 
@@ -98,7 +120,14 @@ loadParts();
 
 async function loadParts() {
   const res = await api('/parts');
-  if (res.ok) renderParts(res.json.parts || []);
+  if (res.ok) {
+    partsCache = res.json.parts || [];
+    renderParts(partsCache);
+    populateRailSelect(topRailSelect, 'topRail');
+    populateRailSelect(bottomRailSelect, 'bottomRail');
+    populateRailSelect(hingeRailSelect, 'hingeRail');
+    populateRailSelect(lockRailSelect, 'lockRail');
+  }
 }
 
 function renderParts(parts) {
