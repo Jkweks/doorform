@@ -54,3 +54,20 @@ ALTER TABLE doors DROP COLUMN IF EXISTS job_id;
 ALTER TABLE doors ADD COLUMN IF NOT EXISTS entry_id INT REFERENCES entries(id) ON DELETE CASCADE;
 ALTER TABLE doors ADD COLUMN IF NOT EXISTS leaf VARCHAR(1);
 
+-- Templates for door parts define reusable sets of part data
+CREATE TABLE IF NOT EXISTS door_part_templates (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    parts JSONB
+);
+
+-- Individual door parts tied to specific doors
+CREATE TABLE IF NOT EXISTS door_parts (
+    id SERIAL PRIMARY KEY,
+    door_id INT REFERENCES doors(id) ON DELETE CASCADE,
+    part_type VARCHAR(255),
+    part_lz NUMERIC,
+    part_ly NUMERIC,
+    data JSONB
+);
+
