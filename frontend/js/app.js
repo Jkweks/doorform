@@ -443,7 +443,14 @@ doorPartPreset.addEventListener('change', () => {
 async function loadPartsCache() {
   if (partsCache) return partsCache;
   const res = await api('/parts');
-  partsCache = res.ok ? res.json.parts || [] : [];
+  partsCache = res.ok
+    ? (res.json.parts || []).map(p => ({
+        ...p,
+        number: p.part_type,
+        usages: p.data?.uses || [],
+        requires: p.data?.requires || []
+      }))
+    : [];
   return partsCache;
 }
 
