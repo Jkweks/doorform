@@ -93,6 +93,21 @@ textarea:focus {
   text-align: center;
 }
 
+.usage-section {
+  border: 1px solid var(--vos-red);
+  padding: 8px;
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px 8px;
+}
+
+.usage-section legend {
+  font-weight: 600;
+  grid-column: 1 / -1;
+  margin-bottom: 4px;
+}
+
 button {
   margin-top: 8px;
   padding: 8px 12px;
