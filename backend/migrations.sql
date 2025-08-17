@@ -79,3 +79,12 @@ CREATE TABLE IF NOT EXISTS door_parts (
 
 -- Legacy parts table removed; door_parts table now stores generic parts as well
 DROP TABLE IF EXISTS parts;
+
+-- Store generated production PDFs for work orders
+CREATE TABLE IF NOT EXISTS work_order_pdfs (
+    id SERIAL PRIMARY KEY,
+    work_order_id INT REFERENCES work_orders(id) ON DELETE CASCADE,
+    tag VARCHAR(20),
+    pdf BYTEA,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

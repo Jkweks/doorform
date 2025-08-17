@@ -84,6 +84,21 @@ router.delete('/work-orders/:id', async (req, res) => {
   }
 });
 
+// Save a production PDF for a work order
+router.post('/work-orders/:id/pdf', express.raw({ type: 'application/pdf', limit: '10mb' }), async (req, res) => {
+  const id = req.params.id;
+  const tag = req.headers['x-print-tag'] || null;
+  try {
+    const result = await pool.query(
+      'INSERT INTO work_order_pdfs (work_order_id, tag, pdf) VALUES ($1, $2, $3) RETURNING id',
+      [id, tag, req.body]
+    );
+    res.json({ id: result.rows[0].id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get job with work orders, entries, frames and doors by ID
 router.get('/jobs/:id', async (req, res) => {
   const id = req.params.id;
