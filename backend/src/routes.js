@@ -314,13 +314,12 @@ router.delete('/project-managers/:id', async (req, res) => {
   }
 });
 
-// List parts, optionally filtered by usage
+// List stored parts
 router.get('/parts', async (req, res) => {
-  const usage = req.query.usage;
   try {
-    const result = usage
-      ? await pool.query('SELECT * FROM parts WHERE $1 = ANY(usages) ORDER BY number', [usage])
-      : await pool.query('SELECT * FROM parts ORDER BY number');
+    const result = await pool.query(
+      'SELECT * FROM door_parts WHERE door_id IS NULL ORDER BY part_type'
+    );
     res.json({ parts: result.rows });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -329,11 +328,11 @@ router.get('/parts', async (req, res) => {
 
 // Create a part
 router.post('/parts', async (req, res) => {
-  const { number, description, lx = null, ly = null, usages = [], requires = [] } = req.body;
+  const { partType, partLz = null, partLy = null, data = null } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO parts (number, description, lx, ly, usages, requires) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [number, description, lx, ly, usages, requires]
+      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [null, partType, partLz, partLy, data]
     );
     res.json({ part: result.rows[0] });
   } catch (err) {
@@ -344,11 +343,11 @@ router.post('/parts', async (req, res) => {
 // Update a part
 router.put('/parts/:id', async (req, res) => {
   const id = req.params.id;
-  const { number, description, lx = null, ly = null, usages = [], requires = [] } = req.body;
+  const { partType, partLz = null, partLy = null, data = null } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE parts SET number = $1, description = $2, lx = $3, ly = $4, usages = $5, requires = $6 WHERE id = $7 RETURNING *',
-      [number, description, lx, ly, usages, requires, id]
+      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4 WHERE id = $5 AND door_id IS NULL RETURNING *',
+      [partType, partLz, partLy, data, id]
     );
     if (result.rowCount === 0) return res.status(404).json({ error: 'Part not found' });
     res.json({ part: result.rows[0] });
@@ -361,7 +360,7 @@ router.put('/parts/:id', async (req, res) => {
 router.delete('/parts/:id', async (req, res) => {
   const id = req.params.id;
   try {
-    const result = await pool.query('DELETE FROM parts WHERE id = $1', [id]);
+    const result = await pool.query('DELETE FROM door_parts WHERE id = $1 AND door_id IS NULL', [id]);
     if (result.rowCount === 0) return res.status(404).json({ error: 'Part not found' });
     res.json({ message: 'Part deleted' });
   } catch (err) {

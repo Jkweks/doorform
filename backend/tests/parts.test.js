@@ -9,45 +9,45 @@ describe('Parts API', () => {
     jest.clearAllMocks();
   });
 
-  test('lists parts filtered by usage', async () => {
-    pool.query.mockResolvedValueOnce({ rows: [{ id: 1, number: 'E0086', description: null, lx: null, ly: null, usages: ['topRail', 'bottomRail'], requires: null }] });
+  test('lists parts', async () => {
+    pool.query.mockResolvedValueOnce({ rows: [{ id: 1, door_id: null, part_type: 'E0086', part_lz: null, part_ly: null, data: null }] });
 
-    const res = await request(app).get('/api/parts?usage=topRail');
+    const res = await request(app).get('/api/parts');
 
     expect(res.status).toBe(200);
-    expect(res.body.parts).toEqual([{ id: 1, number: 'E0086', description: null, lx: null, ly: null, usages: ['topRail', 'bottomRail'], requires: null }]);
-    expect(pool.query).toHaveBeenCalledWith('SELECT * FROM parts WHERE $1 = ANY(usages) ORDER BY number', ['topRail']);
+    expect(res.body.parts).toEqual([{ id: 1, door_id: null, part_type: 'E0086', part_lz: null, part_ly: null, data: null }]);
+    expect(pool.query).toHaveBeenCalledWith('SELECT * FROM door_parts WHERE door_id IS NULL ORDER BY part_type');
   });
 
   test('adds a part', async () => {
-    const part = { id: 1, number: 'E0057', description: null, lx: 1, ly: 2, usages: ['hingeRail'], requires: [] };
+    const part = { id: 1, door_id: null, part_type: 'E0057', part_lz: 1, part_ly: 2, data: null };
     pool.query.mockResolvedValueOnce({ rows: [part] });
 
     const res = await request(app)
       .post('/api/parts')
-      .send({ number: 'E0057', description: null, lx: 1, ly: 2, usages: ['hingeRail'], requires: [] });
+      .send({ partType: 'E0057', partLz: 1, partLy: 2, data: null });
 
     expect(res.status).toBe(200);
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
-      'INSERT INTO parts (number, description, lx, ly, usages, requires) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      ['E0057', null, 1, 2, ['hingeRail'], []]
+      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [null, 'E0057', 1, 2, null]
     );
   });
 
   test('updates a part', async () => {
-    const part = { id: 1, number: 'E0057', description: '', lx: 1, ly: 2, usages: ['hingeRail'], requires: [] };
+    const part = { id: 1, door_id: null, part_type: 'E0057', part_lz: 1, part_ly: 2, data: null };
     pool.query.mockResolvedValueOnce({ rows: [part], rowCount: 1 });
 
     const res = await request(app)
       .put('/api/parts/1')
-      .send({ number: 'E0057', description: '', lx: 1, ly: 2, usages: ['hingeRail'], requires: [] });
+      .send({ partType: 'E0057', partLz: 1, partLy: 2, data: null });
 
     expect(res.status).toBe(200);
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
-      'UPDATE parts SET number = $1, description = $2, lx = $3, ly = $4, usages = $5, requires = $6 WHERE id = $7 RETURNING *',
-      ['E0057', '', 1, 2, ['hingeRail'], [], '1']
+      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4 WHERE id = $5 AND door_id IS NULL RETURNING *',
+      ['E0057', 1, 2, null, '1']
     );
   });
 
@@ -58,6 +58,6 @@ describe('Parts API', () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ message: 'Part deleted' });
-    expect(pool.query).toHaveBeenCalledWith('DELETE FROM parts WHERE id = $1', ['1']);
+    expect(pool.query).toHaveBeenCalledWith('DELETE FROM door_parts WHERE id = $1 AND door_id IS NULL', ['1']);
   });
 });
