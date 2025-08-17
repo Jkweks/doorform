@@ -58,25 +58,27 @@
       <input id="newPartLX" type="number" step="any" />
       <label for="newPartLY">LY</label>
       <input id="newPartLY" type="number" step="any" />
-      <div>
-        <p><strong>Door Parts</strong></p>
-        <label class="checkbox"><input id="newUsageTop" type="checkbox" /> Top Rail</label>
-        <label class="checkbox"><input id="newUsageBottom" type="checkbox" /> Bottom Rail</label>
-        <label class="checkbox"><input id="newUsageHinge" type="checkbox" /> Hinge Rail</label>
-        <label class="checkbox"><input id="newUsageLock" type="checkbox" /> Lock Rail</label>
-        <label class="checkbox"><input id="newUsageMid" type="checkbox" /> Mid Rail</label>
-        <label class="checkbox"><input id="newUsageGlass" type="checkbox" /> Glass Stop</label>
-        <label class="checkbox"><input id="newUsageDoorBacker" type="checkbox" /> Backer</label>
-        <label class="checkbox"><input id="newUsageLug" type="checkbox" /> Lugs</label>
-        <label class="checkbox"><input id="newUsageFastener" type="checkbox" /> Fasteners</label>
-        <p><strong>Frame Parts</strong></p>
-        <label class="checkbox"><input id="newUsageHingeJamb" type="checkbox" /> Hinge Jamb</label>
-        <label class="checkbox"><input id="newUsageLockJamb" type="checkbox" /> Lock Jamb</label>
-        <label class="checkbox"><input id="newUsageDoorHeader" type="checkbox" /> Door Header</label>
-        <label class="checkbox"><input id="newUsageTransomHeader" type="checkbox" /> Transom Header</label>
-        <label class="checkbox"><input id="newUsageDoorStop" type="checkbox" /> Door Stop</label>
-        <label class="checkbox"><input id="newUsageFrameBacker" type="checkbox" /> Backer</label>
-      </div>
+      <fieldset class="usage-section door-parts">
+        <legend>Door Parts</legend>
+        <label class="checkbox"><input id="newUsageTop" class="usage-checkbox" type="checkbox" value="topRail" /> Top Rail</label>
+        <label class="checkbox"><input id="newUsageBottom" class="usage-checkbox" type="checkbox" value="bottomRail" /> Bottom Rail</label>
+        <label class="checkbox"><input id="newUsageHinge" class="usage-checkbox" type="checkbox" value="hingeRail" /> Hinge Rail</label>
+        <label class="checkbox"><input id="newUsageLock" class="usage-checkbox" type="checkbox" value="lockRail" /> Lock Rail</label>
+        <label class="checkbox"><input id="newUsageMid" class="usage-checkbox" type="checkbox" value="midRail" /> Mid Rail</label>
+        <label class="checkbox"><input id="newUsageGlass" class="usage-checkbox" type="checkbox" value="glassStop" /> Glass Stop</label>
+        <label class="checkbox"><input id="newUsageDoorBacker" class="usage-checkbox" type="checkbox" value="doorBacker" /> Backer</label>
+        <label class="checkbox"><input id="newUsageLug" class="usage-checkbox" type="checkbox" value="lug" /> Lugs</label>
+        <label class="checkbox"><input id="newUsageFastener" class="usage-checkbox" type="checkbox" value="fastener" /> Fasteners</label>
+      </fieldset>
+      <fieldset class="usage-section frame-parts">
+        <legend>Frame Parts</legend>
+        <label class="checkbox"><input id="newUsageHingeJamb" class="usage-checkbox" type="checkbox" value="hingeJamb" /> Hinge Jamb</label>
+        <label class="checkbox"><input id="newUsageLockJamb" class="usage-checkbox" type="checkbox" value="lockJamb" /> Lock Jamb</label>
+        <label class="checkbox"><input id="newUsageDoorHeader" class="usage-checkbox" type="checkbox" value="doorHeader" /> Door Header</label>
+        <label class="checkbox"><input id="newUsageTransomHeader" class="usage-checkbox" type="checkbox" value="transomHeader" /> Transom Header</label>
+        <label class="checkbox"><input id="newUsageDoorStop" class="usage-checkbox" type="checkbox" value="doorStop" /> Door Stop</label>
+        <label class="checkbox"><input id="newUsageFrameBacker" class="usage-checkbox" type="checkbox" value="frameBacker" /> Backer</label>
+      </fieldset>
       <label for="newPartRequires">Requires (comma-separated)</label>
       <input id="newPartRequires" type="text" />
       <button id="addPart">Add Part</button>
