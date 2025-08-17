@@ -18,54 +18,66 @@
     <a href="data.html">Data Management</a>
   <div class="row">
     <div class="col panel">
-      <h2>Job Info</h2>
-      <input id="jobId" type="hidden" />
-      <label>Job Number</label>
-      <input id="jobNumber" type="text" />
-      <label>Job Name</label>
-      <input id="jobName" type="text" />
-      <label>PM</label>
-      <select id="pm"></select>
-      <label class="checkbox"><input id="archived" type="checkbox" /> Archived</label>
-      <div class="action-buttons">
-        <button id="saveJob">Save Job</button>
-        <button id="loadJobs">Refresh Job List</button>
-      </div>
-      
-      <div class="section">
-        <h3>Work Orders</h3>
-        <div class="action-buttons">
-          <input id="newWorkOrder" type="text" placeholder="Work Order #" />
-          <button id="addWorkOrder">Add Work Order</button>
-        </div>
-        <div id="workOrdersList" class="list"></div>
-      </div>
-
-      <div class="section">
-        <h3>Entries</h3>
-        <div class="action-buttons">
-          <button id="addEntry">Add Entry</button>
-        </div>
-        <div id="entriesList" class="list"></div>
-      </div>
-    </div>
-
-    <div class="col panel">
       <h2>Jobs</h2>
       <label>Filter</label>
       <input id="filterJobs" type="text" placeholder="type job number or name..." />
       <label class="checkbox"><input id="viewArchived" type="checkbox" /> View Archived</label>
       <select id="jobsSelect" size="10" class="job-select"></select>
       <div class="action-buttons">
-        <button id="loadSelected">Load Selected</button>
+        <button id="addJob">Add New Job</button>
+        <button id="editSelected">Edit Job</button>
         <button id="deleteSelected">Delete Selected</button>
-        <button id="exportPdfSelected">Export PDF (selected)</button>
+        <button id="loadJobs">Refresh Job List</button>
       </div>
       <div class="section">
         <button id="exportJsonDownload">Download All Data (JSON)</button>
       </div>
       <div class="muted note">
         Note: CSV import is done server-side and stored in Postgres. PDF generation happens in your browser using jsPDF.
+      </div>
+    </div>
+  </div>
+
+  <!-- modal for job info -->
+  <div id="jobModal" class="modal-overlay">
+    <div class="modal-body">
+      <h3>Job Info</h3>
+      <div id="jobModalTabs" class="tabs">
+        <button id="jobInfoTabBtn" class="active" data-tab="jobInfoTab">Job</button>
+        <button id="workOrdersTabBtn" data-tab="workOrdersTab">Work Orders</button>
+        <button id="entriesTabBtn" data-tab="entriesTab">Entries</button>
+      </div>
+      <div id="jobInfoTab" class="tab-content" style="display:block;">
+        <input id="jobId" type="hidden" />
+        <label>Job Number</label>
+        <input id="jobNumber" type="text" />
+        <label>Job Name</label>
+        <input id="jobName" type="text" />
+        <label>PM</label>
+        <select id="pm"></select>
+        <label class="checkbox"><input id="archived" type="checkbox" /> Archived</label>
+        <div class="action-buttons">
+          <button id="saveJob">Save Job</button>
+        </div>
+      </div>
+      <div id="workOrdersTab" class="tab-content">
+        <div class="action-buttons">
+          <input id="newWorkOrder" type="text" placeholder="Work Order #" />
+          <button id="addWorkOrder">Add Work Order</button>
+        </div>
+        <div id="workOrdersList" class="list"></div>
+        <div class="action-buttons">
+          <button id="exportPdfWorkOrder">Export PDF (Selected)</button>
+        </div>
+      </div>
+      <div id="entriesTab" class="tab-content">
+        <div class="action-buttons">
+          <button id="addEntry">Add Entry</button>
+        </div>
+        <div id="entriesList" class="list"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="jobModalClose">Close</button>
       </div>
     </div>
   </div>

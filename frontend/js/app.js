@@ -10,6 +10,36 @@ let loadedJob = null;
 let selectedWorkOrderId = null;
 let editingEntry = null;
 
+const jobModal = document.getElementById('jobModal');
+const jobInfoTabBtn = document.getElementById('jobInfoTabBtn');
+const workOrdersTabBtn = document.getElementById('workOrdersTabBtn');
+const entriesTabBtn = document.getElementById('entriesTabBtn');
+const jobInfoTab = document.getElementById('jobInfoTab');
+const workOrdersTab = document.getElementById('workOrdersTab');
+const entriesTab = document.getElementById('entriesTab');
+
+function showJobModalTab(tab) {
+  jobInfoTab.style.display = tab === 'job' ? 'block' : 'none';
+  workOrdersTab.style.display = tab === 'workorders' ? 'block' : 'none';
+  entriesTab.style.display = tab === 'entries' ? 'block' : 'none';
+  jobInfoTabBtn.classList.toggle('active', tab === 'job');
+  workOrdersTabBtn.classList.toggle('active', tab === 'workorders');
+  entriesTabBtn.classList.toggle('active', tab === 'entries');
+}
+
+jobInfoTabBtn.addEventListener('click', () => showJobModalTab('job'));
+workOrdersTabBtn.addEventListener('click', () => showJobModalTab('workorders'));
+entriesTabBtn.addEventListener('click', () => showJobModalTab('entries'));
+
+function openJobModal() {
+  showJobModalTab('job');
+  jobModal.style.display = 'flex';
+}
+
+document.getElementById('jobModalClose').addEventListener('click', () => {
+  jobModal.style.display = 'none';
+});
+
 let projectManagers = [];
 
 const DEFAULT_GLOBALS = {
@@ -75,9 +105,15 @@ document.getElementById('saveJob').addEventListener('click', async () => {
   document.getElementById('jobId').value = res.json.job.id;
   alert('Saved');
   refreshJobList(document.getElementById('filterJobs').value, viewArchivedEl.checked);
+  jobModal.style.display = 'none';
 });
 
-document.getElementById('loadSelected').addEventListener('click', async () => {
+document.getElementById('addJob').addEventListener('click', () => {
+  clearLoaded();
+  openJobModal();
+});
+
+document.getElementById('editSelected').addEventListener('click', async () => {
   const sel = document.getElementById('jobsSelect');
   if (!sel.value) return alert('Select job');
   const r = await api('/jobs/' + encodeURIComponent(sel.value));
@@ -100,6 +136,7 @@ document.getElementById('loadSelected').addEventListener('click', async () => {
   document.getElementById('archived').checked = !!data.job.archived;
   renderWorkOrders(data.workOrders);
   renderEntries([]);
+  openJobModal();
 });
 
 document.getElementById('deleteSelected').addEventListener('click', async () => {
@@ -145,6 +182,7 @@ function renderWorkOrders(workOrders = []) {
       selectedWorkOrderId = wo.id;
       renderWorkOrders(loadedJob.workOrders);
       renderEntries(wo.entries);
+      showJobModalTab('entries');
     };
     right.appendChild(openBtn);
     const editBtn = document.createElement('button'); editBtn.textContent = 'Edit';
@@ -524,15 +562,22 @@ document.getElementById('modalSave').addEventListener('click', async () => {
   }
 });
 
-async function exportJobToPDF(jobId) {
+async function exportJobToPDF(jobId, workOrderId) {
   const r = await api('/jobs/' + jobId);
   if (!r.ok) return alert('Failed to fetch job');
   const data = r.json;
+  let workOrders = data.workOrders || [];
+  let currentWO = null;
+  if (workOrderId) {
+    currentWO = workOrders.find(w => w.id === workOrderId);
+    if (!currentWO) return alert('Work order not found');
+    workOrders = [currentWO];
+  }
   const job = data.job;
   const frames = [];
   const doors = [];
   const entries = [];
-  (data.workOrders || []).forEach(wo => {
+  workOrders.forEach(wo => {
     (wo.entries || []).forEach(en => {
       entries.push(en);
       (en.frames || []).forEach(fr => frames.push({ frame: fr, entry: en.data || {} }));
@@ -572,6 +617,7 @@ async function exportJobToPDF(jobId) {
     'Job Name': job.job_name || '',
     'PM': job.pm || ''
   };
+  if (currentWO) jobInfo['Work Order'] = currentWO.work_order || '';
   let y = writeKeyVals(jobInfo, 'Job Information', startY);
   const entrySummary = {};
   entries.forEach((en, idx) => {
@@ -602,14 +648,16 @@ async function exportJobToPDF(jobId) {
     const doorLabel = doors[i].door.leaf ? `Door ${doors[i].door.leaf}` : `Door ${i + 1}`;
     writeKeyVals(doors[i].door.data, doorLabel, y2);
   }
-  const filename = `Job_${job.job_number || 'no-number'}.pdf`;
+  const filename = currentWO
+    ? `Job_${job.job_number || 'no-number'}_WO_${currentWO.work_order || 'unknown'}.pdf`
+    : `Job_${job.job_number || 'no-number'}.pdf`;
   doc.save(filename);
 }
 
-document.getElementById('exportPdfSelected').addEventListener('click', async () => {
-  const sel = document.getElementById('jobsSelect');
-  if (!sel.value) return alert('Select a job first');
-  exportJobToPDF(sel.value);
+document.getElementById('exportPdfWorkOrder').addEventListener('click', () => {
+  if (!loadedJob || !loadedJob.job) return alert('No job loaded');
+  if (!selectedWorkOrderId) return alert('Select a work order first');
+  exportJobToPDF(loadedJob.job.id, selectedWorkOrderId);
 });
 
 document.getElementById('exportJsonDownload').addEventListener('click', async () => {
