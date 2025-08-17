@@ -163,6 +163,11 @@ function openPartModal(part) {
   document.getElementById('partTypeInput').value = part?.part_type || '';
   document.getElementById('partLzInput').value = part?.part_lz || '';
   document.getElementById('partLyInput').value = part?.part_ly || '';
+  document.getElementById('partDescriptionInput').value = part?.data?.description || '';
+  const uses = part?.data?.uses || [];
+  document.querySelectorAll('#partDoorUses input[type="checkbox"], #partFrameUses input[type="checkbox"]').forEach(cb => {
+    cb.checked = uses.includes(cb.value);
+  });
   document.getElementById('partDataInput').value = part?.data ? JSON.stringify(part.data) : '';
   partModal.style.display = 'flex';
 }
@@ -195,10 +200,16 @@ document.getElementById('savePart').onclick = async () => {
   const partLz = lzVal ? parseFloat(lzVal) : null;
   const partLy = lyVal ? parseFloat(lyVal) : null;
   const dataTxt = document.getElementById('partDataInput').value.trim();
-  let data = null;
+  const description = document.getElementById('partDescriptionInput').value.trim();
+  const uses = Array.from(document.querySelectorAll('#partDoorUses input:checked, #partFrameUses input:checked')).map(cb => cb.value);
+  let data = {};
   if (dataTxt) {
     try { data = JSON.parse(dataTxt); } catch (e) { return alert('Invalid JSON'); }
   }
+  if (description) data.description = description;
+  const uniqueUses = [...new Set(uses)];
+  if (uniqueUses.length) data.uses = uniqueUses;
+  if (Object.keys(data).length === 0) data = null;
   const payload = { partType, partLz, partLy, data };
   const res = id
     ? await api(`/parts/${id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
