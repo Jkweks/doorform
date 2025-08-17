@@ -8,10 +8,18 @@ function api(path, opts = {}) {
 }
 
 let partsCache = [];
-const topRailSelect = document.getElementById('newTopRail');
-const bottomRailSelect = document.getElementById('newBottomRail');
-const hingeRailSelect = document.getElementById('newHingeRail');
-const lockRailSelect = document.getElementById('newLockRail');
+let pmCache = [];
+let templateCache = [];
+const templateTopRail = document.getElementById('templateTopRail');
+const templateBottomRail = document.getElementById('templateBottomRail');
+const templateHingeRail = document.getElementById('templateHingeRail');
+const templateLockRail = document.getElementById('templateLockRail');
+const pmSelect = document.getElementById('pmSelect');
+const pmModal = document.getElementById('pmModal');
+const pmModalClose = document.getElementById('closePmModal');
+const templateSelect = document.getElementById('templateSelect');
+const templateModal = document.getElementById('templateModal');
+const templateModalClose = document.getElementById('closeTemplateModal');
 const partsSelect = document.getElementById('partsSelect');
 const partModal = document.getElementById('partModal');
 const partModalClose = document.getElementById('closePartModal');
@@ -40,92 +48,106 @@ function populateRailSelect(selectEl, usage, current) {
 }
 async function loadProjectManagers() {
   const res = await api('/project-managers');
-  if (res.ok) renderProjectManagers(res.json.managers || []);
+  if (res.ok) {
+    pmCache = res.json.managers || [];
+    renderProjectManagers(pmCache);
+  }
 }
 function renderProjectManagers(managers) {
-  const list = document.getElementById('pmList');
-  list.innerHTML = '';
+  pmSelect.innerHTML = '';
   (managers || []).forEach(pm => {
-    const item = document.createElement('div');
-    item.className = 'item';
-    const left = document.createElement('div');
-    left.textContent = pm.name;
-    const right = document.createElement('div');
-    const edit = document.createElement('button');
-    edit.textContent = 'Edit';
-    edit.onclick = () => {
-      const name = prompt('Project manager name', pm.name);
-      if (!name) return;
-      api(`/project-managers/${pm.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) }).then(loadProjectManagers);
-    };
-    const del = document.createElement('button');
-    del.textContent = 'Delete';
-    del.onclick = () => {
-      if (!confirm('Delete ' + pm.name + '?')) return;
-      api(`/project-managers/${pm.id}`, { method: 'DELETE' }).then(loadProjectManagers);
-    };
-    right.appendChild(edit); right.appendChild(del);
-    item.appendChild(left); item.appendChild(right);
-    list.appendChild(item);
+    const opt = document.createElement('option');
+    opt.value = pm.id;
+    opt.textContent = pm.name;
+    pmSelect.appendChild(opt);
   });
 }
-document.getElementById('addPm').onclick = async () => {
-  const name = document.getElementById('newPmName').value.trim();
-  if (!name) return;
-  await api('/project-managers', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) });
-  document.getElementById('newPmName').value = '';
+function openPmModal(pm) {
+  document.getElementById('pmId').value = pm?.id || '';
+  document.getElementById('pmNameInput').value = pm?.name || '';
+  pmModal.style.display = 'flex';
+}
+pmModalClose.onclick = () => { pmModal.style.display = 'none'; };
+document.getElementById('addPm').onclick = () => openPmModal();
+document.getElementById('editPm').onclick = () => {
+  const id = pmSelect.value;
+  if (!id) return alert('Select project manager');
+  const pm = pmCache.find(p => String(p.id) === String(id));
+  openPmModal(pm);
+};
+document.getElementById('deletePm').onclick = async () => {
+  const id = pmSelect.value;
+  if (!id) return alert('Select project manager');
+  if (!confirm('Delete project manager?')) return;
+  await api(`/project-managers/${id}`, { method: 'DELETE' });
+  loadProjectManagers();
+};
+document.getElementById('savePm').onclick = async () => {
+  const id = document.getElementById('pmId').value;
+  const name = document.getElementById('pmNameInput').value.trim();
+  if (!name) return alert('Name required');
+  const res = id
+    ? await api(`/project-managers/${id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) })
+    : await api('/project-managers', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) });
+  if (!res.ok) return alert('Save failed');
+  pmModal.style.display = 'none';
   loadProjectManagers();
 };
 async function loadTemplates() {
   const res = await api('/door-part-templates');
-  if (res.ok) renderTemplates(res.json.templates || []);
+  if (res.ok) {
+    templateCache = res.json.templates || [];
+    renderTemplates(templateCache);
+  }
 }
 function renderTemplates(templates) {
-  const list = document.getElementById('templateList');
-  list.innerHTML = '';
+  templateSelect.innerHTML = '';
   (templates || []).forEach(t => {
-    const item = document.createElement('div');
-    item.className = 'item';
-    const left = document.createElement('div');
+    const opt = document.createElement('option');
     const partsDesc = Object.entries(t.parts || {}).map(([k, v]) => `${k}: ${v}`).join(', ');
-    left.innerHTML = `<strong>${t.name}</strong>${partsDesc ? ' — ' + partsDesc : ''}`;
-    const right = document.createElement('div');
-    const edit = document.createElement('button');
-    edit.textContent = 'Edit';
-    edit.onclick = () => {
-      const name = prompt('Template name', t.name);
-      if (name === null) return;
-      const partsStr = prompt('Parts JSON', JSON.stringify(t.parts));
-      if (partsStr === null) return;
-      let parts;
-      try { parts = JSON.parse(partsStr); } catch (e) { return alert('Invalid JSON'); }
-      api(`/door-part-templates/${t.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name, parts }) }).then(loadTemplates);
-    };
-    const del = document.createElement('button');
-    del.textContent = 'Delete';
-    del.onclick = () => {
-      if (!confirm('Delete template ' + t.name + '?')) return;
-      api(`/door-part-templates/${t.id}`, { method: 'DELETE' }).then(loadTemplates);
-    };
-    right.appendChild(edit); right.appendChild(del);
-    item.appendChild(left); item.appendChild(right);
-    list.appendChild(item);
+    opt.value = t.id;
+    opt.textContent = partsDesc ? `${t.name} — ${partsDesc}` : t.name;
+    templateSelect.appendChild(opt);
   });
 }
-document.getElementById('addTemplate').onclick = async () => {
-  const name = document.getElementById('newTemplateName').value.trim();
-  if (!name) return;
+function openTemplateModal(t) {
+  document.getElementById('templateId').value = t?.id || '';
+  document.getElementById('templateNameInput').value = t?.name || '';
+  populateRailSelect(templateTopRail, 'topRail', t?.parts?.topRail);
+  populateRailSelect(templateBottomRail, 'bottomRail', t?.parts?.bottomRail);
+  populateRailSelect(templateHingeRail, 'hingeRail', t?.parts?.hingeRail);
+  populateRailSelect(templateLockRail, 'lockRail', t?.parts?.lockRail);
+  templateModal.style.display = 'flex';
+}
+templateModalClose.onclick = () => { templateModal.style.display = 'none'; };
+document.getElementById('addTemplate').onclick = () => openTemplateModal();
+document.getElementById('editTemplate').onclick = () => {
+  const id = templateSelect.value;
+  if (!id) return alert('Select template');
+  const tpl = templateCache.find(t => String(t.id) === String(id));
+  openTemplateModal(tpl);
+};
+document.getElementById('deleteTemplate').onclick = async () => {
+  const id = templateSelect.value;
+  if (!id) return alert('Select template');
+  if (!confirm('Delete template?')) return;
+  await api(`/door-part-templates/${id}`, { method: 'DELETE' });
+  loadTemplates();
+};
+document.getElementById('saveTemplate').onclick = async () => {
+  const id = document.getElementById('templateId').value;
+  const name = document.getElementById('templateNameInput').value.trim();
+  if (!name) return alert('Template name required');
   const parts = {};
-  if (topRailSelect.value) parts.topRail = topRailSelect.value;
-  if (bottomRailSelect.value) parts.bottomRail = bottomRailSelect.value;
-  if (hingeRailSelect.value) parts.hingeRail = hingeRailSelect.value;
-  if (lockRailSelect.value) parts.lockRail = lockRailSelect.value;
-  await api('/door-part-templates', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name, parts }) });
-  document.getElementById('newTemplateName').value = '';
-  topRailSelect.value = '';
-  bottomRailSelect.value = '';
-  hingeRailSelect.value = '';
-  lockRailSelect.value = '';
+  if (templateTopRail.value) parts.topRail = templateTopRail.value;
+  if (templateBottomRail.value) parts.bottomRail = templateBottomRail.value;
+  if (templateHingeRail.value) parts.hingeRail = templateHingeRail.value;
+  if (templateLockRail.value) parts.lockRail = templateLockRail.value;
+  const res = id
+    ? await api(`/door-part-templates/${id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name, parts }) })
+    : await api('/door-part-templates', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name, parts }) });
+  if (!res.ok) return alert('Save failed');
+  templateModal.style.display = 'none';
   loadTemplates();
 };
 
@@ -138,10 +160,10 @@ async function loadParts() {
   if (res.ok) {
     partsCache = res.json.parts || [];
     renderParts(partsCache);
-    populateRailSelect(topRailSelect, 'topRail');
-    populateRailSelect(bottomRailSelect, 'bottomRail');
-    populateRailSelect(hingeRailSelect, 'hingeRail');
-    populateRailSelect(lockRailSelect, 'lockRail');
+    populateRailSelect(templateTopRail, 'topRail');
+    populateRailSelect(templateBottomRail, 'bottomRail');
+    populateRailSelect(templateHingeRail, 'hingeRail');
+    populateRailSelect(templateLockRail, 'lockRail');
   }
 }
 

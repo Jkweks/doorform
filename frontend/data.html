@@ -21,28 +21,24 @@
   <div id="pmTab" class="tab-content active">
     <div class="panel">
       <h2>Project Managers</h2>
-      <div id="pmList" class="list"></div>
-      <label for="newPmName">Add Project Manager</label>
-      <input id="newPmName" type="text" />
-      <button id="addPm">Add</button>
+      <select id="pmSelect" size="10" class="job-select"></select>
+      <div class="action-buttons">
+        <button id="editPm">Edit Selected</button>
+        <button id="deletePm">Delete Selected</button>
+        <button id="addPm">Add Project Manager</button>
+      </div>
     </div>
   </div>
 
   <div id="templatesTab" class="tab-content">
     <div class="panel">
       <h2>Door Part Templates</h2>
-      <div id="templateList" class="list"></div>
-      <label for="newTemplateName">Template Name</label>
-      <input id="newTemplateName" type="text" />
-      <label for="newTopRail">Top Rail</label>
-      <select id="newTopRail"></select>
-      <label for="newBottomRail">Bottom Rail</label>
-      <select id="newBottomRail"></select>
-      <label for="newHingeRail">Hinge Rail</label>
-      <select id="newHingeRail"></select>
-      <label for="newLockRail">Lock Rail</label>
-      <select id="newLockRail"></select>
-      <button id="addTemplate">Add Template</button>
+      <select id="templateSelect" size="10" class="job-select"></select>
+      <div class="action-buttons">
+        <button id="editTemplate">Edit Selected</button>
+        <button id="deleteTemplate">Delete Selected</button>
+        <button id="addTemplate">Add Template</button>
+      </div>
     </div>
   </div>
 
@@ -54,6 +50,44 @@
         <button id="editPart">Edit Selected</button>
         <button id="deletePart">Delete Selected</button>
         <button id="addPart">Add Part</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pmModal" class="modal-overlay">
+    <div class="modal-body">
+      <h3>Project Manager</h3>
+      <input id="pmId" type="hidden" />
+      <label for="pmNameInput">Name</label>
+      <input id="pmNameInput" type="text" />
+      <div class="action-buttons">
+        <button id="savePm">Save Project Manager</button>
+      </div>
+      <div class="modal-actions">
+        <button id="closePmModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="templateModal" class="modal-overlay">
+    <div class="modal-body">
+      <h3>Door Part Template</h3>
+      <input id="templateId" type="hidden" />
+      <label for="templateNameInput">Template Name</label>
+      <input id="templateNameInput" type="text" />
+      <label for="templateTopRail">Top Rail</label>
+      <select id="templateTopRail"></select>
+      <label for="templateBottomRail">Bottom Rail</label>
+      <select id="templateBottomRail"></select>
+      <label for="templateHingeRail">Hinge Rail</label>
+      <select id="templateHingeRail"></select>
+      <label for="templateLockRail">Lock Rail</label>
+      <select id="templateLockRail"></select>
+      <div class="action-buttons">
+        <button id="saveTemplate">Save Template</button>
+      </div>
+      <div class="modal-actions">
+        <button id="closeTemplateModal">Close</button>
       </div>
     </div>
   </div>
