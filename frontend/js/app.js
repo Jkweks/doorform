@@ -97,6 +97,17 @@ document.getElementById('loadJobs').addEventListener('click', () => refreshJobLi
 document.getElementById('filterJobs').addEventListener('input', (e) => refreshJobList(e.target.value, viewArchivedEl.checked));
 viewArchivedEl.addEventListener('change', () => refreshJobList(document.getElementById('filterJobs').value, viewArchivedEl.checked));
 
+const jobsSelectEl = document.getElementById('jobsSelect');
+jobsSelectEl.addEventListener('change', async () => {
+  const jobId = jobsSelectEl.value;
+  if (jobId) {
+    selectedWorkOrderId = null;
+    await loadJob(jobId);
+  } else {
+    clearLoaded();
+  }
+});
+
 document.getElementById('saveJob').addEventListener('click', async () => {
   const jobNumber = document.getElementById('jobNumber').value.trim();
   if (!jobNumber) return alert('Job Number required');
