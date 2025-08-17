@@ -97,6 +97,17 @@ document.getElementById('loadJobs').addEventListener('click', () => refreshJobLi
 document.getElementById('filterJobs').addEventListener('input', (e) => refreshJobList(e.target.value, viewArchivedEl.checked));
 viewArchivedEl.addEventListener('change', () => refreshJobList(document.getElementById('filterJobs').value, viewArchivedEl.checked));
 
+const jobsSelectEl = document.getElementById('jobsSelect');
+jobsSelectEl.addEventListener('change', async () => {
+  const jobId = jobsSelectEl.value;
+  if (jobId) {
+    selectedWorkOrderId = null;
+    await loadJob(jobId);
+  } else {
+    clearLoaded();
+  }
+});
+
 document.getElementById('saveJob').addEventListener('click', async () => {
   const jobNumber = document.getElementById('jobNumber').value.trim();
   if (!jobNumber) return alert('Job Number required');
@@ -123,28 +134,9 @@ document.getElementById('addJob').addEventListener('click', () => {
 document.getElementById('editSelected').addEventListener('click', async () => {
   const sel = document.getElementById('jobsSelect');
   if (!sel.value) return alert('Select job');
-  const r = await api('/jobs/' + encodeURIComponent(sel.value));
-  if (!r.ok) return alert('Failed to load job');
-  const data = r.json;
-  loadedJob = data;
   selectedWorkOrderId = null;
-  updateEntryButton();
-  document.getElementById('jobId').value = data.job.id;
-  document.getElementById('jobNumber').value = data.job.job_number || '';
-  document.getElementById('jobName').value = data.job.job_name || '';
-  const pmSelect = document.getElementById('pm');
-  const pmValue = data.job.pm || '';
-  if (!Array.from(pmSelect.options).some(o => o.value === pmValue)) {
-    const opt = document.createElement('option');
-    opt.value = pmValue;
-    opt.textContent = pmValue;
-    pmSelect.appendChild(opt);
-  }
-  pmSelect.value = pmValue;
-  document.getElementById('archived').checked = !!data.job.archived;
-  renderWorkOrders(data.workOrders);
-  renderEntries([]);
-  openJobModal();
+  const data = await loadJob(sel.value);
+  if (data) openJobModal();
 });
 
 document.getElementById('deleteSelected').addEventListener('click', async () => {
@@ -170,6 +162,38 @@ function clearLoaded() {
   document.getElementById('pm').value = '';
   document.getElementById('jobId').value = '';
   document.getElementById('archived').checked = false;
+}
+
+async function loadJob(id) {
+  const r = await api('/jobs/' + encodeURIComponent(id));
+  if (!r.ok) { alert('Failed to load job'); return null; }
+  const data = r.json;
+  loadedJob = data;
+  const pmSelect = document.getElementById('pm');
+  const pmValue = data.job.pm || '';
+  if (!Array.from(pmSelect.options).some(o => o.value === pmValue)) {
+    const opt = document.createElement('option');
+    opt.value = pmValue;
+    opt.textContent = pmValue;
+    pmSelect.appendChild(opt);
+  }
+  document.getElementById('jobId').value = data.job.id;
+  document.getElementById('jobNumber').value = data.job.job_number || '';
+  document.getElementById('jobName').value = data.job.job_name || '';
+  pmSelect.value = pmValue;
+  document.getElementById('archived').checked = !!data.job.archived;
+  if (!(data.workOrders || []).some(w => w.id === selectedWorkOrderId)) {
+    selectedWorkOrderId = null;
+  }
+  renderWorkOrders(data.workOrders);
+  if (selectedWorkOrderId) {
+    const wo = data.workOrders.find(w => w.id === selectedWorkOrderId);
+    renderEntries(wo ? wo.entries : []);
+  } else {
+    renderEntries([]);
+  }
+  updateEntryButton();
+  return data;
 }
 
 function renderWorkOrders(workOrders = []) {
@@ -201,13 +225,7 @@ function renderWorkOrders(workOrders = []) {
       if (!newWO) return;
       const r = await api(`/work-orders/${wo.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ workOrder: newWO }) });
       if (!r.ok) return alert('Failed to update work order');
-      const jobRes = await api('/jobs/' + document.getElementById('jobId').value);
-      if (jobRes.ok) {
-        loadedJob = jobRes.json;
-        renderWorkOrders(loadedJob.workOrders);
-        const w = loadedJob.workOrders.find(w => w.id === selectedWorkOrderId);
-        if (w) renderEntries(w.entries); else renderEntries([]);
-      }
+      await loadJob(document.getElementById('jobId').value);
     };
     right.appendChild(editBtn);
     const delBtn = document.createElement('button'); delBtn.textContent = 'Delete';
@@ -217,14 +235,8 @@ function renderWorkOrders(workOrders = []) {
       if (!r.ok) return alert('Failed to delete work order');
       if (selectedWorkOrderId === wo.id) {
         selectedWorkOrderId = null;
-        renderEntries([]);
-        updateEntryButton();
       }
-      const jobRes = await api('/jobs/' + document.getElementById('jobId').value);
-      if (jobRes.ok) {
-        loadedJob = jobRes.json;
-        renderWorkOrders(loadedJob.workOrders);
-      }
+      await loadJob(document.getElementById('jobId').value);
     };
     right.appendChild(delBtn);
     item.appendChild(left); item.appendChild(right);
@@ -259,14 +271,7 @@ function renderEntries(entries = []) {
       if (!confirm('Delete entry?')) return;
       const r = await api(`/entries/${en.id}`, { method: 'DELETE' });
       if (!r.ok) return alert('Failed to delete entry');
-      const jobId = document.getElementById('jobId').value;
-      const jobRes = await api('/jobs/' + jobId);
-      if (jobRes.ok) {
-        loadedJob = jobRes.json;
-        renderWorkOrders(loadedJob.workOrders);
-        const wo = loadedJob.workOrders.find(w => w.id === selectedWorkOrderId);
-        if (wo) renderEntries(wo.entries); else renderEntries([]);
-      }
+      await loadJob(document.getElementById('jobId').value);
     };
     right.appendChild(del);
     item.appendChild(left); item.appendChild(right);
@@ -281,11 +286,7 @@ document.getElementById('addWorkOrder').addEventListener('click', async () => {
   const r = await api(`/jobs/${jobId}/work-orders`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ workOrder: wo }) });
   if (!r.ok) return alert('Failed to add work order');
   document.getElementById('newWorkOrder').value = '';
-  const jobRes = await api('/jobs/' + jobId);
-  if (jobRes.ok) {
-    loadedJob = jobRes.json;
-    renderWorkOrders(loadedJob.workOrders);
-  }
+  await loadJob(jobId);
 });
 
 const addEntryModal = document.getElementById('addEntryModal');
@@ -349,13 +350,7 @@ document.getElementById('addEntryModalSave').addEventListener('click', async () 
   addEntryWidth.value = "3'0\"";
   addEntryHeight.value = "7'0\"";
   const jobId = document.getElementById('jobId').value;
-  const jobRes = await api('/jobs/' + jobId);
-  if (jobRes.ok) {
-    loadedJob = jobRes.json;
-    renderWorkOrders(loadedJob.workOrders);
-    const wo = loadedJob.workOrders.find(w => w.id === selectedWorkOrderId);
-    if (wo) renderEntries(wo.entries);
-  }
+  await loadJob(jobId);
 });
 
 // Modal for selecting door/frame edits
@@ -567,17 +562,7 @@ document.getElementById('modalSave').addEventListener('click', async () => {
   if (!r.ok) return alert('Failed to save');
   modal.style.display = 'none'; modalMode = null;
   const jobId = document.getElementById('jobId').value;
-  if (jobId) {
-    const jobRes = await api('/jobs/' + jobId);
-    if (jobRes.ok) {
-      loadedJob = jobRes.json;
-      renderWorkOrders(loadedJob.workOrders);
-      if (selectedWorkOrderId) {
-        const wo = loadedJob.workOrders.find(w => w.id === selectedWorkOrderId);
-        if (wo) renderEntries(wo.entries);
-      }
-    }
-  }
+  if (jobId) await loadJob(jobId);
 });
 
 async function exportJobToPDF(jobId, workOrderId) {
