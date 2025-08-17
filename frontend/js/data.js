@@ -1,4 +1,5 @@
-const API_BASE = 'http://192.168.4.251:3000'; // same base as main app
+const API_ORIGIN = window.APP_CONFIG?.apiBase || window.location.origin;
+const API_BASE = API_ORIGIN === window.location.origin ? '' : API_ORIGIN; // same base as main app
 function api(path, opts = {}) {
   return fetch(API_BASE + '/api' + path, opts).then(async r => {
     const txt = await r.text();
