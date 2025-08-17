@@ -194,8 +194,7 @@ document.getElementById('addPart').onclick = async () => {
   const lx = lxVal ? parseFloat(lxVal) : null;
   const ly = lyVal ? parseFloat(lyVal) : null;
   const usages = [];
-  document.querySelectorAll('.door-parts .usage-checkbox:checked').forEach(cb => usages.push(cb.value));
-  document.querySelectorAll('.frame-parts .usage-checkbox:checked').forEach(cb => usages.push(cb.value));
+  document.querySelectorAll('.usage-checkbox:checked').forEach(cb => usages.push(cb.value));
   const reqStr = document.getElementById('newPartRequires').value.trim();
   const requires = reqStr ? reqStr.split(',').map(s => s.trim()).filter(Boolean) : [];
   await api('/parts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, description, lx, ly, usages, requires }) });
@@ -203,8 +202,7 @@ document.getElementById('addPart').onclick = async () => {
   document.getElementById('newPartDescription').value = '';
   document.getElementById('newPartLX').value = '';
   document.getElementById('newPartLY').value = '';
-  document.querySelectorAll('.door-parts .usage-checkbox').forEach(cb => cb.checked = false);
-  document.querySelectorAll('.frame-parts .usage-checkbox').forEach(cb => cb.checked = false);
+  document.querySelectorAll('.usage-checkbox').forEach(cb => cb.checked = false);
   document.getElementById('newPartRequires').value = '';
   loadParts();
 };
