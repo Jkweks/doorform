@@ -565,7 +565,7 @@ document.getElementById('modalSave').addEventListener('click', async () => {
   if (jobId) await loadJob(jobId);
 });
 
-async function exportJobToPDF(jobId, workOrderId) {
+async function exportJobToPDF(jobId, workOrderId, printType = 'review') {
   const r = await api('/jobs/' + jobId);
   if (!r.ok) return alert('Failed to fetch job');
   const data = r.json;
@@ -651,16 +651,32 @@ async function exportJobToPDF(jobId, workOrderId) {
     const doorLabel = doors[i].door.leaf ? `Door ${doors[i].door.leaf}` : `Door ${i + 1}`;
     writeKeyVals(doors[i].door.data, doorLabel, y2);
   }
+  const tagText = `${printType === 'production' ? 'Production' : 'Review'} - ${new Date().toLocaleString()}`;
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    doc.text(tagText, margin, 792 - 20);
+  }
   const filename = currentWO
     ? `Job_${job.job_number || 'no-number'}_WO_${currentWO.work_order || 'unknown'}.pdf`
     : `Job_${job.job_number || 'no-number'}.pdf`;
+  if (printType === 'production') {
+    const blob = doc.output('blob');
+    fetch(API_BASE + `/api/work-orders/${workOrderId}/pdf`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/pdf', 'x-print-tag': 'production' },
+      body: blob
+    }).catch(err => console.error('Failed to save production PDF', err));
+  }
   doc.save(filename);
 }
 
 document.getElementById('exportPdfWorkOrder').addEventListener('click', () => {
   if (!loadedJob || !loadedJob.job) return alert('No job loaded');
   if (!selectedWorkOrderId) return alert('Select a work order first');
-  exportJobToPDF(loadedJob.job.id, selectedWorkOrderId);
+  const isProduction = confirm('Is this a production print? Click OK for Production, Cancel for Review.');
+  exportJobToPDF(loadedJob.job.id, selectedWorkOrderId, isProduction ? 'production' : 'review');
 });
 
 document.getElementById('exportJsonDownload').addEventListener('click', async () => {
