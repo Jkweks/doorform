@@ -18,6 +18,11 @@ const entriesTabBtn = document.getElementById('entriesTabBtn');
 const jobsTab = document.getElementById('jobsTab');
 const workOrdersTab = document.getElementById('workOrdersTab');
 const entriesTab = document.getElementById('entriesTab');
+const addEntryBtn = document.getElementById('addEntry');
+
+function updateEntryButton() {
+  addEntryBtn.disabled = !selectedWorkOrderId;
+}
 
 function showMainTab(tab) {
   jobsTab.style.display = tab === 'jobs' ? 'block' : 'none';
@@ -32,6 +37,7 @@ jobsTabBtn.addEventListener('click', () => showMainTab('jobs'));
 workOrdersTabBtn.addEventListener('click', () => showMainTab('workorders'));
 entriesTabBtn.addEventListener('click', () => showMainTab('entries'));
 showMainTab('jobs');
+updateEntryButton();
 
 function openJobModal() {
   jobModal.style.display = 'flex';
@@ -122,6 +128,7 @@ document.getElementById('editSelected').addEventListener('click', async () => {
   const data = r.json;
   loadedJob = data;
   selectedWorkOrderId = null;
+  updateEntryButton();
   document.getElementById('jobId').value = data.job.id;
   document.getElementById('jobNumber').value = data.job.job_number || '';
   document.getElementById('jobName').value = data.job.job_name || '';
@@ -154,6 +161,7 @@ document.getElementById('deleteSelected').addEventListener('click', async () => 
 function clearLoaded() {
   loadedJob = null;
   selectedWorkOrderId = null;
+  updateEntryButton();
   editingEntry = null;
   document.getElementById('workOrdersList').innerHTML = '';
   document.getElementById('entriesList').innerHTML = '';
@@ -184,6 +192,7 @@ function renderWorkOrders(workOrders = []) {
       renderWorkOrders(loadedJob.workOrders);
       renderEntries(wo.entries);
       showMainTab('entries');
+      updateEntryButton();
     };
     right.appendChild(openBtn);
     const editBtn = document.createElement('button'); editBtn.textContent = 'Edit';
@@ -209,6 +218,7 @@ function renderWorkOrders(workOrders = []) {
       if (selectedWorkOrderId === wo.id) {
         selectedWorkOrderId = null;
         renderEntries([]);
+        updateEntryButton();
       }
       const jobRes = await api('/jobs/' + document.getElementById('jobId').value);
       if (jobRes.ok) {
@@ -301,7 +311,7 @@ function openEntryModal(entry = null) {
   addEntryModal.style.display = 'flex';
 }
 
-document.getElementById('addEntry').addEventListener('click', () => {
+addEntryBtn.addEventListener('click', () => {
   if (!selectedWorkOrderId) return alert('Select a work order first');
   openEntryModal();
 });
