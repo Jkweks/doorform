@@ -27,8 +27,8 @@ for (const btn of document.querySelectorAll('#dataTabs button')) {
 }
 
 
-function populateRailSelect(selectEl, current) {
-  const parts = partsCache || [];
+function populateRailSelect(selectEl, usage, current) {
+  const parts = (partsCache || []).filter(p => (p.data?.uses || []).includes(usage));
   selectEl.innerHTML = '<option value=""></option>';
   parts.forEach(p => {
     const opt = document.createElement('option');
@@ -138,10 +138,10 @@ async function loadParts() {
   if (res.ok) {
     partsCache = res.json.parts || [];
     renderParts(partsCache);
-    populateRailSelect(topRailSelect);
-    populateRailSelect(bottomRailSelect);
-    populateRailSelect(hingeRailSelect);
-    populateRailSelect(lockRailSelect);
+    populateRailSelect(topRailSelect, 'topRail');
+    populateRailSelect(bottomRailSelect, 'bottomRail');
+    populateRailSelect(hingeRailSelect, 'hingeRail');
+    populateRailSelect(lockRailSelect, 'lockRail');
   }
 }
 
