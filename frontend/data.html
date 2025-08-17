@@ -49,39 +49,33 @@
   <div id="partsTab" class="tab-content">
     <div class="panel">
       <h2>Parts</h2>
-      <div id="partList" class="list"></div>
-      <label for="newPartNumber">Part Number</label>
-      <input id="newPartNumber" type="text" />
-      <label for="newPartDescription">Description</label>
-      <input id="newPartDescription" type="text" />
-      <label for="newPartLX">LX</label>
-      <input id="newPartLX" type="number" step="any" />
-      <label for="newPartLY">LY</label>
-      <input id="newPartLY" type="number" step="any" />
-      <fieldset class="usage-section door-parts">
-        <legend>Door Parts</legend>
-        <label class="checkbox"><input id="newUsageTop" class="usage-checkbox" type="checkbox" value="topRail" /> Top Rail</label>
-        <label class="checkbox"><input id="newUsageBottom" class="usage-checkbox" type="checkbox" value="bottomRail" /> Bottom Rail</label>
-        <label class="checkbox"><input id="newUsageHinge" class="usage-checkbox" type="checkbox" value="hingeRail" /> Hinge Rail</label>
-        <label class="checkbox"><input id="newUsageLock" class="usage-checkbox" type="checkbox" value="lockRail" /> Lock Rail</label>
-        <label class="checkbox"><input id="newUsageMid" class="usage-checkbox" type="checkbox" value="midRail" /> Mid Rail</label>
-        <label class="checkbox"><input id="newUsageGlass" class="usage-checkbox" type="checkbox" value="glassStop" /> Glass Stop</label>
-        <label class="checkbox"><input id="newUsageDoorBacker" class="usage-checkbox" type="checkbox" value="doorBacker" /> Backer</label>
-        <label class="checkbox"><input id="newUsageLug" class="usage-checkbox" type="checkbox" value="lug" /> Lugs</label>
-        <label class="checkbox"><input id="newUsageFastener" class="usage-checkbox" type="checkbox" value="fastener" /> Fasteners</label>
-      </fieldset>
-      <fieldset class="usage-section frame-parts">
-        <legend>Frame Parts</legend>
-        <label class="checkbox"><input id="newUsageHingeJamb" class="usage-checkbox" type="checkbox" value="hingeJamb" /> Hinge Jamb</label>
-        <label class="checkbox"><input id="newUsageLockJamb" class="usage-checkbox" type="checkbox" value="lockJamb" /> Lock Jamb</label>
-        <label class="checkbox"><input id="newUsageDoorHeader" class="usage-checkbox" type="checkbox" value="doorHeader" /> Door Header</label>
-        <label class="checkbox"><input id="newUsageTransomHeader" class="usage-checkbox" type="checkbox" value="transomHeader" /> Transom Header</label>
-        <label class="checkbox"><input id="newUsageDoorStop" class="usage-checkbox" type="checkbox" value="doorStop" /> Door Stop</label>
-        <label class="checkbox"><input id="newUsageFrameBacker" class="usage-checkbox" type="checkbox" value="frameBacker" /> Backer</label>
-      </fieldset>
-      <label for="newPartRequires">Requires (comma-separated)</label>
-      <input id="newPartRequires" type="text" />
-      <button id="addPart">Add Part</button>
+      <select id="partsSelect" size="10" class="job-select"></select>
+      <div class="action-buttons">
+        <button id="editPart">Edit Selected</button>
+        <button id="deletePart">Delete Selected</button>
+        <button id="addPart">Add Part</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="partModal" class="modal-overlay">
+    <div class="modal-body">
+      <h3>Part</h3>
+      <input id="partId" type="hidden" />
+      <label for="partTypeInput">Part Type</label>
+      <input id="partTypeInput" type="text" />
+      <label for="partLzInput">LZ</label>
+      <input id="partLzInput" type="number" step="any" />
+      <label for="partLyInput">LY</label>
+      <input id="partLyInput" type="number" step="any" />
+      <label for="partDataInput">Data (JSON)</label>
+      <textarea id="partDataInput"></textarea>
+      <div class="action-buttons">
+        <button id="savePart">Save Part</button>
+      </div>
+      <div class="modal-actions">
+        <button id="closePartModal">Close</button>
+      </div>
     </div>
   </div>
 

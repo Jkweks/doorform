@@ -77,16 +77,5 @@ CREATE TABLE IF NOT EXISTS door_parts (
     data JSONB
 );
 
--- Parts available for rails
-CREATE TABLE IF NOT EXISTS parts (
-    id SERIAL PRIMARY KEY,
-    number VARCHAR(50) UNIQUE,
-    description TEXT,
-    lx NUMERIC,
-    ly NUMERIC,
-    usages TEXT[],
-    requires TEXT[]
-);
-
-ALTER TABLE parts ADD COLUMN IF NOT EXISTS lx NUMERIC;
-ALTER TABLE parts ADD COLUMN IF NOT EXISTS ly NUMERIC;
+-- Legacy parts table removed; door_parts table now stores generic parts as well
+DROP TABLE IF EXISTS parts;

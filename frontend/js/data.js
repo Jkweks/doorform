@@ -12,6 +12,9 @@ const topRailSelect = document.getElementById('newTopRail');
 const bottomRailSelect = document.getElementById('newBottomRail');
 const hingeRailSelect = document.getElementById('newHingeRail');
 const lockRailSelect = document.getElementById('newLockRail');
+const partsSelect = document.getElementById('partsSelect');
+const partModal = document.getElementById('partModal');
+const partModalClose = document.getElementById('closePartModal');
 
 // Tabs for maintenance sections
 for (const btn of document.querySelectorAll('#dataTabs button')) {
@@ -24,13 +27,13 @@ for (const btn of document.querySelectorAll('#dataTabs button')) {
 }
 
 
-function populateRailSelect(selectEl, usage, current) {
-  const parts = (partsCache || []).filter(p => (p.usages || []).includes(usage));
+function populateRailSelect(selectEl, current) {
+  const parts = partsCache || [];
   selectEl.innerHTML = '<option value=""></option>';
   parts.forEach(p => {
     const opt = document.createElement('option');
-    opt.value = p.number;
-    opt.textContent = p.number;
+    opt.value = p.part_type;
+    opt.textContent = p.part_type;
     selectEl.appendChild(opt);
   });
   if (current) selectEl.value = current;
@@ -135,75 +138,72 @@ async function loadParts() {
   if (res.ok) {
     partsCache = res.json.parts || [];
     renderParts(partsCache);
-    populateRailSelect(topRailSelect, 'topRail');
-    populateRailSelect(bottomRailSelect, 'bottomRail');
-    populateRailSelect(hingeRailSelect, 'hingeRail');
-    populateRailSelect(lockRailSelect, 'lockRail');
+    populateRailSelect(topRailSelect);
+    populateRailSelect(bottomRailSelect);
+    populateRailSelect(hingeRailSelect);
+    populateRailSelect(lockRailSelect);
   }
 }
 
 function renderParts(parts) {
-  const list = document.getElementById('partList');
-  list.innerHTML = '';
+  partsSelect.innerHTML = '';
   (parts || []).forEach(p => {
-    const item = document.createElement('div');
-    item.className = 'item';
-    const left = document.createElement('div');
-    const usages = (p.usages || []).join(', ');
-    const dims = (p.lx || p.ly) ? ` (${p.lx || ''}x${p.ly || ''})` : '';
-    const desc = p.description ? ` — ${p.description}` : '';
-    const req = (p.requires && p.requires.length) ? ` (requires ${p.requires.join(', ')})` : '';
-    left.innerHTML = `<strong>${p.number}</strong>${desc} — ${usages}${dims}${req}`;
-    const right = document.createElement('div');
-    const edit = document.createElement('button');
-    edit.textContent = 'Edit';
-    edit.onclick = () => {
-      const number = prompt('Part number', p.number);
-      if (number === null) return;
-      const description = prompt('Description', p.description || '');
-      if (description === null) return;
-      const lx = prompt('LX', p.lx || '');
-      if (lx === null) return;
-      const ly = prompt('LY', p.ly || '');
-      if (ly === null) return;
-      const usagesStr = prompt('Usages (comma-separated topRail,bottomRail,hingeRail,lockRail,midRail,glassStop,doorBacker,lug,fastener,hingeJamb,lockJamb,doorHeader,transomHeader,doorStop,frameBacker)', (p.usages || []).join(','));
-      if (usagesStr === null) return;
-      const requiresStr = prompt('Requires (comma-separated part numbers)', (p.requires || []).join(','));
-      const usages = usagesStr.split(',').map(s => s.trim()).filter(Boolean);
-      const requires = requiresStr.split(',').map(s => s.trim()).filter(Boolean);
-      api(`/parts/${p.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, description, lx: lx ? parseFloat(lx) : null, ly: ly ? parseFloat(ly) : null, usages, requires }) }).then(loadParts);
-    };
-    const del = document.createElement('button');
-    del.textContent = 'Delete';
-    del.onclick = () => {
-      if (!confirm('Delete part ' + p.number + '?')) return;
-      api(`/parts/${p.id}`, { method: 'DELETE' }).then(loadParts);
-    };
-    right.appendChild(edit); right.appendChild(del);
-    item.appendChild(left); item.appendChild(right);
-    list.appendChild(item);
+    const opt = document.createElement('option');
+    const dims = (p.part_lz || p.part_ly) ? ` (${p.part_lz || ''}x${p.part_ly || ''})` : '';
+    opt.value = p.id;
+    opt.textContent = `${p.part_type}${dims}`;
+    partsSelect.appendChild(opt);
   });
 }
 
 
-document.getElementById('addPart').onclick = async () => {
-  const number = document.getElementById('newPartNumber').value.trim();
-  if (!number) return;
-  const description = document.getElementById('newPartDescription').value.trim() || null;
-  const lxVal = document.getElementById('newPartLX').value;
-  const lyVal = document.getElementById('newPartLY').value;
-  const lx = lxVal ? parseFloat(lxVal) : null;
-  const ly = lyVal ? parseFloat(lyVal) : null;
-  const usages = [];
-  document.querySelectorAll('.usage-checkbox:checked').forEach(cb => usages.push(cb.value));
-  const reqStr = document.getElementById('newPartRequires').value.trim();
-  const requires = reqStr ? reqStr.split(',').map(s => s.trim()).filter(Boolean) : [];
-  await api('/parts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ number, description, lx, ly, usages, requires }) });
-  document.getElementById('newPartNumber').value = '';
-  document.getElementById('newPartDescription').value = '';
-  document.getElementById('newPartLX').value = '';
-  document.getElementById('newPartLY').value = '';
-  document.querySelectorAll('.usage-checkbox').forEach(cb => cb.checked = false);
-  document.getElementById('newPartRequires').value = '';
+
+function openPartModal(part) {
+  document.getElementById('partId').value = part?.id || '';
+  document.getElementById('partTypeInput').value = part?.part_type || '';
+  document.getElementById('partLzInput').value = part?.part_lz || '';
+  document.getElementById('partLyInput').value = part?.part_ly || '';
+  document.getElementById('partDataInput').value = part?.data ? JSON.stringify(part.data) : '';
+  partModal.style.display = 'flex';
+}
+
+partModalClose.onclick = () => { partModal.style.display = 'none'; };
+
+document.getElementById('addPart').onclick = () => openPartModal();
+
+document.getElementById('editPart').onclick = () => {
+  const selId = partsSelect.value;
+  if (!selId) return alert('Select part');
+  const part = partsCache.find(p => String(p.id) === String(selId));
+  openPartModal(part);
+};
+
+document.getElementById('deletePart').onclick = async () => {
+  const selId = partsSelect.value;
+  if (!selId) return alert('Select part');
+  if (!confirm('Delete part?')) return;
+  await api(`/parts/${selId}`, { method: 'DELETE' });
+  loadParts();
+};
+
+document.getElementById('savePart').onclick = async () => {
+  const id = document.getElementById('partId').value;
+  const partType = document.getElementById('partTypeInput').value.trim();
+  if (!partType) return alert('Part type required');
+  const lzVal = document.getElementById('partLzInput').value;
+  const lyVal = document.getElementById('partLyInput').value;
+  const partLz = lzVal ? parseFloat(lzVal) : null;
+  const partLy = lyVal ? parseFloat(lyVal) : null;
+  const dataTxt = document.getElementById('partDataInput').value.trim();
+  let data = null;
+  if (dataTxt) {
+    try { data = JSON.parse(dataTxt); } catch (e) { return alert('Invalid JSON'); }
+  }
+  const payload = { partType, partLz, partLy, data };
+  const res = id
+    ? await api(`/parts/${id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
+    : await api('/parts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
+  if (!res.ok) return alert('Save failed');
+  partModal.style.display = 'none';
   loadParts();
 };
