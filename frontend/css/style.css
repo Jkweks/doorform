@@ -134,6 +134,18 @@ button:focus-visible {
   outline: 2px solid var(--vos-gray);
 }
 
+button:disabled {
+  background-color: var(--vos-gray);
+  color: var(--vos-dark);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+body.dark button:disabled {
+  background-color: #555;
+  color: var(--vos-gray);
+}
+
 body.dark .panel {
   background-color: #333;
   color: var(--vos-gray);
