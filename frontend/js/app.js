@@ -11,28 +11,28 @@ let selectedWorkOrderId = null;
 let editingEntry = null;
 
 const jobModal = document.getElementById('jobModal');
-const jobInfoTabBtn = document.getElementById('jobInfoTabBtn');
+const jobsTabBtn = document.getElementById('jobsTabBtn');
 const workOrdersTabBtn = document.getElementById('workOrdersTabBtn');
 const entriesTabBtn = document.getElementById('entriesTabBtn');
-const jobInfoTab = document.getElementById('jobInfoTab');
+const jobsTab = document.getElementById('jobsTab');
 const workOrdersTab = document.getElementById('workOrdersTab');
 const entriesTab = document.getElementById('entriesTab');
 
-function showJobModalTab(tab) {
-  jobInfoTab.style.display = tab === 'job' ? 'block' : 'none';
+function showMainTab(tab) {
+  jobsTab.style.display = tab === 'jobs' ? 'block' : 'none';
   workOrdersTab.style.display = tab === 'workorders' ? 'block' : 'none';
   entriesTab.style.display = tab === 'entries' ? 'block' : 'none';
-  jobInfoTabBtn.classList.toggle('active', tab === 'job');
+  jobsTabBtn.classList.toggle('active', tab === 'jobs');
   workOrdersTabBtn.classList.toggle('active', tab === 'workorders');
   entriesTabBtn.classList.toggle('active', tab === 'entries');
 }
 
-jobInfoTabBtn.addEventListener('click', () => showJobModalTab('job'));
-workOrdersTabBtn.addEventListener('click', () => showJobModalTab('workorders'));
-entriesTabBtn.addEventListener('click', () => showJobModalTab('entries'));
+jobsTabBtn.addEventListener('click', () => showMainTab('jobs'));
+workOrdersTabBtn.addEventListener('click', () => showMainTab('workorders'));
+entriesTabBtn.addEventListener('click', () => showMainTab('entries'));
+showMainTab('jobs');
 
 function openJobModal() {
-  showJobModalTab('job');
   jobModal.style.display = 'flex';
 }
 
@@ -182,7 +182,7 @@ function renderWorkOrders(workOrders = []) {
       selectedWorkOrderId = wo.id;
       renderWorkOrders(loadedJob.workOrders);
       renderEntries(wo.entries);
-      showJobModalTab('entries');
+      showMainTab('entries');
     };
     right.appendChild(openBtn);
     const editBtn = document.createElement('button'); editBtn.textContent = 'Edit';
