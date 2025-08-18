@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('./db');
+const { computeDoorCutList } = require('./cutlist');
 
 const router = express.Router();
 
@@ -430,6 +431,38 @@ router.delete('/door-part-templates/:id', async (req, res) => {
     const result = await pool.query('DELETE FROM door_part_templates WHERE id = $1', [id]);
     if (result.rowCount === 0) return res.status(404).json({ error: 'Template not found' });
     res.json({ message: 'Template deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Generate a cut list for a specific door
+router.get('/doors/:id/cut-list', async (req, res) => {
+  const doorId = req.params.id;
+  try {
+    const doorRes = await pool.query(
+      'SELECT d.data AS door_data, e.data AS entry_data FROM doors d JOIN entries e ON d.entry_id = e.id WHERE d.id = $1',
+      [doorId]
+    );
+    if (doorRes.rowCount === 0) return res.status(404).json({ error: 'Door not found' });
+    const doorData = doorRes.rows[0].door_data || {};
+    const entryData = doorRes.rows[0].entry_data || {};
+    const partNumbers = [doorData.topRail, doorData.bottomRail, doorData.hingeRail, doorData.lockRail].filter(Boolean);
+    const partsMap = {};
+    if (partNumbers.length) {
+      const partsRes = await pool.query(
+        'SELECT part_type, part_ly FROM door_parts WHERE door_id IS NULL AND part_type = ANY($1::text[])',
+        [partNumbers]
+      );
+      partsRes.rows.forEach(p => { partsMap[p.part_type] = p; });
+    }
+    const cutList = computeDoorCutList(entryData, {
+      topRail: partsMap[doorData.topRail],
+      bottomRail: partsMap[doorData.bottomRail],
+      hingeRail: partsMap[doorData.hingeRail],
+      lockRail: partsMap[doorData.lockRail]
+    });
+    res.json({ cutList });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
