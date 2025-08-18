@@ -88,3 +88,18 @@ CREATE TABLE IF NOT EXISTS work_order_pdfs (
     pdf BYTEA,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Categories of hardware such as hinges, pivots, sweeps, etc.
+CREATE TABLE IF NOT EXISTS hardware_categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE
+);
+
+-- Individual hardware items belonging to a category
+CREATE TABLE IF NOT EXISTS hardware_items (
+    id SERIAL PRIMARY KEY,
+    category_id INT REFERENCES hardware_categories(id) ON DELETE SET NULL,
+    manufacturer VARCHAR(255),
+    model_number VARCHAR(255),
+    features JSONB
+);
