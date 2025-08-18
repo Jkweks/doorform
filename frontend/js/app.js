@@ -589,31 +589,48 @@ async function exportJobToPDF(jobId, workOrderId, printType = 'review') {
   });
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const pageW = 612;
+  const pageH = 792;
   const margin = 36;
-  const startY = 48;
-  const usableW = 612 - margin * 2;
+  const startY = margin + 24;
+  const usableW = pageW - margin * 2;
   const lineH = 14;
-  function writeKeyVals(obj, title, startYPos = startY) {
-    doc.setFontSize(16);
-    doc.text(title, margin, startYPos);
-    doc.setFontSize(12);
-    let y = startYPos + 26;
+
+  function addHeader(title) {
+    doc.setFontSize(18);
+    doc.text(title, margin, margin);
+    doc.setFontSize(10);
+    doc.line(margin, margin + 4, pageW - margin, margin + 4);
+    return startY;
+  }
+
+  function drawKeyValTable(obj, title, y) {
+    doc.setFontSize(14);
+    doc.text(title, margin, y);
+    doc.setFontSize(10);
+    y += 12;
     const keys = Object.keys(obj);
     if (keys.length === 0) {
       doc.text('(no data)', margin, y);
       return y + lineH;
     }
+    const labelW = 150;
     for (const key of keys) {
-      const label = `${key}: `;
       const value = obj[key] === null || obj[key] === undefined ? '' : String(obj[key]);
-      const labelW = doc.getTextWidth(label);
-      const split = doc.splitTextToSize(value, usableW - labelW - 6);
-      doc.text(label, margin, y);
-      doc.text(split, margin + labelW + 6, y);
-      y += split.length * lineH + 6;
-      if (y > 720) { doc.addPage(); y = startY; }
+      const split = doc.splitTextToSize(value, usableW - labelW - 8);
+      const rowH = split.length * lineH + 4;
+      if (y + rowH > pageH - margin) {
+        doc.addPage();
+        y = addHeader(title);
+        doc.setFontSize(10);
+      }
+      doc.rect(margin, y, usableW, rowH);
+      doc.line(margin + labelW, y, margin + labelW, y + rowH);
+      doc.text(key, margin + 4, y + 12);
+      doc.text(split, margin + labelW + 4, y + 12);
+      y += rowH;
     }
-    return y;
+    return y + 20;
   }
   const jobInfo = {
     'Job Number': job.job_number || '',
@@ -621,35 +638,26 @@ async function exportJobToPDF(jobId, workOrderId, printType = 'review') {
     'PM': job.pm || ''
   };
   if (currentWO) jobInfo['Work Order'] = currentWO.work_order || '';
-  let y = writeKeyVals(jobInfo, 'Job Information', startY);
+  let y = addHeader('Job Summary');
+  y = drawKeyValTable(jobInfo, 'Job Information', y);
   const entrySummary = {};
   entries.forEach((en, idx) => {
     const label = en.data && en.data.tag ? en.data.tag : `Entry ${idx + 1}`;
     entrySummary[label] = en.handing || '';
   });
-  y += 20;
-  writeKeyVals(entrySummary, 'Entries', y);
-  const imgW = 200; const imgH = 150; const imgX = (612 - imgW) / 2;
+  y = drawKeyValTable(entrySummary, 'Entries', y);
   for (let i = 0; i < frames.length; i++) {
     doc.addPage();
-    doc.rect(imgX, startY, imgW, imgH);
-    doc.setFontSize(12);
-    doc.text('Frame Image Placeholder', 306, startY + imgH / 2, { align: 'center', baseline: 'middle' });
-    let y2 = startY + imgH + 40;
-    y2 = writeKeyVals(frames[i].entry, 'Entry', y2);
-    y2 += 20;
-    writeKeyVals(frames[i].frame.data, `Frame ${i + 1}`, y2);
+    let y2 = addHeader(`Frame ${i + 1}`);
+    y2 = drawKeyValTable(frames[i].entry, 'Entry', y2);
+    y2 = drawKeyValTable(frames[i].frame.data, 'Frame Details', y2);
   }
   for (let i = 0; i < doors.length; i++) {
     doc.addPage();
-    doc.rect(imgX, startY, imgW, imgH);
-    doc.setFontSize(12);
-    doc.text('Door Image Placeholder', 306, startY + imgH / 2, { align: 'center', baseline: 'middle' });
-    let y2 = startY + imgH + 40;
-    y2 = writeKeyVals(doors[i].entry, 'Entry', y2);
-    y2 += 20;
     const doorLabel = doors[i].door.leaf ? `Door ${doors[i].door.leaf}` : `Door ${i + 1}`;
-    writeKeyVals(doors[i].door.data, doorLabel, y2);
+    let y2 = addHeader(doorLabel);
+    y2 = drawKeyValTable(doors[i].entry, 'Entry', y2);
+    y2 = drawKeyValTable(doors[i].door.data, 'Door Details', y2);
   }
   const tagText = `${printType === 'production' ? 'Production' : 'Review'} - ${new Date().toLocaleString()}`;
   const pageCount = doc.getNumberOfPages();
