@@ -199,7 +199,6 @@ function openPartModal(part) {
   document.querySelectorAll('#partDoorUses input[type="checkbox"], #partFrameUses input[type="checkbox"]').forEach(cb => {
     cb.checked = uses.includes(cb.value);
   });
-  document.getElementById('partDataInput').value = part?.data ? JSON.stringify(part.data) : '';
   partModal.style.display = 'flex';
 }
 
@@ -230,13 +229,9 @@ document.getElementById('savePart').onclick = async () => {
   const lyVal = document.getElementById('partLyInput').value;
   const partLz = lzVal ? parseFloat(lzVal) : null;
   const partLy = lyVal ? parseFloat(lyVal) : null;
-  const dataTxt = document.getElementById('partDataInput').value.trim();
   const description = document.getElementById('partDescriptionInput').value.trim();
   const uses = Array.from(document.querySelectorAll('#partDoorUses input:checked, #partFrameUses input:checked')).map(cb => cb.value);
   let data = {};
-  if (dataTxt) {
-    try { data = JSON.parse(dataTxt); } catch (e) { return alert('Invalid JSON'); }
-  }
   if (description) data.description = description;
   const uniqueUses = [...new Set(uses)];
   if (uniqueUses.length) data.uses = uniqueUses;
