@@ -139,6 +139,7 @@
       <button id="formulaTabBtn" class="active" data-tab="formula">Formula</button>
       <button id="globalTabBtn" data-tab="global">Global Settings</button>
       <button id="partsTabBtn" data-tab="parts">Parts</button>
+      <button id="hardwareTabBtn" data-tab="hardware">Hardware</button>
     </div>
     <div id="formulaTab" class="tab-content">
       <div id="kvContainer"></div>
@@ -165,6 +166,28 @@
         <select id="hingeRailSelect"></select>
         <label for="lockRailSelect">Lock Rail</label>
         <select id="lockRailSelect"></select>
+      </div>
+      <div id="hardwareTab" class="tab-content">
+        <label for="hingingSelect">Hinging</label>
+        <select id="hingingSelect">
+          <option value=""></option>
+          <option value="butt">Butt Hinges</option>
+          <option value="continuous">Continuous Hinges</option>
+        </select>
+        <div id="hingeDetails" style="display:none;">
+          <label for="hingeSizeSelect">Hinge Size</label>
+          <select id="hingeSizeSelect">
+            <option value="4.5x4.5">4.5x4.5</option>
+            <option value="HD 4.5x4.5">HD 4.5 x 4.5</option>
+          </select>
+          <label for="hingeQtySelect">Quantity</label>
+          <select id="hingeQtySelect">
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
       </div>
     <div class="modal-actions">
       <button id="modalSave">Save</button>

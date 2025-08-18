@@ -396,6 +396,12 @@ const topRailSelect = document.getElementById('topRailSelect');
 const bottomRailSelect = document.getElementById('bottomRailSelect');
 const hingeRailSelect = document.getElementById('hingeRailSelect');
 const lockRailSelect = document.getElementById('lockRailSelect');
+const hardwareTabBtn = document.getElementById('hardwareTabBtn');
+const hardwareTab = document.getElementById('hardwareTab');
+const hingingSelect = document.getElementById('hingingSelect');
+const hingeSizeSelect = document.getElementById('hingeSizeSelect');
+const hingeQtySelect = document.getElementById('hingeQtySelect');
+const hingeDetails = document.getElementById('hingeDetails');
 let modalMode = null;
 let doorPartPresetsLoaded = false;
 let partsCache = null;
@@ -404,14 +410,21 @@ function showModalTab(tab) {
   formulaTab.classList.toggle('active', tab === 'formula');
   globalTab.classList.toggle('active', tab === 'global');
   partsTab.classList.toggle('active', tab === 'parts');
+  hardwareTab.classList.toggle('active', tab === 'hardware');
   formulaTabBtn.classList.toggle('active', tab === 'formula');
   globalTabBtn.classList.toggle('active', tab === 'global');
   partsTabBtn.classList.toggle('active', tab === 'parts');
+  hardwareTabBtn.classList.toggle('active', tab === 'hardware');
 }
 
 formulaTabBtn.addEventListener('click', () => showModalTab('formula'));
 partsTabBtn.addEventListener('click', () => showModalTab('parts'));
 globalTabBtn.addEventListener('click', () => showModalTab('global'));
+hardwareTabBtn.addEventListener('click', () => showModalTab('hardware'));
+
+hingingSelect.addEventListener('change', () => {
+  hingeDetails.style.display = hingingSelect.value === 'butt' ? '' : 'none';
+});
 
 function loadDoorPartPresets() {
   if (doorPartPresetsLoaded) return;
@@ -477,6 +490,11 @@ async function openModalForEdit(kind, serverRec) {
     formulaTabBtn.style.display = '';
     globalTabBtn.style.display = '';
     partsTabBtn.style.display = 'none';
+    hardwareTabBtn.style.display = '';
+    hingingSelect.value = data.hinging || '';
+    hingeSizeSelect.value = data.hingeSize || '4.5x4.5';
+    hingeQtySelect.value = data.hingeQty || '3';
+    hingeDetails.style.display = hingingSelect.value === 'butt' ? '' : 'none';
     showModalTab('formula');
   } else if (kind === 'door') {
     const excluded = ['parts', 'partPreset', 'topRail', 'bottomRail', 'hingeRail', 'lockRail', 'requiredParts'];
@@ -485,6 +503,7 @@ async function openModalForEdit(kind, serverRec) {
     formulaTabBtn.style.display = '';
     globalTabBtn.style.display = 'none';
     partsTabBtn.style.display = '';
+    hardwareTabBtn.style.display = 'none';
     loadDoorPartPresets();
     await loadPartsCache();
     doorPartPreset.value = data.partPreset || '';
@@ -495,6 +514,7 @@ async function openModalForEdit(kind, serverRec) {
     showModalTab('formula');
   } else {
     modalTabs.style.display = 'none';
+    hardwareTabBtn.style.display = 'none';
     showModalTab('formula');
   }
   entries.forEach(([k, v]) => addKVrow(k, v));
@@ -555,11 +575,35 @@ document.getElementById('modalSave').addEventListener('click', async () => {
     data.bottomGap = bottomGapInput.value || DEFAULT_GLOBALS.bottomGap;
     data.hingeGap = hingeGapInput.value || DEFAULT_GLOBALS.hingeGap;
     data.strikeGap = strikeGapInput.value || DEFAULT_GLOBALS.strikeGap;
+    data.hinging = hingingSelect.value;
+    if (hingingSelect.value === 'butt') {
+      data.hingeSize = hingeSizeSelect.value;
+      data.hingeQty = hingeQtySelect.value;
+    }
     Object.keys(fields).forEach(k => { data[k] = fields[k]; });
     payload = { handing: modalMode.serverRec.handing, data };
   }
   const r = await api(endpoint, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
   if (!r.ok) return alert('Failed to save');
+
+  if (modalMode.kind === 'entry' && hingingSelect.value === 'butt') {
+    const qty = parseInt(hingeQtySelect.value, 10) || 0;
+    const locs = ['3.125', '12.789', '25.987', '39.567'];
+    const hingeVars = {};
+    for (let i = 0; i < qty && i < locs.length; i++) {
+      hingeVars[`h${i + 1}`] = locs[i];
+    }
+    const frameUpdates = (modalMode.serverRec.frames || []).map(fr => {
+      const data = { ...(fr.data || {}), ...hingeVars };
+      return api(`/frames/${fr.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ data }) });
+    });
+    const doorUpdates = (modalMode.serverRec.doors || []).map(dr => {
+      const data = { ...(dr.data || {}), ...hingeVars };
+      return api(`/doors/${dr.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ data }) });
+    });
+    await Promise.all([...frameUpdates, ...doorUpdates]);
+  }
+
   modal.style.display = 'none'; modalMode = null;
   const jobId = document.getElementById('jobId').value;
   if (jobId) await loadJob(jobId);
