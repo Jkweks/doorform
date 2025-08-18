@@ -489,4 +489,107 @@ router.delete('/door-parts/:id', async (req, res) => {
   }
 });
 
+// List hardware categories
+router.get('/hardware-categories', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM hardware_categories ORDER BY name');
+    res.json({ categories: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create a hardware category
+router.post('/hardware-categories', async (req, res) => {
+  const { name } = req.body;
+  try {
+    const result = await pool.query('INSERT INTO hardware_categories (name) VALUES ($1) RETURNING *', [name]);
+    res.json({ category: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update a hardware category
+router.put('/hardware-categories/:id', async (req, res) => {
+  const id = req.params.id;
+  const { name } = req.body;
+  try {
+    const result = await pool.query('UPDATE hardware_categories SET name = $1 WHERE id = $2 RETURNING *', [name, id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Category not found' });
+    res.json({ category: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a hardware category
+router.delete('/hardware-categories/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await pool.query('DELETE FROM hardware_categories WHERE id = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Category not found' });
+    res.json({ message: 'Category deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// List hardware items, optionally filtered by category
+router.get('/hardware', async (req, res) => {
+  const categoryId = req.query.categoryId;
+  try {
+    const query = categoryId
+      ? 'SELECT * FROM hardware_items WHERE category_id = $1 ORDER BY id'
+      : 'SELECT * FROM hardware_items ORDER BY id';
+    const params = categoryId ? [categoryId] : [];
+    const result = await pool.query(query, params);
+    res.json({ hardware: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create a hardware item
+router.post('/hardware', async (req, res) => {
+  const { categoryId, manufacturer, modelNumber, features } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO hardware_items (category_id, manufacturer, model_number, features) VALUES ($1, $2, $3, $4) RETURNING *',
+      [categoryId, manufacturer, modelNumber, features]
+    );
+    res.json({ hardware: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update a hardware item
+router.put('/hardware/:id', async (req, res) => {
+  const id = req.params.id;
+  const { categoryId, manufacturer, modelNumber, features } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE hardware_items SET category_id = $1, manufacturer = $2, model_number = $3, features = $4 WHERE id = $5 RETURNING *',
+      [categoryId, manufacturer, modelNumber, features, id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Hardware not found' });
+    res.json({ hardware: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a hardware item
+router.delete('/hardware/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await pool.query('DELETE FROM hardware_items WHERE id = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Hardware not found' });
+    res.json({ message: 'Hardware deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
