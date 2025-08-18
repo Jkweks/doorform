@@ -138,6 +138,42 @@
     </div>
   </div>
 
+  <div id="hardwareCategoryModal" class="modal-overlay">
+    <div class="modal-body">
+      <h3>Hardware Category</h3>
+      <input id="hardwareCategoryId" type="hidden" />
+      <label for="hardwareCategoryName">Name</label>
+      <input id="hardwareCategoryName" type="text" />
+      <div class="action-buttons">
+        <button id="saveHardwareCategory">Save Category</button>
+      </div>
+      <div class="modal-actions">
+        <button id="closeHardwareCategoryModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="hardwareItemModal" class="modal-overlay">
+    <div class="modal-body">
+      <h3>Hardware Item</h3>
+      <input id="hardwareItemId" type="hidden" />
+      <label for="hardwareItemCategory">Category</label>
+      <select id="hardwareItemCategory"></select>
+      <label for="hardwareManufacturerInput">Manufacturer</label>
+      <input id="hardwareManufacturerInput" type="text" />
+      <label for="hardwareModelInput">Model Number</label>
+      <input id="hardwareModelInput" type="text" />
+      <label for="hardwareFeaturesInput">Features (comma separated)</label>
+      <input id="hardwareFeaturesInput" type="text" />
+      <div class="action-buttons">
+        <button id="saveHardwareItem">Save Hardware</button>
+      </div>
+      <div class="modal-actions">
+        <button id="closeHardwareItemModal">Close</button>
+      </div>
+    </div>
+  </div>
+
   <div id="frameTab" class="tab-content">
     <div class="panel">
       <h2>Frame Parts</h2>
@@ -147,8 +183,22 @@
 
   <div id="hardwareTab" class="tab-content">
     <div class="panel">
-      <h2>Hardware</h2>
-      <p class="muted">Coming soon...</p>
+      <h2>Hardware Categories</h2>
+      <select id="hardwareCategorySelect" size="5" class="job-select"></select>
+      <div class="action-buttons">
+        <button id="editHardwareCategory">Edit Selected</button>
+        <button id="deleteHardwareCategory">Delete Selected</button>
+        <button id="addHardwareCategory">Add Category</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Hardware Items</h2>
+      <select id="hardwareItemSelect" size="10" class="job-select"></select>
+      <div class="action-buttons">
+        <button id="editHardwareItem">Edit Selected</button>
+        <button id="deleteHardwareItem">Delete Selected</button>
+        <button id="addHardwareItem">Add Hardware</button>
+      </div>
     </div>
   </div>
 

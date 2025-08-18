@@ -10,6 +10,8 @@ function api(path, opts = {}) {
 let partsCache = [];
 let pmCache = [];
 let templateCache = [];
+let hardwareCategoryCache = [];
+let hardwareCache = [];
 const templateTopRail = document.getElementById('templateTopRail');
 const templateBottomRail = document.getElementById('templateBottomRail');
 const templateHingeRail = document.getElementById('templateHingeRail');
@@ -23,6 +25,13 @@ const templateModalClose = document.getElementById('closeTemplateModal');
 const partsSelect = document.getElementById('partsSelect');
 const partModal = document.getElementById('partModal');
 const partModalClose = document.getElementById('closePartModal');
+const hardwareCategorySelect = document.getElementById('hardwareCategorySelect');
+const hardwareItemSelect = document.getElementById('hardwareItemSelect');
+const hardwareCategoryModal = document.getElementById('hardwareCategoryModal');
+const hardwareItemModal = document.getElementById('hardwareItemModal');
+const hardwareCategoryModalClose = document.getElementById('closeHardwareCategoryModal');
+const hardwareItemModalClose = document.getElementById('closeHardwareItemModal');
+const hardwareItemCategorySelect = document.getElementById('hardwareItemCategory');
 
 // Tabs for maintenance sections
 for (const btn of document.querySelectorAll('#dataTabs button')) {
@@ -240,3 +249,139 @@ document.getElementById('savePart').onclick = async () => {
   partModal.style.display = 'none';
   loadParts();
 };
+
+// Hardware Categories
+async function loadHardwareCategories() {
+  const res = await api('/hardware-categories');
+  if (res.ok) {
+    hardwareCategoryCache = res.json.categories || [];
+    renderHardwareCategories(hardwareCategoryCache);
+    populateHardwareCategoryDropdown();
+  }
+}
+
+function renderHardwareCategories(categories) {
+  hardwareCategorySelect.innerHTML = '';
+  (categories || []).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name;
+    hardwareCategorySelect.appendChild(opt);
+  });
+}
+
+function populateHardwareCategoryDropdown(selectedId) {
+  hardwareItemCategorySelect.innerHTML = '<option value=""></option>';
+  hardwareCategoryCache.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name;
+    hardwareItemCategorySelect.appendChild(opt);
+  });
+  if (selectedId) hardwareItemCategorySelect.value = selectedId;
+}
+
+function openHardwareCategoryModal(cat) {
+  document.getElementById('hardwareCategoryId').value = cat?.id || '';
+  document.getElementById('hardwareCategoryName').value = cat?.name || '';
+  hardwareCategoryModal.style.display = 'flex';
+}
+
+hardwareCategoryModalClose.onclick = () => { hardwareCategoryModal.style.display = 'none'; };
+document.getElementById('addHardwareCategory').onclick = () => openHardwareCategoryModal();
+document.getElementById('editHardwareCategory').onclick = () => {
+  const id = hardwareCategorySelect.value;
+  if (!id) return alert('Select category');
+  const cat = hardwareCategoryCache.find(c => String(c.id) === String(id));
+  openHardwareCategoryModal(cat);
+};
+document.getElementById('deleteHardwareCategory').onclick = async () => {
+  const id = hardwareCategorySelect.value;
+  if (!id) return alert('Select category');
+  if (!confirm('Delete category?')) return;
+  await api(`/hardware-categories/${id}`, { method: 'DELETE' });
+  loadHardwareCategories();
+  loadHardwareItems(hardwareCategorySelect.value);
+};
+document.getElementById('saveHardwareCategory').onclick = async () => {
+  const id = document.getElementById('hardwareCategoryId').value;
+  const name = document.getElementById('hardwareCategoryName').value.trim();
+  if (!name) return alert('Name required');
+  const res = id
+    ? await api(`/hardware-categories/${id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) })
+    : await api('/hardware-categories', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) });
+  if (!res.ok) return alert('Save failed');
+  hardwareCategoryModal.style.display = 'none';
+  loadHardwareCategories();
+};
+
+hardwareCategorySelect.onchange = () => {
+  const id = hardwareCategorySelect.value;
+  loadHardwareItems(id);
+};
+
+// Hardware Items
+async function loadHardwareItems(categoryId) {
+  const path = categoryId ? `/hardware?categoryId=${categoryId}` : '/hardware';
+  const res = await api(path);
+  if (res.ok) {
+    hardwareCache = res.json.hardware || [];
+    renderHardwareItems(hardwareCache);
+  }
+}
+
+function renderHardwareItems(items) {
+  hardwareItemSelect.innerHTML = '';
+  (items || []).forEach(h => {
+    const opt = document.createElement('option');
+    opt.value = h.id;
+    const feat = (h.features || []).join(', ');
+    const text = `${h.manufacturer || ''} ${h.model_number || ''}`.trim();
+    opt.textContent = feat ? `${text} — ${feat}` : text;
+    hardwareItemSelect.appendChild(opt);
+  });
+}
+
+function openHardwareItemModal(h) {
+  document.getElementById('hardwareItemId').value = h?.id || '';
+  populateHardwareCategoryDropdown(h?.category_id);
+  document.getElementById('hardwareManufacturerInput').value = h?.manufacturer || '';
+  document.getElementById('hardwareModelInput').value = h?.model_number || '';
+  document.getElementById('hardwareFeaturesInput').value = h?.features ? h.features.join(', ') : '';
+  hardwareItemModal.style.display = 'flex';
+}
+
+hardwareItemModalClose.onclick = () => { hardwareItemModal.style.display = 'none'; };
+document.getElementById('addHardwareItem').onclick = () => openHardwareItemModal();
+document.getElementById('editHardwareItem').onclick = () => {
+  const id = hardwareItemSelect.value;
+  if (!id) return alert('Select hardware');
+  const hw = hardwareCache.find(h => String(h.id) === String(id));
+  openHardwareItemModal(hw);
+};
+document.getElementById('deleteHardwareItem').onclick = async () => {
+  const id = hardwareItemSelect.value;
+  if (!id) return alert('Select hardware');
+  if (!confirm('Delete hardware?')) return;
+  await api(`/hardware/${id}`, { method: 'DELETE' });
+  loadHardwareItems(hardwareCategorySelect.value);
+};
+document.getElementById('saveHardwareItem').onclick = async () => {
+  const id = document.getElementById('hardwareItemId').value;
+  const categoryId = hardwareItemCategorySelect.value;
+  if (!categoryId) return alert('Select category');
+  const manufacturer = document.getElementById('hardwareManufacturerInput').value.trim();
+  const modelNumber = document.getElementById('hardwareModelInput').value.trim();
+  const featuresTxt = document.getElementById('hardwareFeaturesInput').value.trim();
+  const features = featuresTxt ? featuresTxt.split(',').map(f => f.trim()).filter(Boolean) : [];
+  const payload = { categoryId: parseInt(categoryId, 10), manufacturer, modelNumber, features };
+  const res = id
+    ? await api(`/hardware/${id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
+    : await api('/hardware', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
+  if (!res.ok) return alert('Save failed');
+  hardwareItemModal.style.display = 'none';
+  loadHardwareItems(hardwareCategorySelect.value);
+};
+
+loadHardwareCategories();
+loadHardwareItems();
