@@ -388,8 +388,13 @@ function renderHardwareItems(items) {
     const opt = document.createElement('option');
     opt.value = h.id;
     const feat = (h.features || []).join(', ');
+    const vars = (h.variables || []).join(', ');
+    const parts = [];
     const text = `${h.manufacturer || ''} ${h.model_number || ''}`.trim();
-    opt.textContent = feat ? `${text} — ${feat}` : text;
+    if (text) parts.push(text);
+    if (feat) parts.push(feat);
+    if (vars) parts.push(vars);
+    opt.textContent = parts.join(' — ');
     hardwareItemSelect.appendChild(opt);
   });
 }
@@ -400,6 +405,7 @@ function openHardwareItemModal(h) {
   document.getElementById('hardwareManufacturerInput').value = h?.manufacturer || '';
   document.getElementById('hardwareModelInput').value = h?.model_number || '';
   document.getElementById('hardwareFeaturesInput').value = h?.features ? h.features.join(', ') : '';
+  document.getElementById('hardwareVariablesInput').value = h?.variables ? h.variables.join(', ') : '';
   hardwareItemModal.style.display = 'flex';
 }
 
@@ -425,8 +431,10 @@ document.getElementById('saveHardwareItem').onclick = async () => {
   const manufacturer = document.getElementById('hardwareManufacturerInput').value.trim();
   const modelNumber = document.getElementById('hardwareModelInput').value.trim();
   const featuresTxt = document.getElementById('hardwareFeaturesInput').value.trim();
+  const variablesTxt = document.getElementById('hardwareVariablesInput').value.trim();
   const features = featuresTxt ? featuresTxt.split(',').map(f => f.trim()).filter(Boolean) : [];
-  const payload = { categoryId: parseInt(categoryId, 10), manufacturer, modelNumber, features };
+  const variables = variablesTxt ? variablesTxt.split(',').map(v => v.trim()).filter(Boolean) : [];
+  const payload = { categoryId: parseInt(categoryId, 10), manufacturer, modelNumber, features, variables };
   const res = id
     ? await api(`/hardware/${id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
     : await api('/hardware', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });

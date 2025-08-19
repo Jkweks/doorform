@@ -54,7 +54,7 @@ describe('Hardware API', () => {
   });
 
   test('lists hardware items', async () => {
-    const rows = [{ id: 1, category_id: 2, manufacturer: 'Acme', model_number: 'H123', features: ['fire-rated'] }];
+    const rows = [{ id: 1, category_id: 2, manufacturer: 'Acme', model_number: 'H123', features: ['fire-rated'], variables: ['backset'] }];
     pool.query.mockResolvedValueOnce({ rows });
 
     const res = await request(app).get('/api/hardware');
@@ -65,34 +65,34 @@ describe('Hardware API', () => {
   });
 
   test('adds a hardware item', async () => {
-    const item = { id: 1, category_id: 2, manufacturer: 'Acme', model_number: 'H123', features: ['fire-rated'] };
+    const item = { id: 1, category_id: 2, manufacturer: 'Acme', model_number: 'H123', features: ['fire-rated'], variables: ['backset'] };
     pool.query.mockResolvedValueOnce({ rows: [item] });
 
     const res = await request(app)
       .post('/api/hardware')
-      .send({ categoryId: 2, manufacturer: 'Acme', modelNumber: 'H123', features: ['fire-rated'] });
+      .send({ categoryId: 2, manufacturer: 'Acme', modelNumber: 'H123', features: ['fire-rated'], variables: ['backset'] });
 
     expect(res.status).toBe(200);
     expect(res.body.hardware).toEqual(item);
     expect(pool.query).toHaveBeenCalledWith(
-      'INSERT INTO hardware_items (category_id, manufacturer, model_number, features) VALUES ($1, $2, $3, $4) RETURNING *',
-      [2, 'Acme', 'H123', ['fire-rated']]
+      'INSERT INTO hardware_items (category_id, manufacturer, model_number, features, variables) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [2, 'Acme', 'H123', ['fire-rated'], ['backset']]
     );
   });
 
   test('updates a hardware item', async () => {
-    const item = { id: 1, category_id: 3, manufacturer: 'Acme', model_number: 'P200', features: [] };
+    const item = { id: 1, category_id: 3, manufacturer: 'Acme', model_number: 'P200', features: [], variables: ['centerAff'] };
     pool.query.mockResolvedValueOnce({ rows: [item], rowCount: 1 });
 
     const res = await request(app)
       .put('/api/hardware/1')
-      .send({ categoryId: 3, manufacturer: 'Acme', modelNumber: 'P200', features: [] });
+      .send({ categoryId: 3, manufacturer: 'Acme', modelNumber: 'P200', features: [], variables: ['centerAff'] });
 
     expect(res.status).toBe(200);
     expect(res.body.hardware).toEqual(item);
     expect(pool.query).toHaveBeenCalledWith(
-      'UPDATE hardware_items SET category_id = $1, manufacturer = $2, model_number = $3, features = $4 WHERE id = $5 RETURNING *',
-      [3, 'Acme', 'P200', [], '1']
+      'UPDATE hardware_items SET category_id = $1, manufacturer = $2, model_number = $3, features = $4, variables = $5 WHERE id = $6 RETURNING *',
+      [3, 'Acme', 'P200', [], ['centerAff'], '1']
     );
   });
 
