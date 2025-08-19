@@ -9,6 +9,17 @@ describe('Door Parts API', () => {
     jest.clearAllMocks();
   });
 
+  test('lists parts for a door', async () => {
+    const parts = [{ id: 1, door_id: 1, part_type: 'hinge', part_lz: 1, part_ly: 2, data: null, requires: null, quantity: 1 }];
+    pool.query.mockResolvedValueOnce({ rows: parts });
+
+    const res = await request(app).get('/api/doors/1/parts');
+
+    expect(res.status).toBe(200);
+    expect(res.body.parts).toEqual(parts);
+    expect(pool.query).toHaveBeenCalledWith('SELECT * FROM door_parts WHERE door_id = $1 ORDER BY id', ['1']);
+  });
+
   test('adds a door part', async () => {
     const part = {
       id: 1,
