@@ -77,5 +77,6 @@ CREATE TABLE IF NOT EXISTS hardware_items (
     category_id INT REFERENCES hardware_categories(id) ON DELETE SET NULL,
     manufacturer VARCHAR(255),
     model_number VARCHAR(255),
-    features JSONB
+    features JSONB,
+    variables JSONB
 );

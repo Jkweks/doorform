@@ -595,11 +595,11 @@ router.get('/hardware', async (req, res) => {
 
 // Create a hardware item
 router.post('/hardware', async (req, res) => {
-  const { categoryId, manufacturer, modelNumber, features } = req.body;
+  const { categoryId, manufacturer, modelNumber, features, variables } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO hardware_items (category_id, manufacturer, model_number, features) VALUES ($1, $2, $3, $4) RETURNING *',
-      [categoryId, manufacturer, modelNumber, features]
+      'INSERT INTO hardware_items (category_id, manufacturer, model_number, features, variables) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [categoryId, manufacturer, modelNumber, features, variables]
     );
     res.json({ hardware: result.rows[0] });
   } catch (err) {
@@ -610,11 +610,11 @@ router.post('/hardware', async (req, res) => {
 // Update a hardware item
 router.put('/hardware/:id', async (req, res) => {
   const id = req.params.id;
-  const { categoryId, manufacturer, modelNumber, features } = req.body;
+  const { categoryId, manufacturer, modelNumber, features, variables } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE hardware_items SET category_id = $1, manufacturer = $2, model_number = $3, features = $4 WHERE id = $5 RETURNING *',
-      [categoryId, manufacturer, modelNumber, features, id]
+      'UPDATE hardware_items SET category_id = $1, manufacturer = $2, model_number = $3, features = $4, variables = $5 WHERE id = $6 RETURNING *',
+      [categoryId, manufacturer, modelNumber, features, variables, id]
     );
     if (result.rowCount === 0) return res.status(404).json({ error: 'Hardware not found' });
     res.json({ hardware: result.rows[0] });
