@@ -157,6 +157,7 @@ loadTemplates();
 loadParts();
 
 async function loadParts() {
+  // backend stores generic parts in door_parts with door_id NULL
   const res = await api('/parts');
   if (res.ok) {
     partsCache = res.json.parts || [];

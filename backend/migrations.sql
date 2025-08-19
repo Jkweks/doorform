@@ -1,6 +1,10 @@
--- Create or update core tables for jobs, work orders, entries, frames and doors
+-- Schema for DoorForm application (fresh install)
 
--- Jobs hold high level information and are unique per job number
+CREATE TABLE IF NOT EXISTS project_managers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS jobs (
     id SERIAL PRIMARY KEY,
     job_number VARCHAR(50) UNIQUE,
@@ -10,25 +14,14 @@ CREATE TABLE IF NOT EXISTS jobs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- If jobs table exists from a previous version, ensure old work_order column is removed
-ALTER TABLE jobs DROP COLUMN IF EXISTS work_order;
-
--- List of project managers that can be assigned to jobs
-CREATE TABLE IF NOT EXISTS project_managers (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) UNIQUE
-);
-
--- Work orders belong to a job and can be archived individually
 CREATE TABLE IF NOT EXISTS work_orders (
     id SERIAL PRIMARY KEY,
     job_id INT REFERENCES jobs(id) ON DELETE CASCADE,
     work_order VARCHAR(50),
     archived BOOLEAN DEFAULT FALSE,
-    UNIQUE(job_id, work_order)
+    UNIQUE (job_id, work_order)
 );
 
--- Entries represent an opening and will generate frames and doors
 CREATE TABLE IF NOT EXISTS entries (
     id SERIAL PRIMARY KEY,
     work_order_id INT REFERENCES work_orders(id) ON DELETE CASCADE,
@@ -36,18 +29,12 @@ CREATE TABLE IF NOT EXISTS entries (
     data JSONB
 );
 
--- Frames now reference an entry rather than the job
 CREATE TABLE IF NOT EXISTS frames (
     id SERIAL PRIMARY KEY,
     entry_id INT REFERENCES entries(id) ON DELETE CASCADE,
     data JSONB
 );
 
--- Migrate existing frames table if present
-ALTER TABLE frames DROP COLUMN IF EXISTS job_id;
-ALTER TABLE frames ADD COLUMN IF NOT EXISTS entry_id INT REFERENCES entries(id) ON DELETE CASCADE;
-
--- Doors reference an entry and can store a leaf identifier for pairs
 CREATE TABLE IF NOT EXISTS doors (
     id SERIAL PRIMARY KEY,
     entry_id INT REFERENCES entries(id) ON DELETE CASCADE,
@@ -55,19 +42,12 @@ CREATE TABLE IF NOT EXISTS doors (
     data JSONB
 );
 
--- Migrate existing doors table if present
-ALTER TABLE doors DROP COLUMN IF EXISTS job_id;
-ALTER TABLE doors ADD COLUMN IF NOT EXISTS entry_id INT REFERENCES entries(id) ON DELETE CASCADE;
-ALTER TABLE doors ADD COLUMN IF NOT EXISTS leaf VARCHAR(1);
-
--- Templates for door parts define reusable sets of part data
 CREATE TABLE IF NOT EXISTS door_part_templates (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     parts JSONB
 );
 
--- Individual door parts tied to specific doors
 CREATE TABLE IF NOT EXISTS door_parts (
     id SERIAL PRIMARY KEY,
     door_id INT REFERENCES doors(id) ON DELETE CASCADE,
@@ -78,15 +58,7 @@ CREATE TABLE IF NOT EXISTS door_parts (
     requires JSONB,
     quantity INT DEFAULT 1
 );
-ALTER TABLE door_parts DROP COLUMN IF EXISTS requires;
-ALTER TABLE door_parts ADD COLUMN IF NOT EXISTS requires JSONB;
-ALTER TABLE door_parts DROP COLUMN IF EXISTS quantity;
-ALTER TABLE door_parts ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1;
 
--- Legacy parts table removed; door_parts table now stores generic parts as well
-DROP TABLE IF EXISTS parts;
-
--- Store generated production PDFs for work orders
 CREATE TABLE IF NOT EXISTS work_order_pdfs (
     id SERIAL PRIMARY KEY,
     work_order_id INT REFERENCES work_orders(id) ON DELETE CASCADE,
@@ -95,13 +67,11 @@ CREATE TABLE IF NOT EXISTS work_order_pdfs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Categories of hardware such as hinges, pivots, sweeps, etc.
 CREATE TABLE IF NOT EXISTS hardware_categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE
 );
 
--- Individual hardware items belonging to a category
 CREATE TABLE IF NOT EXISTS hardware_items (
     id SERIAL PRIMARY KEY,
     category_id INT REFERENCES hardware_categories(id) ON DELETE SET NULL,
