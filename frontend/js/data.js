@@ -41,8 +41,8 @@ function populateRailSelect(selectEl, usage, current) {
   selectEl.innerHTML = '<option value=""></option>';
   parts.forEach(p => {
     const opt = document.createElement('option');
-    opt.value = p.part_type;
-    opt.textContent = p.part_type;
+    opt.value = p.product_number;
+    opt.textContent = `${p.manufacturer || ''} ${p.system || ''} ${p.product_number}`.trim();
     selectEl.appendChild(opt);
   });
   if (current) selectEl.value = current;
@@ -175,7 +175,7 @@ function renderParts(parts) {
     const opt = document.createElement('option');
     const dims = (p.part_lz || p.part_ly) ? ` (${p.part_lz || ''}x${p.part_ly || ''})` : '';
     opt.value = p.id;
-    opt.textContent = `${p.part_type}${dims}`;
+    opt.textContent = `${p.manufacturer || ''} ${p.system || ''} ${p.product_number}${dims}`.trim();
     partsSelect.appendChild(opt);
   });
 }
@@ -189,8 +189,8 @@ function addRequireRow(partNumber = '', qty = 1) {
   sel.innerHTML = '<option value=""></option>';
   (partsCache || []).forEach(p => {
     const opt = document.createElement('option');
-    opt.value = p.part_type;
-    opt.textContent = p.part_type;
+    opt.value = p.product_number;
+    opt.textContent = `${p.manufacturer || ''} ${p.system || ''} ${p.product_number}`.trim();
     sel.appendChild(opt);
   });
   sel.value = partNumber;
@@ -236,7 +236,9 @@ function renderRequireRows(requires) {
 
 function openPartModal(part) {
   document.getElementById('partId').value = part?.id || '';
-  document.getElementById('partTypeInput').value = part?.part_type || '';
+  document.getElementById('manufacturerInput').value = part?.manufacturer || '';
+  document.getElementById('systemInput').value = part?.system || '';
+  document.getElementById('productNumberInput').value = part?.product_number || '';
   document.getElementById('partLzInput').value = part?.part_lz || '';
   document.getElementById('partLyInput').value = part?.part_ly || '';
   document.getElementById('partDescriptionInput').value = part?.data?.description || '';
@@ -269,8 +271,10 @@ document.getElementById('deletePart').onclick = async () => {
 
 document.getElementById('savePart').onclick = async () => {
   const id = document.getElementById('partId').value;
-  const partType = document.getElementById('partTypeInput').value.trim();
-  if (!partType) return alert('Part type required');
+  const productNumber = document.getElementById('productNumberInput').value.trim();
+  if (!productNumber) return alert('Product number required');
+  const manufacturer = document.getElementById('manufacturerInput').value.trim();
+  const system = document.getElementById('systemInput').value.trim();
   const lzVal = document.getElementById('partLzInput').value;
   const lyVal = document.getElementById('partLyInput').value;
   const partLz = lzVal ? parseFloat(lzVal) : null;
@@ -293,7 +297,15 @@ document.getElementById('savePart').onclick = async () => {
   const uniqueUses = [...new Set(uses)];
   if (uniqueUses.length) data.uses = uniqueUses;
   if (Object.keys(data).length === 0) data = null;
-  const payload = { partType, partLz, partLy, data, requires };
+  const payload = {
+    productNumber,
+    manufacturer: manufacturer || null,
+    system: system || null,
+    partLz,
+    partLy,
+    data,
+    requires
+  };
   const res = id
     ? await api(`/parts/${id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
     : await api('/parts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });

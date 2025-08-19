@@ -51,7 +51,9 @@ CREATE TABLE IF NOT EXISTS door_part_templates (
 CREATE TABLE IF NOT EXISTS door_parts (
     id SERIAL PRIMARY KEY,
     door_id INT REFERENCES doors(id) ON DELETE CASCADE,
-    part_type VARCHAR(255),
+    manufacturer VARCHAR(255),
+    system VARCHAR(255),
+    product_number VARCHAR(255),
     part_lz NUMERIC,
     part_ly NUMERIC,
     data JSONB,

@@ -445,7 +445,7 @@ async function loadPartsCache() {
   partsCache = res.ok
     ? (res.json.parts || []).map(p => ({
         ...p,
-        number: p.part_type,
+        number: p.product_number,
         usages: p.data?.uses || [],
         requires: p.requires || {}
       }))
