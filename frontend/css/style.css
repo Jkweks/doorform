@@ -227,6 +227,30 @@ body.dark button:focus {
   margin-top: 0;
 }
 
+.require-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.require-row select {
+  flex: 1;
+  width: auto;
+  margin-top: 0;
+}
+
+.require-row input {
+  width: 80px;
+  margin-top: 0;
+}
+
+.require-row button {
+  flex: 0 0 auto;
+  margin-top: 0;
+  width: auto;
+}
+
 .section {
   margin-top: 12px;
 }

@@ -30,10 +30,10 @@ describe('Parts API', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.part).toEqual(part);
-    expect(pool.query).toHaveBeenCalledWith(
-      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data, requires) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [null, 'E0057', 1, 2, null, { E0002: 3 }]
-    );
+      expect(pool.query).toHaveBeenCalledWith(
+        'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data, requires) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        [null, 'E0057', 1, 2, null, JSON.stringify({ E0002: 3 })]
+      );
   });
 
   test('updates a part', async () => {
@@ -46,11 +46,11 @@ describe('Parts API', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.part).toEqual(part);
-    expect(pool.query).toHaveBeenCalledWith(
-      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4, requires = $5 WHERE id = $6 AND door_id IS NULL RETURNING *',
-      ['E0057', 1, 2, null, { E0002: 3 }, '1']
+      expect(pool.query).toHaveBeenCalledWith(
+        'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4, requires = $5 WHERE id = $6 AND door_id IS NULL RETURNING *',
+        ['E0057', 1, 2, null, JSON.stringify({ E0002: 3 }), '1']
 
-    );
+      );
   });
 
   test('deletes a part', async () => {
