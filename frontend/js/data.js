@@ -25,6 +25,7 @@ const templateModalClose = document.getElementById('closeTemplateModal');
 const partsSelect = document.getElementById('partsSelect');
 const partModal = document.getElementById('partModal');
 const partModalClose = document.getElementById('closePartModal');
+const partRequiresContainer = document.getElementById('partRequiresContainer');
 const hardwareCategorySelect = document.getElementById('hardwareCategorySelect');
 const hardwareItemSelect = document.getElementById('hardwareItemSelect');
 const hardwareCategoryModal = document.getElementById('hardwareCategoryModal');
@@ -188,6 +189,58 @@ function renderParts(parts) {
 }
 
 
+function addRequireRow(partNumber = '', qty = 1) {
+  const row = document.createElement('div');
+  row.className = 'require-row';
+
+  const sel = document.createElement('select');
+  sel.innerHTML = '<option value=""></option>';
+  (partsCache || []).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.part_type;
+    opt.textContent = p.part_type;
+    sel.appendChild(opt);
+  });
+  sel.value = partNumber;
+
+  const qtyInput = document.createElement('input');
+  qtyInput.type = 'number';
+  qtyInput.min = '1';
+  qtyInput.value = qty;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+
+  row.appendChild(sel);
+  row.appendChild(qtyInput);
+  row.appendChild(btn);
+
+  partRequiresContainer.appendChild(row);
+  updateRequireRowButtons();
+}
+
+function updateRequireRowButtons() {
+  const rows = partRequiresContainer.querySelectorAll('.require-row');
+  rows.forEach((row, idx) => {
+    const btn = row.querySelector('button');
+    if (idx === rows.length - 1) {
+      btn.textContent = 'Add';
+      btn.onclick = () => addRequireRow();
+    } else {
+      btn.textContent = 'Remove';
+      btn.onclick = () => { row.remove(); updateRequireRowButtons(); };
+    }
+  });
+}
+
+function renderRequireRows(requires) {
+  partRequiresContainer.innerHTML = '';
+  const entries = requires ? Object.entries(requires) : [];
+  if (entries.length === 0) entries.push(['', 1]);
+  entries.forEach(([p, q]) => addRequireRow(p, q));
+}
+
+
 
 function openPartModal(part) {
   document.getElementById('partId').value = part?.id || '';
@@ -195,9 +248,7 @@ function openPartModal(part) {
   document.getElementById('partLzInput').value = part?.part_lz || '';
   document.getElementById('partLyInput').value = part?.part_ly || '';
   document.getElementById('partDescriptionInput').value = part?.data?.description || '';
-  document.getElementById('partRequiresInput').value = part?.requires
-    ? Object.entries(part.requires).map(([k, v]) => `${k}:${v}`).join(',')
-    : '';
+  renderRequireRows(part?.requires);
   const uses = part?.data?.uses || [];
   document.querySelectorAll('#partDoorUses input[type="checkbox"], #partFrameUses input[type="checkbox"]').forEach(cb => {
     cb.checked = uses.includes(cb.value);
@@ -233,17 +284,17 @@ document.getElementById('savePart').onclick = async () => {
   const partLz = lzVal ? parseFloat(lzVal) : null;
   const partLy = lyVal ? parseFloat(lyVal) : null;
   const description = document.getElementById('partDescriptionInput').value.trim();
-
-  const requiresVal = document.getElementById('partRequiresInput').value.trim();
-  let requires = null;
-  if (requiresVal) {
-    requires = {};
-    requiresVal.split(',').map(s => s.trim()).filter(Boolean).forEach(pair => {
-      const [p, q] = pair.split(':').map(s => s.trim());
-      if (p) requires[p] = q ? parseInt(q, 10) : 1;
-    });
-    if (Object.keys(requires).length === 0) requires = null;
-  }
+  const requiresRows = partRequiresContainer.querySelectorAll('.require-row');
+  let requires = {};
+  requiresRows.forEach(row => {
+    const partNum = row.querySelector('select').value.trim();
+    if (partNum) {
+      const qtyVal = row.querySelector('input').value;
+      const qty = qtyVal ? parseInt(qtyVal, 10) : 1;
+      requires[partNum] = qty;
+    }
+  });
+  if (Object.keys(requires).length === 0) requires = null;
   const uses = Array.from(document.querySelectorAll('#partDoorUses input:checked, #partFrameUses input:checked')).map(cb => cb.value);
   let data = {};
   if (description) data.description = description;
