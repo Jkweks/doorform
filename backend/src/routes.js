@@ -498,11 +498,11 @@ router.post('/doors/:id/parts', async (req, res) => {
 // Update a door part
 router.put('/door-parts/:id', async (req, res) => {
   const id = req.params.id;
-  const { partType, partLz, partLy, data, requires = null } = req.body;
+  const { partType, partLz, partLy, data, requires = null, quantity = 1 } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4, requires = $5 WHERE id = $6 RETURNING *',
-      [partType, partLz, partLy, data, requires, id]
+      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4, requires = $5, quantity = $6 WHERE id = $7 RETURNING *',
+      [partType, partLz, partLy, data, requires, quantity, id]
     );
     if (result.rowCount === 0) return res.status(404).json({ error: 'Door part not found' });
     res.json({ part: result.rows[0] });
