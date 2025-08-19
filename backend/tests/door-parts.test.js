@@ -31,7 +31,8 @@ describe('Door Parts API', () => {
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
       'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data, requires, quantity) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      ['1', 'hinge', 1.25, 2.5, { foo: 'bar' }, { hinge: 3 }, 2]
+
+      ['1', 'hinge', 1.25, 2.5, JSON.stringify({ foo: 'bar' }), JSON.stringify({ hinge: 3 }), 2]
     );
   });
 
@@ -57,7 +58,7 @@ describe('Door Parts API', () => {
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
       'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4, requires = $5, quantity = $6 WHERE id = $7 RETURNING *',
-      ['hinge', 2, 3, { baz: 'qux' }, { hinge: 2 }, 4, '1']
+      ['hinge', 2, 3, JSON.stringify({ baz: 'qux' }), JSON.stringify({ hinge: 2 }), 4, '1']
     );
   });
 
