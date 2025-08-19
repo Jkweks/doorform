@@ -1,12 +1,3 @@
-const API_ORIGIN = window.APP_CONFIG?.apiBase || window.location.origin;
-const API_BASE = API_ORIGIN === window.location.origin ? '' : API_ORIGIN; // same base as main app
-function api(path, opts = {}) {
-  return fetch(API_BASE + '/api' + path, opts).then(async r => {
-    const txt = await r.text();
-    try { return { ok: r.ok, json: JSON.parse(txt), status: r.status }; } catch(e) { return { ok: r.ok, text: txt, status: r.status }; }
-  });
-}
-
 let partsCache = [];
 let pmCache = [];
 let templateCache = [];
@@ -166,6 +157,7 @@ loadTemplates();
 loadParts();
 
 async function loadParts() {
+  // backend stores generic parts in door_parts with door_id NULL
   const res = await api('/parts');
   if (res.ok) {
     partsCache = res.json.parts || [];
