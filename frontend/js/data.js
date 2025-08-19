@@ -233,6 +233,7 @@ document.getElementById('savePart').onclick = async () => {
   const partLz = lzVal ? parseFloat(lzVal) : null;
   const partLy = lyVal ? parseFloat(lyVal) : null;
   const description = document.getElementById('partDescriptionInput').value.trim();
+
   const requiresVal = document.getElementById('partRequiresInput').value.trim();
   let requires = null;
   if (requiresVal) {

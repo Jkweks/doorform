@@ -75,11 +75,16 @@ CREATE TABLE IF NOT EXISTS door_parts (
     part_lz NUMERIC,
     part_ly NUMERIC,
     data JSONB,
-    requires JSONB
+    requires TEXT[],
+    quantity INT DEFAULT 1
+
 );
 ALTER TABLE door_parts DROP COLUMN IF EXISTS quantity;
 ALTER TABLE door_parts DROP COLUMN IF EXISTS requires;
 ALTER TABLE door_parts ADD COLUMN IF NOT EXISTS requires JSONB;
+
+ALTER TABLE door_parts ADD COLUMN IF NOT EXISTS requires TEXT[];
+ALTER TABLE door_parts ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1;
 
 -- Legacy parts table removed; door_parts table now stores generic parts as well
 DROP TABLE IF EXISTS parts;

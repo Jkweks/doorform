@@ -10,6 +10,7 @@ describe('Parts API', () => {
   });
 
   test('lists parts', async () => {
+
     pool.query.mockResolvedValueOnce({ rows: [{ id: 1, door_id: null, part_type: 'E0086', part_lz: null, part_ly: null, data: null, requires: null }] });
 
     const res = await request(app).get('/api/parts');
@@ -48,6 +49,7 @@ describe('Parts API', () => {
     expect(pool.query).toHaveBeenCalledWith(
       'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4, requires = $5 WHERE id = $6 AND door_id IS NULL RETURNING *',
       ['E0057', 1, 2, null, { E0002: 3 }, '1']
+
     );
   });
 

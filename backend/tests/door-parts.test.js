@@ -17,7 +17,8 @@ describe('Door Parts API', () => {
       part_lz: 1.25,
       part_ly: 2.5,
       data: { foo: 'bar' },
-      requires: { hinge: 3 },
+      requires: null,
+      quantity: 1,
     };
 
     pool.query.mockResolvedValueOnce({ rows: [part] });

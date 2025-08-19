@@ -359,6 +359,7 @@ router.post('/parts', async (req, res) => {
 // Update a part
 router.put('/parts/:id', async (req, res) => {
   const id = req.params.id;
+
   const { partType, partLz = null, partLy = null, data = null, requires = null } = req.body;
   try {
     const result = await pool.query(
@@ -482,11 +483,11 @@ router.get('/doors/:id/parts', async (req, res) => {
 // Add a part to a door
 router.post('/doors/:id/parts', async (req, res) => {
   const doorId = req.params.id;
-  const { partType, partLz, partLy, data, requires = null } = req.body;
+  const { partType, partLz, partLy, data, requires = null, quantity = 1 } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data, requires) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [doorId, partType, partLz, partLy, data, requires]
+      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data, requires, quantity) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [doorId, partType, partLz, partLy, data, requires, quantity]
     );
     res.json({ part: result.rows[0] });
   } catch (err) {
