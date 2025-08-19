@@ -456,8 +456,7 @@ async function loadPartsCache() {
         ...p,
         number: p.part_type,
         usages: p.data?.uses || [],
-        requires: p.requires || [],
-        quantity: p.quantity || 1
+        requires: p.requires || {}
       }))
     : [];
   return partsCache;
@@ -559,7 +558,11 @@ document.getElementById('modalSave').addEventListener('click', async () => {
       const required = [];
       [topRailSelect, bottomRailSelect, hingeRailSelect, lockRailSelect].forEach(sel => {
         const part = (partsCache || []).find(p => p.number === sel.value);
-        if (part && Array.isArray(part.requires)) required.push(...part.requires);
+        if (part && part.requires) {
+          Object.entries(part.requires).forEach(([reqPart, qty]) => {
+            for (let i = 0; i < (qty || 1); i++) required.push(reqPart);
+          });
+        }
       });
       if (required.length) fields.requiredParts = required;
       payload = { data: fields };

@@ -77,7 +77,11 @@ CREATE TABLE IF NOT EXISTS door_parts (
     data JSONB,
     requires TEXT[],
     quantity INT DEFAULT 1
+
 );
+ALTER TABLE door_parts DROP COLUMN IF EXISTS quantity;
+ALTER TABLE door_parts DROP COLUMN IF EXISTS requires;
+ALTER TABLE door_parts ADD COLUMN IF NOT EXISTS requires JSONB;
 
 ALTER TABLE door_parts ADD COLUMN IF NOT EXISTS requires TEXT[];
 ALTER TABLE door_parts ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1;
