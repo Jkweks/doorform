@@ -22,10 +22,10 @@ describe('Door cut list API', () => {
     // second query: parts dimensions
     pool.query.mockResolvedValueOnce({
       rows: [
-        { part_type: 'TR-1', part_ly: 5 },
-        { part_type: 'BR-1', part_ly: 10 },
-        { part_type: 'HR-1', part_ly: 4 },
-        { part_type: 'LR-1', part_ly: 4 },
+        { product_number: 'TR-1', part_ly: 5 },
+        { product_number: 'BR-1', part_ly: 10 },
+        { product_number: 'HR-1', part_ly: 4 },
+        { product_number: 'LR-1', part_ly: 4 },
       ],
     });
 
@@ -43,7 +43,7 @@ describe('Door cut list API', () => {
       ['1']
     );
     expect(pool.query).toHaveBeenCalledWith(
-      'SELECT part_type, part_ly FROM door_parts WHERE door_id IS NULL AND part_type = ANY($1::text[])',
+      'SELECT product_number, part_ly FROM door_parts WHERE door_id IS NULL AND product_number = ANY($1::text[])',
       [['TR-1', 'BR-1', 'HR-1', 'LR-1']]
     );
   });
