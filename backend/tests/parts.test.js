@@ -10,17 +10,17 @@ describe('Parts API', () => {
   });
 
   test('lists parts', async () => {
-    pool.query.mockResolvedValueOnce({ rows: [{ id: 1, door_id: null, part_type: 'E0086', part_lz: null, part_ly: null, data: null }] });
+    pool.query.mockResolvedValueOnce({ rows: [{ id: 1, door_id: null, part_type: 'E0086', part_lz: null, part_ly: null, data: null, requires: null, quantity: 1 }] });
 
     const res = await request(app).get('/api/parts');
 
     expect(res.status).toBe(200);
-    expect(res.body.parts).toEqual([{ id: 1, door_id: null, part_type: 'E0086', part_lz: null, part_ly: null, data: null }]);
+    expect(res.body.parts).toEqual([{ id: 1, door_id: null, part_type: 'E0086', part_lz: null, part_ly: null, data: null, requires: null, quantity: 1 }]);
     expect(pool.query).toHaveBeenCalledWith('SELECT * FROM door_parts WHERE door_id IS NULL ORDER BY part_type');
   });
 
   test('adds a part', async () => {
-    const part = { id: 1, door_id: null, part_type: 'E0057', part_lz: 1, part_ly: 2, data: null };
+    const part = { id: 1, door_id: null, part_type: 'E0057', part_lz: 1, part_ly: 2, data: null, requires: null, quantity: 1 };
     pool.query.mockResolvedValueOnce({ rows: [part] });
 
     const res = await request(app)
@@ -30,13 +30,13 @@ describe('Parts API', () => {
     expect(res.status).toBe(200);
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
-      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [null, 'E0057', 1, 2, null]
+      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data, requires, quantity) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [null, 'E0057', 1, 2, null, null, 1]
     );
   });
 
   test('updates a part', async () => {
-    const part = { id: 1, door_id: null, part_type: 'E0057', part_lz: 1, part_ly: 2, data: null };
+    const part = { id: 1, door_id: null, part_type: 'E0057', part_lz: 1, part_ly: 2, data: null, requires: null, quantity: 1 };
     pool.query.mockResolvedValueOnce({ rows: [part], rowCount: 1 });
 
     const res = await request(app)
@@ -46,8 +46,8 @@ describe('Parts API', () => {
     expect(res.status).toBe(200);
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
-      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4 WHERE id = $5 AND door_id IS NULL RETURNING *',
-      ['E0057', 1, 2, null, '1']
+      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4, requires = $5, quantity = $6 WHERE id = $7 AND door_id IS NULL RETURNING *',
+      ['E0057', 1, 2, null, null, 1, '1']
     );
   });
 

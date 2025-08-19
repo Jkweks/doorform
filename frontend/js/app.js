@@ -456,7 +456,8 @@ async function loadPartsCache() {
         ...p,
         number: p.part_type,
         usages: p.data?.uses || [],
-        requires: p.data?.requires || []
+        requires: p.requires || [],
+        quantity: p.quantity || 1
       }))
     : [];
   return partsCache;
