@@ -195,6 +195,8 @@ function openPartModal(part) {
   document.getElementById('partLzInput').value = part?.part_lz || '';
   document.getElementById('partLyInput').value = part?.part_ly || '';
   document.getElementById('partDescriptionInput').value = part?.data?.description || '';
+  document.getElementById('partQuantityInput').value = part?.quantity || 1;
+  document.getElementById('partRequiresInput').value = (part?.requires || []).join(',');
   const uses = part?.data?.uses || [];
   document.querySelectorAll('#partDoorUses input[type="checkbox"], #partFrameUses input[type="checkbox"]').forEach(cb => {
     cb.checked = uses.includes(cb.value);
@@ -230,13 +232,17 @@ document.getElementById('savePart').onclick = async () => {
   const partLz = lzVal ? parseFloat(lzVal) : null;
   const partLy = lyVal ? parseFloat(lyVal) : null;
   const description = document.getElementById('partDescriptionInput').value.trim();
+  const quantityVal = document.getElementById('partQuantityInput').value;
+  const quantity = quantityVal ? parseInt(quantityVal, 10) : 1;
+  const requiresVal = document.getElementById('partRequiresInput').value.trim();
+  const requires = requiresVal ? requiresVal.split(',').map(s => s.trim()).filter(Boolean) : null;
   const uses = Array.from(document.querySelectorAll('#partDoorUses input:checked, #partFrameUses input:checked')).map(cb => cb.value);
   let data = {};
   if (description) data.description = description;
   const uniqueUses = [...new Set(uses)];
   if (uniqueUses.length) data.uses = uniqueUses;
   if (Object.keys(data).length === 0) data = null;
-  const payload = { partType, partLz, partLy, data };
+  const payload = { partType, partLz, partLy, data, requires, quantity };
   const res = id
     ? await api(`/parts/${id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
     : await api('/parts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });

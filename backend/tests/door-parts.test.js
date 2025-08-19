@@ -17,6 +17,8 @@ describe('Door Parts API', () => {
       part_lz: 1.25,
       part_ly: 2.5,
       data: { foo: 'bar' },
+      requires: null,
+      quantity: 1,
     };
 
     pool.query.mockResolvedValueOnce({ rows: [part] });
@@ -28,8 +30,8 @@ describe('Door Parts API', () => {
     expect(res.status).toBe(200);
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
-      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      ['1', 'hinge', 1.25, 2.5, { foo: 'bar' }]
+      'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data, requires, quantity) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      ['1', 'hinge', 1.25, 2.5, { foo: 'bar' }, null, 1]
     );
   });
 
@@ -41,6 +43,8 @@ describe('Door Parts API', () => {
       part_lz: 2,
       part_ly: 3,
       data: { baz: 'qux' },
+      requires: null,
+      quantity: 1,
     };
 
     pool.query.mockResolvedValueOnce({ rows: [part], rowCount: 1 });
@@ -52,8 +56,8 @@ describe('Door Parts API', () => {
     expect(res.status).toBe(200);
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
-      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4 WHERE id = $5 RETURNING *',
-      ['hinge', 2, 3, { baz: 'qux' }, '1']
+      'UPDATE door_parts SET part_type = $1, part_lz = $2, part_ly = $3, data = $4, requires = $5, quantity = $6 WHERE id = $7 RETURNING *',
+      ['hinge', 2, 3, { baz: 'qux' }, null, 1, '1']
     );
   });
 
