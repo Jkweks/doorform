@@ -31,6 +31,7 @@ describe('Door Parts API', () => {
     expect(res.body.part).toEqual(part);
     expect(pool.query).toHaveBeenCalledWith(
       'INSERT INTO door_parts (door_id, part_type, part_lz, part_ly, data, requires, quantity) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+
       ['1', 'hinge', 1.25, 2.5, JSON.stringify({ foo: 'bar' }), JSON.stringify({ hinge: 3 }), 2]
     );
   });
