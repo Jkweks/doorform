@@ -5,20 +5,137 @@
   --vos-gray: #e6e6e6;
   --vos-dark: #1a1a1a;
   --vos-white: #ffffff;
+  --bg-light: #f1f5f9;
+  --bg-dark: #121212;
 }
 
 body {
   font-family: 'Roboto', Arial, sans-serif;
-  padding: 20px;
-  background-color: var(--vos-gray);
+  background-color: var(--bg-light);
   color: var(--vos-dark);
-  max-width: 1200px;
+  margin: 0;
   line-height: 1.5;
 }
 
 body.dark {
-  background-color: var(--vos-dark);
+  background-color: var(--bg-dark);
   color: var(--vos-gray);
+}
+
+/* Basic layout: sidebar, topbar, and content */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  background: var(--vos-white);
+  padding: 20px;
+}
+
+.sidebar .logo {
+  margin-bottom: 20px;
+  color: var(--vos-red);
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 15px;
+  color: var(--vos-dark);
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.sidebar a.active,
+.sidebar a:hover {
+  background: var(--vos-red);
+  color: var(--vos-white);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: var(--vos-white);
+  border-bottom: 1px solid var(--vos-gray);
+}
+
+.topbar .search {
+  padding: 8px 12px;
+  border: 1px solid var(--vos-gray);
+  border-radius: 4px;
+}
+
+.topbar .actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar .icon {
+  cursor: pointer;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  background: var(--bg-light);
+}
+
+body.dark .sidebar {
+  background: #1f1f1f;
+}
+
+body.dark .sidebar a {
+  color: var(--vos-gray);
+}
+
+body.dark .sidebar a.active,
+body.dark .sidebar a:hover {
+  background: var(--vos-red-dark);
+  color: var(--vos-white);
+}
+
+body.dark .topbar {
+  background: #333;
+  border-bottom-color: #444;
+}
+
+body.dark .topbar .search {
+  background: #333;
+  color: var(--vos-gray);
+  border-color: #555;
+}
+
+body.dark .content {
+  background: var(--bg-dark);
+}
+
+.topbar .dark-toggle {
+  position: static;
+  margin: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+body.dark .topbar .dark-toggle {
+  background: none;
+  border: none;
 }
 
 h1, h2, h3 {
