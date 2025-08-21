@@ -1,43 +1,63 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <meta name="theme-color" content="#3b82f6" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
-
+  <meta charset="utf-8">
   <title>Data Management</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#3b82f6" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/app.css" rel="stylesheet">
 </head>
 <body>
-  <div class="layout">
-    <nav class="sidebar">
-      <h2 class="logo">Job Manager</h2>
-      <ul>
-        <li><a href="index.html">Dashboard</a></li>
-        <li><a href="#" class="active">Data Management</a></li>
-      </ul>
-    </nav>
-    <div class="main">
-      <header class="topbar">
-        <input type="text" class="search" placeholder="Search" />
-        <div class="actions">
-          <span class="icon">✉</span>
-          <span class="icon">🔔</span>
-          <div class="dark-toggle">
-            <span>☀️</span>
-            <label class="switch">
-              <input type="checkbox" id="toggleDarkMode" />
-              <span class="slider"></span>
-            </label>
-            <span>🌙</span>
-          </div>
+  <div class="container-xxl position-relative bg-white d-flex p-0">
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Sidebar Start -->
+    <div class="sidebar pe-4 pb-3">
+      <nav class="navbar bg-light navbar-light">
+        <a href="index.html" class="navbar-brand mx-4 mb-3">
+          <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>Job Manager</h3>
+        </a>
+        <div class="navbar-nav w-100">
+          <a href="index.html" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+          <a href="data.html" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Data Management</a>
         </div>
-      </header>
-      <main class="content">
+      </nav>
+    </div>
+    <!-- Sidebar End -->
+
+    <!-- Content Start -->
+    <div class="content">
+      <!-- Navbar Start -->
+      <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+        <a href="#" class="sidebar-toggler flex-shrink-0">
+          <i class="fa fa-bars"></i>
+        </a>
+        <form class="d-none d-md-flex ms-4">
+          <input class="form-control border-0" type="search" placeholder="Search">
+        </form>
+        <div class="navbar-nav align-items-center ms-auto">
+          <a href="#" class="nav-link" id="toggleDarkMode">
+            <i class="fa fa-moon"></i>
+          </a>
+        </div>
+      </nav>
+      <!-- Navbar End -->
+
+      <!-- Main Content Start -->
+      <div class="container-fluid pt-4 px-4">
         <h1>Data Management</h1>
         <div id="dataTabs" class="tabs">
           <button data-tab="pmTab" class="active">Project Managers</button>
@@ -110,7 +130,8 @@
             </div>
           </div>
         </div>
-      </main>
+      </div>
+      <!-- Main Content End -->
 
       <div id="pmModal" class="modal-overlay">
         <div class="modal-body">
@@ -158,41 +179,10 @@
           <input id="manufacturerInput" type="text" />
           <label for="systemInput">System</label>
           <input id="systemInput" type="text" />
-          <label for="productNumberInput">Product Number</label>
-          <input id="productNumberInput" type="text" />
-          <label for="partLzInput">LZ</label>
-          <input id="partLzInput" type="number" step="any" />
-          <label for="partLyInput">LY</label>
-          <input id="partLyInput" type="number" step="any" />
-          <label for="partDescriptionInput">Description</label>
-          <textarea id="partDescriptionInput"></textarea>
-          <label for="partRequiresContainer">Requires</label>
-          <div id="partRequiresContainer"></div>
-          <fieldset id="partDoorUses">
-            <legend>Door Uses</legend>
-            <label><input type="checkbox" value="topRail" /> Top Rail</label>
-            <label><input type="checkbox" value="bottomRail" /> Bottom Rail</label>
-            <label><input type="checkbox" value="hingeRail" /> Hinge Rail</label>
-            <label><input type="checkbox" value="lockRail" /> Lock Rail</label>
-            <label><input type="checkbox" value="glassStop" /> Glass Stop</label>
-            <label><input type="checkbox" value="lug" /> Door Lug</label>
-            <label><input type="checkbox" value="midRail" /> Mid-Rail</label>
-            <label><input type="checkbox" value="reinforcement" /> Reinforcement</label>
-            <label><input type="checkbox" value="fasteners" /> Fasteners</label>
-          </fieldset>
-          <fieldset id="partFrameUses">
-            <legend>Frame Uses</legend>
-            <label><input type="checkbox" value="hingeJamb" /> Hinge Jamb</label>
-            <label><input type="checkbox" value="lockJamb" /> Lock Jamb</label>
-            <label><input type="checkbox" value="doorHead" /> Door Head</label>
-            <label><input type="checkbox" value="transomHead" /> Transom Head</label>
-            <label><input type="checkbox" value="threshold" /> Threshold</label>
-            <label><input type="checkbox" value="transomStop" /> Transom Stop</label>
-            <label><input type="checkbox" value="doorStop" /> Door Stop</label>
-            <label><input type="checkbox" value="reinforcement" /> Reinforcement</label>
-            <label><input type="checkbox" value="fasteners" /> Fasteners</label>
-            <label><input type="checkbox" value="shearClips" /> Shear Clips</label>
-          </fieldset>
+          <label for="nameInput">Part Name</label>
+          <input id="nameInput" type="text" />
+          <label for="partNumberInput">Part Number</label>
+          <input id="partNumberInput" type="text" />
           <div class="action-buttons">
             <button id="savePart">Save Part</button>
           </div>
@@ -206,8 +196,8 @@
         <div class="modal-body">
           <h3>Hardware Category</h3>
           <input id="hardwareCategoryId" type="hidden" />
-          <label for="hardwareCategoryName">Name</label>
-          <input id="hardwareCategoryName" type="text" />
+          <label for="hardwareCategoryNameInput">Name</label>
+          <input id="hardwareCategoryNameInput" type="text" />
           <div class="action-buttons">
             <button id="saveHardwareCategory">Save Category</button>
           </div>
@@ -221,12 +211,14 @@
         <div class="modal-body">
           <h3>Hardware Item</h3>
           <input id="hardwareItemId" type="hidden" />
-          <label for="hardwareItemCategory">Category</label>
-          <select id="hardwareItemCategory"></select>
+          <label for="hardwareItemCategorySelect">Category</label>
+          <select id="hardwareItemCategorySelect"></select>
           <label for="hardwareManufacturerInput">Manufacturer</label>
           <input id="hardwareManufacturerInput" type="text" />
-          <label for="hardwareModelInput">Model Number</label>
+          <label for="hardwareModelInput">Model</label>
           <input id="hardwareModelInput" type="text" />
+          <label for="hardwareFinishInput">Finish</label>
+          <input id="hardwareFinishInput" type="text" />
           <label for="hardwareFeaturesInput">Features (comma separated)</label>
           <input id="hardwareFeaturesInput" type="text" />
           <label for="hardwareVariablesInput">Variables (comma separated)</label>
@@ -240,8 +232,15 @@
         </div>
       </div>
     </div>
+    <!-- Content End -->
   </div>
 
+  <!-- Template Javascript -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- Application Scripts -->
   <script src="js/api.js"></script>
   <script src="js/data.js"></script>
   <script src="js/theme.js"></script>
