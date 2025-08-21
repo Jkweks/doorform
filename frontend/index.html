@@ -11,197 +11,213 @@
 
   <title>Job Manager (Frontend)</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <h1>Job Manager (Frontend)</h1>
-    <a href="data.html">Data Management</a>
-
-  <div id="mainTabs" class="tabs">
-    <button id="jobsTabBtn" class="active" data-tab="jobsTab">Jobs</button>
-    <button id="workOrdersTabBtn" data-tab="workOrdersTab">Work Orders</button>
-    <button id="entriesTabBtn" data-tab="entriesTab">Entries</button>
-  </div>
-
-  <div id="jobsTab" class="tab-content" style="display:block;">
-    <div class="row">
-      <div class="col panel">
-        <h2>Jobs</h2>
-        <label>Filter</label>
-        <input id="filterJobs" type="text" placeholder="type job number or name..." />
-        <label class="checkbox"><input id="viewArchived" type="checkbox" /> View Archived</label>
-        <select id="jobsSelect" size="10" class="job-select"></select>
-        <div class="action-buttons">
-          <button id="addJob">Add New Job</button>
-          <button id="editSelected">Edit Job</button>
-          <button id="deleteSelected">Delete Selected</button>
-          <button id="loadJobs">Refresh Job List</button>
+  <div class="layout">
+    <nav class="sidebar">
+      <h2 class="logo">Job Manager</h2>
+      <ul>
+        <li><a href="#" class="active">Dashboard</a></li>
+        <li><a href="data.html">Data Management</a></li>
+      </ul>
+    </nav>
+    <div class="main">
+      <header class="topbar">
+        <input type="text" class="search" placeholder="Search" />
+        <div class="actions">
+          <span class="icon">✉</span>
+          <span class="icon">🔔</span>
+          <div class="dark-toggle">
+            <span>☀️</span>
+            <label class="switch">
+              <input type="checkbox" id="toggleDarkMode" />
+              <span class="slider"></span>
+            </label>
+            <span>🌙</span>
+          </div>
         </div>
-        <div class="section">
-          <button id="exportJsonDownload">Download All Data (JSON)</button>
+      </header>
+      <main class="content">
+        <div id="mainTabs" class="tabs">
+          <button id="jobsTabBtn" class="active" data-tab="jobsTab">Jobs</button>
+          <button id="workOrdersTabBtn" data-tab="workOrdersTab">Work Orders</button>
+          <button id="entriesTabBtn" data-tab="entriesTab">Entries</button>
         </div>
-        <div class="muted note">
-          Note: CSV import is done server-side and stored in Postgres. PDF generation happens in your browser using jsPDF.
+
+        <div id="jobsTab" class="tab-content" style="display:block;">
+          <div class="row">
+            <div class="col panel">
+              <h2>Jobs</h2>
+              <label>Filter</label>
+              <input id="filterJobs" type="text" placeholder="type job number or name..." />
+              <label class="checkbox"><input id="viewArchived" type="checkbox" /> View Archived</label>
+              <select id="jobsSelect" size="10" class="job-select"></select>
+              <div class="action-buttons">
+                <button id="addJob">Add New Job</button>
+                <button id="editSelected">Edit Job</button>
+                <button id="deleteSelected">Delete Selected</button>
+                <button id="loadJobs">Refresh Job List</button>
+              </div>
+              <div class="section">
+                <button id="exportJsonDownload">Download All Data (JSON)</button>
+              </div>
+              <div class="muted note">
+                Note: CSV import is done server-side and stored in Postgres. PDF generation happens in your browser using jsPDF.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="workOrdersTab" class="tab-content">
+          <div class="row">
+            <div class="col panel">
+              <h2>Work Orders</h2>
+              <div class="action-buttons">
+                <input id="newWorkOrder" type="text" placeholder="Work Order #" />
+                <button id="addWorkOrder">Add Work Order</button>
+              </div>
+              <div id="workOrdersList" class="list"></div>
+              <div class="action-buttons">
+                <button id="exportPdfWorkOrder">Export PDF (Selected)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="entriesTab" class="tab-content">
+          <div class="row">
+            <div class="col panel">
+              <h2>Entries</h2>
+              <div class="action-buttons">
+                <button id="addEntry">Add Entry</button>
+              </div>
+              <div id="entriesList" class="list"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- modal for job info -->
+      <div id="jobModal" class="modal-overlay">
+        <div class="modal-body">
+          <h3>Job Info</h3>
+          <input id="jobId" type="hidden" />
+          <label>Job Number</label>
+          <input id="jobNumber" type="text" />
+          <label>Job Name</label>
+          <input id="jobName" type="text" />
+          <label>PM</label>
+          <select id="pm"></select>
+          <label class="checkbox"><input id="archived" type="checkbox" /> Archived</label>
+          <div class="action-buttons">
+            <button id="saveJob">Save Job</button>
+          </div>
+          <div class="modal-actions">
+            <button id="jobModalClose">Close</button>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div id="workOrdersTab" class="tab-content">
-    <div class="row">
-      <div class="col panel">
-        <h2>Work Orders</h2>
-        <div class="action-buttons">
-          <input id="newWorkOrder" type="text" placeholder="Work Order #" />
-          <button id="addWorkOrder">Add Work Order</button>
-        </div>
-        <div id="workOrdersList" class="list"></div>
-        <div class="action-buttons">
-          <button id="exportPdfWorkOrder">Export PDF (Selected)</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="entriesTab" class="tab-content">
-    <div class="row">
-      <div class="col panel">
-        <h2>Entries</h2>
-        <div class="action-buttons">
-          <button id="addEntry">Add Entry</button>
-        </div>
-        <div id="entriesList" class="list"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- modal for job info -->
-  <div id="jobModal" class="modal-overlay">
-    <div class="modal-body">
-      <h3>Job Info</h3>
-      <input id="jobId" type="hidden" />
-      <label>Job Number</label>
-      <input id="jobNumber" type="text" />
-      <label>Job Name</label>
-      <input id="jobName" type="text" />
-      <label>PM</label>
-      <select id="pm"></select>
-      <label class="checkbox"><input id="archived" type="checkbox" /> Archived</label>
-      <div class="action-buttons">
-        <button id="saveJob">Save Job</button>
-      </div>
-      <div class="modal-actions">
-        <button id="jobModalClose">Close</button>
-      </div>
-    </div>
-  </div>
-
-<!-- modal for adding an entry -->
-<div id="addEntryModal" class="modal-overlay">
-  <div class="modal-body">
-    <h3>Add Entry</h3>
-    <label for="entryTagInput">Entry Tag/ID</label>
-    <input id="entryTagInput" type="text" />
-    <label for="entryHandingInput">Handing</label>
-    <select id="entryHandingInput">
-      <option value="LHR">LHR</option>
-      <option value="RHR">RHR</option>
-      <option value="LHRA">LHRA</option>
-      <option value="RHRA">RHRA</option>
-    </select>
-    <label for="entryWidthInput">Door Opening Width</label>
-    <input id="entryWidthInput" type="text" value="3'0&quot;" />
-    <label for="entryHeightInput">Door Opening Height</label>
-    <input id="entryHeightInput" type="text" value="7'0&quot;" />
-    <div class="modal-actions">
-      <button id="addEntryModalSave">Save</button>
-      <button id="addEntryModalCancel">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- modal for selecting door or frame to edit -->
-<div id="partsModal" class="modal-overlay">
-  <div class="modal-body">
-    <h3>Edit Parts</h3>
-    <div id="partsContainer" class="action-buttons"></div>
-    <div class="modal-actions">
-      <button id="partsModalClose">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- small modal for custom KV entry -->
-<div id="modal" class="modal-overlay">
-  <div class="modal-body">
-    <h3 id="modalTitle">Add Item</h3>
-    <div id="modalTabs" class="tabs">
-      <button id="formulaTabBtn" class="active" data-tab="formula">Formula</button>
-      <button id="globalTabBtn" data-tab="global">Global Settings</button>
-      <button id="partsTabBtn" data-tab="parts">Parts</button>
-      <button id="hardwareTabBtn" data-tab="hardware">Hardware</button>
-    </div>
-    <div id="formulaTab" class="tab-content">
-      <div id="kvContainer"></div>
-      <button id="addKVbtn">Add field</button>
-    </div>
-    <div id="globalTab" class="tab-content">
-      <label for="topGapInput">Top Gap</label>
-      <input id="topGapInput" type="number" step="any" />
-      <label for="bottomGapInput">Bottom Gap</label>
-      <input id="bottomGapInput" type="number" step="any" />
-      <label for="hingeGapInput">Hinge Gap</label>
-      <input id="hingeGapInput" type="number" step="any" />
-      <label for="strikeGapInput">Strike Gap</label>
-      <input id="strikeGapInput" type="number" step="any" />
-    </div>
-      <div id="partsTab" class="tab-content">
-        <label for="doorPartPreset">Door Preset</label>
-        <select id="doorPartPreset"></select>
-        <label for="topRailSelect">Top Rail</label>
-        <select id="topRailSelect"></select>
-        <label for="bottomRailSelect">Bottom Rail</label>
-        <select id="bottomRailSelect"></select>
-        <label for="hingeRailSelect">Hinge Rail</label>
-        <select id="hingeRailSelect"></select>
-        <label for="lockRailSelect">Lock Rail</label>
-        <select id="lockRailSelect"></select>
-      </div>
-      <div id="hardwareTab" class="tab-content">
-        <label for="hingingSelect">Hinging</label>
-        <select id="hingingSelect">
-          <option value=""></option>
-          <option value="butt">Butt Hinges</option>
-          <option value="continuous">Continuous Hinges</option>
-        </select>
-        <div id="hingeDetails" style="display:none;">
-          <label for="hingeSizeSelect">Hinge Size</label>
-          <select id="hingeSizeSelect">
-            <option value="4.5x4.5">4.5x4.5</option>
-            <option value="HD 4.5x4.5">HD 4.5 x 4.5</option>
+      <!-- modal for adding an entry -->
+      <div id="addEntryModal" class="modal-overlay">
+        <div class="modal-body">
+          <h3>Add Entry</h3>
+          <label for="entryTagInput">Entry Tag/ID</label>
+          <input id="entryTagInput" type="text" />
+          <label for="entryHandingInput">Handing</label>
+          <select id="entryHandingInput">
+            <option value="LHR">LHR</option>
+            <option value="RHR">RHR</option>
+            <option value="LHRA">LHRA</option>
+            <option value="RHRA">RHRA</option>
           </select>
-          <label for="hingeQtySelect">Quantity</label>
-          <select id="hingeQtySelect">
-            <option value="2">2</option>
-            <option value="3" selected>3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
+          <label for="entryWidthInput">Door Opening Width</label>
+          <input id="entryWidthInput" type="text" value="3'0&quot;" />
+          <label for="entryHeightInput">Door Opening Height</label>
+          <input id="entryHeightInput" type="text" value="7'0&quot;" />
+          <div class="modal-actions">
+            <button id="addEntryModalSave">Save</button>
+            <button id="addEntryModalCancel">Cancel</button>
+          </div>
         </div>
       </div>
-    <div class="modal-actions">
-      <button id="modalSave">Save</button>
-      <button id="modalCancel">Cancel</button>
+
+      <!-- modal for selecting door or frame to edit -->
+      <div id="partsModal" class="modal-overlay">
+        <div class="modal-body">
+          <h3>Edit Parts</h3>
+          <div id="partsContainer" class="action-buttons"></div>
+          <div class="modal-actions">
+            <button id="partsModalClose">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- small modal for custom KV entry -->
+      <div id="modal" class="modal-overlay">
+        <div class="modal-body">
+          <h3 id="modalTitle">Add Item</h3>
+          <div id="modalTabs" class="tabs">
+            <button id="formulaTabBtn" class="active" data-tab="formula">Formula</button>
+            <button id="globalTabBtn" data-tab="global">Global Settings</button>
+            <button id="partsTabBtn" data-tab="parts">Parts</button>
+            <button id="hardwareTabBtn" data-tab="hardware">Hardware</button>
+          </div>
+          <div id="formulaTab" class="tab-content">
+            <div id="kvContainer"></div>
+            <button id="addKVbtn">Add field</button>
+          </div>
+          <div id="globalTab" class="tab-content">
+            <label for="topGapInput">Top Gap</label>
+            <input id="topGapInput" type="number" step="any" />
+            <label for="bottomGapInput">Bottom Gap</label>
+            <input id="bottomGapInput" type="number" step="any" />
+            <label for="hingeGapInput">Hinge Gap</label>
+            <input id="hingeGapInput" type="number" step="any" />
+            <label for="strikeGapInput">Strike Gap</label>
+            <input id="strikeGapInput" type="number" step="any" />
+          </div>
+          <div id="partsTab" class="tab-content">
+            <label for="doorPartPreset">Door Preset</label>
+            <select id="doorPartPreset"></select>
+            <label for="topRailSelect">Top Rail</label>
+            <select id="topRailSelect"></select>
+            <label for="bottomRailSelect">Bottom Rail</label>
+            <select id="bottomRailSelect"></select>
+            <label for="hingeRailSelect">Hinge Rail</label>
+            <select id="hingeRailSelect"></select>
+            <label for="lockRailSelect">Lock Rail</label>
+            <select id="lockRailSelect"></select>
+          </div>
+          <div id="hardwareTab" class="tab-content">
+            <label for="hingingSelect">Hinging</label>
+            <select id="hingingSelect">
+              <option value=""></option>
+              <option value="butt">Butt Hinges</option>
+              <option value="continuous">Continuous Hinges</option>
+            </select>
+            <div id="hingeDetails" style="display:none;">
+              <label for="hingeSizeSelect">Hinge Size</label>
+              <select id="hingeSizeSelect">
+                <option value="4.5x4.5">4.5x4.5</option>
+                <option value="HD 4.5x4.5">HD 4.5 x 4.5</option>
+              </select>
+              <label for="hingeQtySelect">Quantity</label>
+              <select id="hingeQtySelect">
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="modalSave">Save</button>
+            <button id="modalCancel">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-  <div class="dark-toggle">
-    <span>☀️</span>
-    <label class="switch">
-      <input type="checkbox" id="toggleDarkMode">
-      <span class="slider"></span>
-    </label>
-    <span>🌙</span>
   </div>
   <script src="js/doorPartPresets.js"></script>
   <script src="js/api.js"></script>
