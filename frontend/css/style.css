@@ -1,12 +1,11 @@
-/* Material themed styles using the VOS Glass brand palette */
 :root {
-  --vos-red: #d6232a;
-  --vos-red-dark: #a61b1f;
-  --vos-gray: #e6e6e6;
-  --vos-dark: #1a1a1a;
+  --vos-red: #3b82f6;
+  --vos-red-dark: #1e40af;
+  --vos-gray: #d1d5db;
+  --vos-dark: #1f2937;
   --vos-white: #ffffff;
-  --bg-light: #f1f5f9;
-  --bg-dark: #121212;
+  --bg-light: #f8fafc;
+  --bg-dark: #0f172a;
 }
 
 body {
@@ -32,6 +31,8 @@ body.dark {
   width: 220px;
   background: var(--vos-white);
   padding: 20px;
+  border-right: 1px solid var(--vos-gray);
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
 }
 
 .sidebar .logo {
@@ -71,6 +72,7 @@ body.dark {
   padding: 10px 20px;
   background: var(--vos-white);
   border-bottom: 1px solid var(--vos-gray);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .topbar .search {
@@ -96,7 +98,9 @@ body.dark {
 }
 
 body.dark .sidebar {
-  background: #1f1f1f;
+  background: #1e293b;
+  border-right-color: #374151;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.3);
 }
 
 body.dark .sidebar a {
@@ -110,14 +114,15 @@ body.dark .sidebar a:hover {
 }
 
 body.dark .topbar {
-  background: #333;
-  border-bottom-color: #444;
+  background: #1f2937;
+  border-bottom-color: #374151;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 body.dark .topbar .search {
-  background: #333;
+  background: #1f2937;
   color: var(--vos-gray);
-  border-color: #555;
+  border-color: #374151;
 }
 
 body.dark .content {
@@ -125,17 +130,7 @@ body.dark .content {
 }
 
 .topbar .dark-toggle {
-  position: static;
   margin: 0;
-  background: none;
-  border: none;
-  padding: 0;
-  border-radius: 0;
-}
-
-body.dark .topbar .dark-toggle {
-  background: none;
-  border: none;
 }
 
 h1, h2, h3 {
@@ -186,7 +181,7 @@ textarea:focus {
 }
 
 .panel {
-  border: 1px solid var(--vos-red);
+  border: 1px solid var(--vos-gray);
   background-color: var(--vos-white);
   border-radius: 8px;
   padding: 12px;
@@ -194,7 +189,7 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .panel label,
@@ -220,25 +215,7 @@ textarea:focus {
 }
 
 .usage-section legend {
-  font-weight: 600;
-  grid-column: 1 / -1;
-  margin-bottom: 4px;
-}
-
-button {
-  margin-top: 8px;
-  padding: 8px 12px;
-  background-color: var(--vos-red);
-  border: none;
-  color: var(--vos-white);
-  cursor: pointer;
-  border-radius: 4px;
-  font-weight: 500;
-  text-transform: uppercase;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px rgba(0, 0, 0, 0.12);
-  transition: background-color 0.2s, box-shadow 0.2s, color 0.2s;
-}
-
+@@ -125,64 +238,65 @@ button {
 button:hover,
 button:focus {
   background-color: var(--vos-red-dark);
@@ -264,20 +241,21 @@ body.dark button:disabled {
 }
 
 body.dark .panel {
-  background-color: #333;
+  background-color: #1f2937;
   color: var(--vos-gray);
+  border-color: #374151;
 }
 
 body.dark .list {
-  background-color: #333;
+  background-color: #1f2937;
 }
 
 body.dark input[type="text"],
 body.dark select,
 body.dark textarea {
-  background-color: #333;
+  background-color: #1f2937;
   color: var(--vos-gray);
-  border: 1px solid var(--vos-gray);
+  border: 1px solid #374151;
 }
 
 body.dark input[type="text"]:focus,
@@ -303,110 +281,7 @@ body.dark button:focus {
 }
 
 .col {
-  flex: 1;
-}
-
-.list {
-  margin-top: 8px;
-  border: 1px solid var(--vos-red);
-  background-color: var(--vos-white);
-  box-shadow: 0 1px 3px rgba(214, 35, 42, 0.15);
-  max-height: 260px;
-  overflow: auto;
-}
-
-.item {
-  border-bottom: 1px solid var(--vos-gray);
-  padding: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.item:last-child {
-  border-bottom: none;
-}
-
-.muted {
-  color: #666;
-  font-size: 13px;
-}
-
-.action-buttons {
-  margin-top: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-}
-
-.action-buttons button {
-  margin-top: 0;
-}
-
-.require-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.require-row select {
-  flex: 1;
-  width: auto;
-  margin-top: 0;
-}
-
-.require-row input {
-  width: 80px;
-  margin-top: 0;
-}
-
-.require-row button {
-  flex: 0 0 auto;
-  margin-top: 0;
-  width: auto;
-}
-
-.section {
-  margin-top: 12px;
-}
-
-.file-input {
-  display: inline-block;
-  margin-left: 8px;
-}
-
-.job-select {
-  width: 100%;
-  margin-top: 8px;
-}
-
-.note {
-  margin-top: 12px;
-}
-
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-body {
-  background: var(--vos-white);
-  padding: 16px;
-  border-radius: 6px;
-  width: 600px;
-  max-height: 80vh;
-  overflow: auto;
-}
-
-#modalTabs {
-  display: none;
-  gap: 8px;
+@@ -293,51 +407,51 @@ body.dark button:focus {
   margin-top: 8px;
 }
 
@@ -432,7 +307,7 @@ body.dark button:focus {
 }
 
 body.dark .modal-body {
-  background: #333;
+  background: #1f2937;
   color: var(--vos-gray);
 }
 
@@ -458,20 +333,7 @@ body.dark .modal-body {
   flex-direction: column;
   gap: 6px;
   margin-top: 8px;
-}
-
-.part-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.part-row select,
-.part-row input {
-  flex: 1;
-}
-
-.part-row button {
+@@ -358,76 +472,64 @@ body.dark .modal-body {
   margin-top: 0;
 }
 
@@ -497,7 +359,7 @@ body.dark .modal-body {
   color: var(--vos-white);
 }
 body.dark .tabs button {
-  background: #333;
+  background: #374151;
   color: var(--vos-gray);
 }
 body.dark .tabs button.active {
@@ -508,21 +370,9 @@ body.dark .tabs button.active {
 
 /* Dark mode toggle slider */
 .dark-toggle {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--vos-white);
-  border: 1px solid var(--vos-red);
-  padding: 4px 8px;
-  border-radius: 20px;
-  z-index: 1000;
-}
-body.dark .dark-toggle {
-  background: #333;
-  border-color: var(--vos-gray);
 }
 .switch {
   position: relative;
@@ -548,18 +398,3 @@ body.dark .dark-toggle {
 }
 .slider:before {
   position: absolute;
-  content: '';
-  height: 16px;
-  width: 16px;
-  left: 2px;
-  bottom: 2px;
-  background-color: var(--vos-white);
-  transition: 0.4s;
-  border-radius: 50%;
-}
-.switch input:checked + .slider {
-  background-color: var(--vos-red);
-}
-.switch input:checked + .slider:before {
-  transform: translateX(20px);
-}

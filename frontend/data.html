@@ -3,221 +3,245 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="theme-color" content="#3b82f6" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+
   <title>Data Management</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <h1>Data Management</h1>
-  <a href="index.html">Back to Job Manager</a>
+  <div class="layout">
+    <nav class="sidebar">
+      <h2 class="logo">Job Manager</h2>
+      <ul>
+        <li><a href="index.html">Dashboard</a></li>
+        <li><a href="#" class="active">Data Management</a></li>
+      </ul>
+    </nav>
+    <div class="main">
+      <header class="topbar">
+        <input type="text" class="search" placeholder="Search" />
+        <div class="actions">
+          <span class="icon">✉</span>
+          <span class="icon">🔔</span>
+          <div class="dark-toggle">
+            <span>☀️</span>
+            <label class="switch">
+              <input type="checkbox" id="toggleDarkMode" />
+              <span class="slider"></span>
+            </label>
+            <span>🌙</span>
+          </div>
+        </div>
+      </header>
+      <main class="content">
+        <h1>Data Management</h1>
+        <div id="dataTabs" class="tabs">
+          <button data-tab="pmTab" class="active">Project Managers</button>
+          <button data-tab="templatesTab">Door Part Templates</button>
+          <button data-tab="partsTab">Parts</button>
+          <button data-tab="frameTab">Frame Parts</button>
+          <button data-tab="hardwareTab">Hardware</button>
+        </div>
 
-  <div id="dataTabs" class="tabs">
-    <button data-tab="pmTab" class="active">Project Managers</button>
-    <button data-tab="templatesTab">Door Part Templates</button>
-    <button data-tab="partsTab">Parts</button>
-    <button data-tab="frameTab">Frame Parts</button>
-    <button data-tab="hardwareTab">Hardware</button>
-  </div>
+        <div id="pmTab" class="tab-content active">
+          <div class="panel">
+            <h2>Project Managers</h2>
+            <select id="pmSelect" size="10" class="job-select"></select>
+            <div class="action-buttons">
+              <button id="editPm">Edit Selected</button>
+              <button id="deletePm">Delete Selected</button>
+              <button id="addPm">Add Project Manager</button>
+            </div>
+          </div>
+        </div>
 
-  <div id="pmTab" class="tab-content active">
-    <div class="panel">
-      <h2>Project Managers</h2>
-      <select id="pmSelect" size="10" class="job-select"></select>
-      <div class="action-buttons">
-        <button id="editPm">Edit Selected</button>
-        <button id="deletePm">Delete Selected</button>
-        <button id="addPm">Add Project Manager</button>
+        <div id="templatesTab" class="tab-content">
+          <div class="panel">
+            <h2>Door Part Templates</h2>
+            <select id="templateSelect" size="10" class="job-select"></select>
+            <div class="action-buttons">
+              <button id="editTemplate">Edit Selected</button>
+              <button id="deleteTemplate">Delete Selected</button>
+              <button id="addTemplate">Add Template</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="partsTab" class="tab-content">
+          <div class="panel">
+            <h2>Parts</h2>
+            <select id="partsSelect" size="10" class="job-select"></select>
+            <div class="action-buttons">
+              <button id="editPart">Edit Selected</button>
+              <button id="deletePart">Delete Selected</button>
+              <button id="addPart">Add Part</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="frameTab" class="tab-content">
+          <div class="panel">
+            <h2>Frame Parts</h2>
+            <p class="muted">Coming soon...</p>
+          </div>
+        </div>
+
+        <div id="hardwareTab" class="tab-content">
+          <div class="panel">
+            <h2>Hardware Categories</h2>
+            <select id="hardwareCategorySelect" size="5" class="job-select"></select>
+            <div class="action-buttons">
+              <button id="editHardwareCategory">Edit Selected</button>
+              <button id="deleteHardwareCategory">Delete Selected</button>
+              <button id="addHardwareCategory">Add Category</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Hardware Items</h2>
+            <select id="hardwareItemSelect" size="10" class="job-select"></select>
+            <div class="action-buttons">
+              <button id="editHardwareItem">Edit Selected</button>
+              <button id="deleteHardwareItem">Delete Selected</button>
+              <button id="addHardwareItem">Add Hardware</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <div id="pmModal" class="modal-overlay">
+        <div class="modal-body">
+          <h3>Project Manager</h3>
+          <input id="pmId" type="hidden" />
+          <label for="pmNameInput">Name</label>
+          <input id="pmNameInput" type="text" />
+          <div class="action-buttons">
+            <button id="savePm">Save Project Manager</button>
+          </div>
+          <div class="modal-actions">
+            <button id="closePmModal">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="templateModal" class="modal-overlay">
+        <div class="modal-body">
+          <h3>Door Part Template</h3>
+          <input id="templateId" type="hidden" />
+          <label for="templateNameInput">Template Name</label>
+          <input id="templateNameInput" type="text" />
+          <label for="templateTopRail">Top Rail</label>
+          <select id="templateTopRail"></select>
+          <label for="templateBottomRail">Bottom Rail</label>
+          <select id="templateBottomRail"></select>
+          <label for="templateHingeRail">Hinge Rail</label>
+          <select id="templateHingeRail"></select>
+          <label for="templateLockRail">Lock Rail</label>
+          <select id="templateLockRail"></select>
+          <div class="action-buttons">
+            <button id="saveTemplate">Save Template</button>
+          </div>
+          <div class="modal-actions">
+            <button id="closeTemplateModal">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="partModal" class="modal-overlay">
+        <div class="modal-body">
+          <h3>Part</h3>
+          <input id="partId" type="hidden" />
+          <label for="manufacturerInput">Manufacturer</label>
+          <input id="manufacturerInput" type="text" />
+          <label for="systemInput">System</label>
+          <input id="systemInput" type="text" />
+          <label for="productNumberInput">Product Number</label>
+          <input id="productNumberInput" type="text" />
+          <label for="partLzInput">LZ</label>
+          <input id="partLzInput" type="number" step="any" />
+          <label for="partLyInput">LY</label>
+          <input id="partLyInput" type="number" step="any" />
+          <label for="partDescriptionInput">Description</label>
+          <textarea id="partDescriptionInput"></textarea>
+          <label for="partRequiresContainer">Requires</label>
+          <div id="partRequiresContainer"></div>
+          <fieldset id="partDoorUses">
+            <legend>Door Uses</legend>
+            <label><input type="checkbox" value="topRail" /> Top Rail</label>
+            <label><input type="checkbox" value="bottomRail" /> Bottom Rail</label>
+            <label><input type="checkbox" value="hingeRail" /> Hinge Rail</label>
+            <label><input type="checkbox" value="lockRail" /> Lock Rail</label>
+            <label><input type="checkbox" value="glassStop" /> Glass Stop</label>
+            <label><input type="checkbox" value="lug" /> Door Lug</label>
+            <label><input type="checkbox" value="midRail" /> Mid-Rail</label>
+            <label><input type="checkbox" value="reinforcement" /> Reinforcement</label>
+            <label><input type="checkbox" value="fasteners" /> Fasteners</label>
+          </fieldset>
+          <fieldset id="partFrameUses">
+            <legend>Frame Uses</legend>
+            <label><input type="checkbox" value="hingeJamb" /> Hinge Jamb</label>
+            <label><input type="checkbox" value="lockJamb" /> Lock Jamb</label>
+            <label><input type="checkbox" value="doorHead" /> Door Head</label>
+            <label><input type="checkbox" value="transomHead" /> Transom Head</label>
+            <label><input type="checkbox" value="threshold" /> Threshold</label>
+            <label><input type="checkbox" value="transomStop" /> Transom Stop</label>
+            <label><input type="checkbox" value="doorStop" /> Door Stop</label>
+            <label><input type="checkbox" value="reinforcement" /> Reinforcement</label>
+            <label><input type="checkbox" value="fasteners" /> Fasteners</label>
+            <label><input type="checkbox" value="shearClips" /> Shear Clips</label>
+          </fieldset>
+          <div class="action-buttons">
+            <button id="savePart">Save Part</button>
+          </div>
+          <div class="modal-actions">
+            <button id="closePartModal">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="hardwareCategoryModal" class="modal-overlay">
+        <div class="modal-body">
+          <h3>Hardware Category</h3>
+          <input id="hardwareCategoryId" type="hidden" />
+          <label for="hardwareCategoryName">Name</label>
+          <input id="hardwareCategoryName" type="text" />
+          <div class="action-buttons">
+            <button id="saveHardwareCategory">Save Category</button>
+          </div>
+          <div class="modal-actions">
+            <button id="closeHardwareCategoryModal">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="hardwareItemModal" class="modal-overlay">
+        <div class="modal-body">
+          <h3>Hardware Item</h3>
+          <input id="hardwareItemId" type="hidden" />
+          <label for="hardwareItemCategory">Category</label>
+          <select id="hardwareItemCategory"></select>
+          <label for="hardwareManufacturerInput">Manufacturer</label>
+          <input id="hardwareManufacturerInput" type="text" />
+          <label for="hardwareModelInput">Model Number</label>
+          <input id="hardwareModelInput" type="text" />
+          <label for="hardwareFeaturesInput">Features (comma separated)</label>
+          <input id="hardwareFeaturesInput" type="text" />
+          <label for="hardwareVariablesInput">Variables (comma separated)</label>
+          <input id="hardwareVariablesInput" type="text" />
+          <div class="action-buttons">
+            <button id="saveHardwareItem">Save Hardware</button>
+          </div>
+          <div class="modal-actions">
+            <button id="closeHardwareItemModal">Close</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div id="templatesTab" class="tab-content">
-    <div class="panel">
-      <h2>Door Part Templates</h2>
-      <select id="templateSelect" size="10" class="job-select"></select>
-      <div class="action-buttons">
-        <button id="editTemplate">Edit Selected</button>
-        <button id="deleteTemplate">Delete Selected</button>
-        <button id="addTemplate">Add Template</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="partsTab" class="tab-content">
-    <div class="panel">
-      <h2>Parts</h2>
-      <select id="partsSelect" size="10" class="job-select"></select>
-      <div class="action-buttons">
-        <button id="editPart">Edit Selected</button>
-        <button id="deletePart">Delete Selected</button>
-        <button id="addPart">Add Part</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="pmModal" class="modal-overlay">
-    <div class="modal-body">
-      <h3>Project Manager</h3>
-      <input id="pmId" type="hidden" />
-      <label for="pmNameInput">Name</label>
-      <input id="pmNameInput" type="text" />
-      <div class="action-buttons">
-        <button id="savePm">Save Project Manager</button>
-      </div>
-      <div class="modal-actions">
-        <button id="closePmModal">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="templateModal" class="modal-overlay">
-    <div class="modal-body">
-      <h3>Door Part Template</h3>
-      <input id="templateId" type="hidden" />
-      <label for="templateNameInput">Template Name</label>
-      <input id="templateNameInput" type="text" />
-      <label for="templateTopRail">Top Rail</label>
-      <select id="templateTopRail"></select>
-      <label for="templateBottomRail">Bottom Rail</label>
-      <select id="templateBottomRail"></select>
-      <label for="templateHingeRail">Hinge Rail</label>
-      <select id="templateHingeRail"></select>
-      <label for="templateLockRail">Lock Rail</label>
-      <select id="templateLockRail"></select>
-      <div class="action-buttons">
-        <button id="saveTemplate">Save Template</button>
-      </div>
-      <div class="modal-actions">
-        <button id="closeTemplateModal">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="partModal" class="modal-overlay">
-    <div class="modal-body">
-      <h3>Part</h3>
-      <input id="partId" type="hidden" />
-      <label for="manufacturerInput">Manufacturer</label>
-      <input id="manufacturerInput" type="text" />
-      <label for="systemInput">System</label>
-      <input id="systemInput" type="text" />
-      <label for="productNumberInput">Product Number</label>
-      <input id="productNumberInput" type="text" />
-      <label for="partLzInput">LZ</label>
-      <input id="partLzInput" type="number" step="any" />
-      <label for="partLyInput">LY</label>
-      <input id="partLyInput" type="number" step="any" />
-      <label for="partDescriptionInput">Description</label>
-      <textarea id="partDescriptionInput"></textarea>
-      <label for="partRequiresContainer">Requires</label>
-      <div id="partRequiresContainer"></div>
-      <fieldset id="partDoorUses">
-        <legend>Door Uses</legend>
-        <label><input type="checkbox" value="topRail" /> Top Rail</label>
-        <label><input type="checkbox" value="bottomRail" /> Bottom Rail</label>
-        <label><input type="checkbox" value="hingeRail" /> Hinge Rail</label>
-        <label><input type="checkbox" value="lockRail" /> Lock Rail</label>
-        <label><input type="checkbox" value="glassStop" /> Glass Stop</label>
-        <label><input type="checkbox" value="lug" /> Door Lug</label>
-        <label><input type="checkbox" value="midRail" /> Mid-Rail</label>
-        <label><input type="checkbox" value="reinforcement" /> Reinforcement</label>
-        <label><input type="checkbox" value="fasteners" /> Fasteners</label>
-      </fieldset>
-      <fieldset id="partFrameUses">
-        <legend>Frame Uses</legend>
-        <label><input type="checkbox" value="hingeJamb" /> Hinge Jamb</label>
-        <label><input type="checkbox" value="lockJamb" /> Lock Jamb</label>
-        <label><input type="checkbox" value="doorHead" /> Door Head</label>
-        <label><input type="checkbox" value="transomHead" /> Transom Head</label>
-        <label><input type="checkbox" value="threshold" /> Threshold</label>
-        <label><input type="checkbox" value="transomStop" /> Transom Stop</label>
-        <label><input type="checkbox" value="doorStop" /> Door Stop</label>
-        <label><input type="checkbox" value="reinforcement" /> Reinforcement</label>
-        <label><input type="checkbox" value="fasteners" /> Fasteners</label>
-        <label><input type="checkbox" value="shearClips" /> Shear Clips</label>
-      </fieldset>
-      <div class="action-buttons">
-        <button id="savePart">Save Part</button>
-      </div>
-      <div class="modal-actions">
-        <button id="closePartModal">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="hardwareCategoryModal" class="modal-overlay">
-    <div class="modal-body">
-      <h3>Hardware Category</h3>
-      <input id="hardwareCategoryId" type="hidden" />
-      <label for="hardwareCategoryName">Name</label>
-      <input id="hardwareCategoryName" type="text" />
-      <div class="action-buttons">
-        <button id="saveHardwareCategory">Save Category</button>
-      </div>
-      <div class="modal-actions">
-        <button id="closeHardwareCategoryModal">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="hardwareItemModal" class="modal-overlay">
-    <div class="modal-body">
-      <h3>Hardware Item</h3>
-      <input id="hardwareItemId" type="hidden" />
-      <label for="hardwareItemCategory">Category</label>
-      <select id="hardwareItemCategory"></select>
-      <label for="hardwareManufacturerInput">Manufacturer</label>
-      <input id="hardwareManufacturerInput" type="text" />
-      <label for="hardwareModelInput">Model Number</label>
-      <input id="hardwareModelInput" type="text" />
-      <label for="hardwareFeaturesInput">Features (comma separated)</label>
-      <input id="hardwareFeaturesInput" type="text" />
-      <label for="hardwareVariablesInput">Variables (comma separated)</label>
-      <input id="hardwareVariablesInput" type="text" />
-      <div class="action-buttons">
-        <button id="saveHardwareItem">Save Hardware</button>
-      </div>
-      <div class="modal-actions">
-        <button id="closeHardwareItemModal">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="frameTab" class="tab-content">
-    <div class="panel">
-      <h2>Frame Parts</h2>
-      <p class="muted">Coming soon...</p>
-    </div>
-  </div>
-
-  <div id="hardwareTab" class="tab-content">
-    <div class="panel">
-      <h2>Hardware Categories</h2>
-      <select id="hardwareCategorySelect" size="5" class="job-select"></select>
-      <div class="action-buttons">
-        <button id="editHardwareCategory">Edit Selected</button>
-        <button id="deleteHardwareCategory">Delete Selected</button>
-        <button id="addHardwareCategory">Add Category</button>
-      </div>
-    </div>
-    <div class="panel">
-      <h2>Hardware Items</h2>
-      <select id="hardwareItemSelect" size="10" class="job-select"></select>
-      <div class="action-buttons">
-        <button id="editHardwareItem">Edit Selected</button>
-        <button id="deleteHardwareItem">Delete Selected</button>
-        <button id="addHardwareItem">Add Hardware</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="dark-toggle">
-    <span>☀️</span>
-    <label class="switch">
-      <input type="checkbox" id="toggleDarkMode" />
-      <span class="slider"></span>
-    </label>
-    <span>🌙</span>
-  </div>
   <script src="js/api.js"></script>
   <script src="js/data.js"></script>
   <script src="js/theme.js"></script>
