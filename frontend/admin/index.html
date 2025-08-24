@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Kanban Board</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jkanban/1.3.1/jkanban.min.css" integrity="sha512-GIZTD9ZhDJW60F7uO3cu6UytzszbmWzxubUANe0yoylZMhUlCT3VkOITkkpFmSPrbr30YIOCwRvDDDeZPA7eBQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #kanban-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kanban Board</h1>
+  <div id="kanban-container"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jkanban/1.3.1/jkanban.min.js" integrity="sha512-4EGGmmIOzBSSMSmc5QwDFi1Cdm42Hcps225y7sY9qsK0kGugHgdGXN53BJ38qRAjPR9U1FVLtZL1NVr7DiIPNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    new jKanban({
+      element: '#kanban-container',
+      boards: [
+        {
+          id: '_todo',
+          title: 'To Do',
+          item: [
+            {
+              id: '_task1',
+              title: 'Sample Task'
+            }
+          ]
+        },
+        {
+          id: '_progress',
+          title: 'In Progress',
+          item: []
+        },
+        {
+          id: '_done',
+          title: 'Done',
+          item: []
+        }
+      ]
+    });
+  </script>
+</body>
+</html>
