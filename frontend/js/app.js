@@ -211,13 +211,7 @@ function renderWorkOrders(workOrders = []) {
     };
     right.appendChild(openBtn);
     const editBtn = document.createElement('button'); editBtn.textContent = 'Edit';
-    editBtn.onclick = async () => {
-      const newWO = prompt('Edit work order', wo.work_order);
-      if (!newWO) return;
-      const r = await api(`/work-orders/${wo.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ workOrder: newWO }) });
-      if (!r.ok) return alert('Failed to update work order');
-      await loadJob(document.getElementById('jobId').value);
-    };
+    editBtn.onclick = () => openWorkOrderModal(wo);
     right.appendChild(editBtn);
     const delBtn = document.createElement('button'); delBtn.textContent = 'Delete';
     delBtn.onclick = async () => {
@@ -270,13 +264,42 @@ function renderEntries(entries = []) {
   });
 }
 
-document.getElementById('addWorkOrder').addEventListener('click', async () => {
+// Modal for adding or editing a work order
+const workOrderModal = document.getElementById('workOrderModal');
+const workOrderNumberInput = document.getElementById('workOrderNumberInput');
+let editingWorkOrder = null;
+
+function openWorkOrderModal(wo = null) {
+  editingWorkOrder = wo;
+  workOrderModal.querySelector('h3').textContent = wo ? 'Edit Work Order' : 'Add Work Order';
+  workOrderNumberInput.value = wo ? wo.work_order : '';
+  workOrderModal.style.display = 'flex';
+}
+
+document.getElementById('addWorkOrder').addEventListener('click', () => {
+  if (!document.getElementById('jobId').value) return alert('Save job first');
+  openWorkOrderModal();
+});
+
+document.getElementById('workOrderModalCancel').addEventListener('click', () => {
+  workOrderModal.style.display = 'none';
+  editingWorkOrder = null;
+});
+
+document.getElementById('workOrderModalSave').addEventListener('click', async () => {
   const jobId = document.getElementById('jobId').value;
-  const wo = document.getElementById('newWorkOrder').value.trim();
+  const wo = workOrderNumberInput.value.trim();
   if (!jobId || !wo) return alert('Job and work order required');
-  const r = await api(`/jobs/${jobId}/work-orders`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ workOrder: wo }) });
-  if (!r.ok) return alert('Failed to add work order');
-  document.getElementById('newWorkOrder').value = '';
+  let r;
+  if (editingWorkOrder) {
+    r = await api(`/work-orders/${editingWorkOrder.id}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ workOrder: wo }) });
+  } else {
+    r = await api(`/jobs/${jobId}/work-orders`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ workOrder: wo }) });
+  }
+  if (!r.ok) return alert('Failed to save work order');
+  workOrderModal.style.display = 'none';
+  workOrderNumberInput.value = '';
+  editingWorkOrder = null;
   await loadJob(jobId);
 });
 

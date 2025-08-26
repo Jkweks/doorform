@@ -96,7 +96,6 @@
             <div class="col panel">
               <h2>Work Orders</h2>
               <div class="action-buttons">
-                <input id="newWorkOrder" type="text" placeholder="Work Order #" />
                 <button id="addWorkOrder">Add Work Order</button>
               </div>
               <div id="workOrdersList" class="list"></div>
@@ -138,6 +137,19 @@
           </div>
           <div class="modal-actions">
             <button id="jobModalClose">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- modal for adding or editing a work order -->
+      <div id="workOrderModal" class="modal-overlay">
+        <div class="modal-body">
+          <h3>Work Order</h3>
+          <label for="workOrderNumberInput">Work Order #</label>
+          <input id="workOrderNumberInput" type="text" />
+          <div class="modal-actions">
+            <button id="workOrderModalSave">Save</button>
+            <button id="workOrderModalCancel">Cancel</button>
           </div>
         </div>
       </div>
